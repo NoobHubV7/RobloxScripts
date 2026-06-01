@@ -1,2 +1,0 @@
-local xgh = getgenv()
-xgh["loadstring"](xgh["game"]["HttpGet"](xgh["game"], "https://raw.githubusercontent.com/NoobHubV7/RobloxScripts/refs/heads/main/MonkeyBombTag"))()
