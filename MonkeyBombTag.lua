@@ -32,11 +32,11 @@ if not all["Stop"] then
 all["Stop"] = true
 all["SavedPos"] = all["SafeS"](all, "Players")["LocalPlayer"]["Character"]["HumanoidRootPart"]["CFrame"]
 all["Cooldown2"] = all["string"]["os"]["clock"]()
-repeat all["string"]["task"]["wait"]()
+repeat all["RS"]["Wait"](all["RS"])
 all["TP"](all, player["FindFirstChild"](player, "Hitbox")["CFrame"])
 until all["SafeS"](all, "Workspace")["GetAttribute"](all["SafeS"](all, "Workspace"), "HoldingBomb") ~= all["SafeS"](all, "Players")["LocalPlayer"]["Name"] or (all["string"]["os"]["clock"]() - all["Cooldown2"]) >= 3
 all["Stop"] = false
-for i = 1, 5 do task.wait()
+for i = 1, 6 do all["string"]["task"]["wait"]()
 all["TP"](all, all["SavedPos"])
 end
 end
@@ -46,11 +46,11 @@ if not all["Stop"] then
 all["Stop"] = true
 all["SavedPos"] = all["SafeS"](all, "Players")["LocalPlayer"]["Character"]["HumanoidRootPart"]["CFrame"]
 all["Cooldown"] = all["string"]["os"]["clock"]()
-repeat all["string"]["task"]["wait"]()
+repeat all["RS"]["Wait"](all["RS"])
 all["TP"](all, player["FindFirstChild"](player, "Hitbox")["CFrame"])
 until all["SafeS"](all, "Workspace")["GetAttribute"](all["SafeS"](all, "Workspace"), "HoldingBomb") == all["SafeS"](all, "Players")["LocalPlayer"]["Name"] or (all["string"]["os"]["clock"]() - all["Cooldown"]) >= 3
 all["Stop"] = false
-for i = 1, 5 do task.wait()
+for i = 1, 6 do all["string"]["task"]["wait"]()
 all["TP"](all, all["SavedPos"])
 end
 end
