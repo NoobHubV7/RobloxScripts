@@ -18,8 +18,7 @@ local def, zList = Vector3.new, {-268, -250, -232, -214, -196, -178, -142, -124,
 local target, TargetAcid = nil, {}
 local weaponTable, RNG = {}, Random.new()
 local SpreadAcid, find = {}, {
-       Weapons = "Hitbox" or "Handle" or "Damage",
-       Sniper = "M24" or "Bolt"
+       Weapons = "Hitbox" or "Handle" or "Damage"
 }
 local TeleportService : TeleportService = cloneref(game:GetService("TeleportService"))
 local networkCli : NetworkClient = cloneref(game:GetService("NetworkClient"))
@@ -35,7 +34,8 @@ local startTime = {
        Nine = 1,
        Ten = 1,
 	   Eleven = 1,
-	   Twelve = 1
+	   Twelve = 1,
+	   Thirteen = 1
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -57,18 +57,20 @@ end
 table.freeze(find)
 
 function Kill(model, isDestroy)
-    if not (find.Sniper(true) or find.Sniper(false)) then
-        game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+    if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
+        if (tick() - startTime.Thirteen) >= 0.5 then
+		    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+		end
     end
-    if find.Sniper(false) then
+    if game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") then
         repeat
             if (os.clock() - startTime.Eight) >= 0.01 then
                 startTime.Eight = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper"))
             end
         until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
     end
-    if find.Sniper(true) then game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer("GUN_DAMAGE", model) end
-	if find.Sniper(true) and isDestroy then find.Sniper(true):Destroy() end
+    if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer("GUN_DAMAGE", model) end
+	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 end
 function KillZombies()
     if (tick() - startTime.Nine) < 0.5 then return nil end
@@ -117,7 +119,7 @@ function Become(team)
 end
 function GetPlayer(Player)
     local function findPlayer(stringg)
-	    if (stringg == ("me")) or not stringg then
+	    if (stringg == ("me")) or not stringg or (stringg == ("")) then
 		    return game.Players.LocalPlayer
 		else
 		    for _,player in pairs(game.Players:GetPlayers()) do
