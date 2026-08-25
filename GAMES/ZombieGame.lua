@@ -7,6 +7,7 @@ local Section3 = Window:AddFolder("Summon")
 local Section4 = Window2:AddFolder("Team")
 local Section5 = Window2:AddFolder("Weapon")
 local Section6 = Window2:AddFolder("Lag Server")
+local Section7 = Window:AddFolder("Items")
 local killAura, abc = {
        Plr = {},
        Me = false
@@ -188,6 +189,61 @@ function Heal()
     end
 end
 
+function Click(name)
+	local part = workspace.Interaction.ToolGivers[name]
+	if part:FindFirstChildOfClass("ClickDetector") then
+	    fireclickdetector(part.ClickDetector)
+	end
+end
+
+function AddAttack()
+	if game.Players.LocalPlayer:FindFirstChild("Attack", true) and game.Players.LocalPlayer.Character:FindFirstChild("Attack", true) then return nil end
+    if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
+        tool = game:GetService("ReplicatedStorage").Attack:Clone()
+        tool.Parent = game.Players.LocalPlayer.Backpack
+    end
+    Removing(game.Players.LocalPlayer.Character)
+    connecting = game.Players.LocalPlayer.CharacterAdded:Connect(function(new)
+        if new:GetAttribute("Team") == "Human" then
+            if tool then
+                tool:Destroy(); tool = nil
+            end
+            tool = game:GetService("ReplicatedStorage").Attack:Clone()
+            tool.Parent = game.Players.LocalPlayer.Backpack
+            Removing(game.Players.LocalPlayer.Character)
+        end
+    end)
+end
+
+function RemoveAttack()
+	game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
+    if tool then tool:Destroy(); tool = nil end
+    if connecting then connecting:Disconnect(); connecting = nil end
+    if connecting2 then connecting2:Disconnect(); connecting2 = nil end
+end
+
+function Infect(part)
+	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+	if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
+		if (tick() - startTime.Eleven) >= 0.5 then
+            startTime.Eleven = tick(); AddAttack()
+		end
+    end
+    if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
+        if (os.clock() - startTime.Ten) >= 0.5 then
+            startTime.Ten = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
+        end
+	end
+    if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
+		repeat
+			if (os.clock() - startTime.Fourteen) >= 0.01 then
+			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(part.Position + Vector3.new(0, -5, 0)); game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(part)
+			end
+		until part.Parent:GetAttribute("Team") == "Zombie" or part.Parent.Humanoid.Health <= 0 or part.Parent:FindFirstChildOfClass("ForceField")
+	end
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
+end
+
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
        target = text
 end, type = "TextBox", flag = "TextBox"})
@@ -209,29 +265,7 @@ Section:AddToggle({text = "Kill Aura", flag = "toggle", callback = function(stat
        end
 end})
 Section:AddToggle({text = "Infect Aura", flag = "toggle", callback = function(state)
-       abc = state
-       if abc == true then
-              if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-                     tool = game:GetService("ReplicatedStorage").Attack:Clone()
-                     tool.Parent = game.Players.LocalPlayer.Backpack
-              end
-              Removing(game.Players.LocalPlayer.Character)
-              connecting = game.Players.LocalPlayer.CharacterAdded:Connect(function(new)
-                     if new:GetAttribute("Team") == "Human" then
-                            if tool then
-                                tool:Destroy(); tool = nil
-                            end
-                            tool = game:GetService("ReplicatedStorage").Attack:Clone()
-                            tool.Parent = game.Players.LocalPlayer.Backpack
-                            Removing(game.Players.LocalPlayer.Character)
-                     end
-              end)
-       elseif not abc == true then
-              game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
-              if tool then tool:Destroy(); tool = nil end
-              if connecting then connecting:Disconnect(); connecting = nil end
-              if connecting2 then connecting2:Disconnect(); connecting2 = nil end
-       end
+       ((state and AddAttack()) or RemoveAttack())
        InfectAura = state
 end})
 Section:AddToggle({text = "Target Acid", flag = "toggle", callback = function(state)
@@ -284,6 +318,27 @@ Section6:AddButton({text = "Landmine", flag = "button", callback = function()
     lagServer(game.ReplicatedStorage.NetworkEvents.RemoteEvent, "PLACE_LANDMINE")
     task.wait()
     rejoin()
+end})
+Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = function() Click("Antidote") end})
+Section7:AddButton({text = "Give Rainbow Potion", flag = "button", callback = function() Click("Rainbow Potion") end})
+Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = function()
+	if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
+        if not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign3", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign3", true) then
+            fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign.ClickDetector)
+            fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign2.ClickDetector)
+            fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign3.ClickDetector)
+            fireclickdetector(workspace.Interaction.ZombieSign.ClickDetector)
+            fireclickdetector(workspace.Interaction:GetChildren()[15].ClickDetector or workspace.Interaction:GetChildren()[16].ClickDetector)
+		end
+    else
+        if not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign3", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("ZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("ZombieSign") and not game.Players.LocalPlayer:FindFirstChild("ZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("ZombieSign2", true) then
+            fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign.ClickDetector)
+            fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign2.ClickDetector)
+            fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign3.ClickDetector)
+            fireclickdetector(workspace.Interaction.ZombieSign.ClickDetector)
+            fireclickdetector(workspace.Interaction:GetChildren()[15].ClickDetector or workspace.Interaction:GetChildren()[16].ClickDetector)
+		end
+	end
 end})
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
@@ -371,19 +426,9 @@ task.spawn(function()
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
                                     if b:GetAttribute("Team") == "Human" then
-                                        if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-											if (tick() - startTime.Eleven) >= 0.5 then
-                                                startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-											end
-                                        end
-                                        if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-                                            if (os.clock() - startTime.Ten) >= 0.5 then
-                                                startTime.Ten = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-                                            end
-										end
-                                        if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(torso) end
+                                        Infect(torso)
                                     elseif b:GetAttribute("Team") == "Zombie" then
-										if (os.clock() - startTime.Twelve) >= 0.2 then
+										if (os.clock() - startTime.Twelve) >= 0.25 then
 										    startTime.Twelve = os.clock(); Kill(torso.Parent, true)
 										end
 									end
