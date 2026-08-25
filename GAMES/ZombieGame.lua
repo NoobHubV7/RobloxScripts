@@ -8,10 +8,10 @@ local Section4 = Window2:AddFolder("Team")
 local Section5 = Window2:AddFolder("Weapon")
 local Section6 = Window2:AddFolder("Lag Server")
 local Section7 = Window:AddFolder("Items")
-local killAura, abc = {
+local killAura = {
        Plr = {},
        Me = false
-}, nil
+}
 local tool, InfectAura
 local LoopkillZombies, LoopsummonNecro
 local LoopsummonLandmine, LoopsummonAcid
@@ -265,7 +265,10 @@ Section:AddToggle({text = "Kill Aura", flag = "toggle", callback = function(stat
        end
 end})
 Section:AddToggle({text = "Infect Aura", flag = "toggle", callback = function(state)
-       ((state and AddAttack()) or RemoveAttack())
+       local function Get(bool)
+	          return ((bool and AddAttack()) or RemoveAttack())
+	   end
+	   Get(state)
        InfectAura = state
 end})
 Section:AddToggle({text = "Target Acid", flag = "toggle", callback = function(state)
