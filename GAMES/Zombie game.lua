@@ -387,3 +387,5 @@ task.spawn(function()
         end
     end)
 end)
+Window:AddFolder("Created by NoobHubV7"); Window2:AddFolder("Created by NoobHubV7")
+lib:Init()
