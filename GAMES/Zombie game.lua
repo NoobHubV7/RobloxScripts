@@ -33,7 +33,8 @@ local startTime = {
        Seven = 1,
        Eight = 1,
        Nine = 1,
-       Ten = 1
+       Ten = 1,
+	   Eleven = 1
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -54,7 +55,7 @@ end
 
 table.freeze(find)
 
-function Kill(model)
+function Kill(model, isDestroy)
     if not (find.Sniper(true) or find.Sniper(false)) then
         game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
     end
@@ -66,13 +67,14 @@ function Kill(model)
         until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
     end
     if find.Sniper(true) then game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer("GUN_DAMAGE", model) end
+	if find.Sniper(true) then find.Sniper(true):Destroy() end
 end
 function KillZombies()
     if (tick() - startTime.Nine) < 0.5 then return nil end
     startTime.Nine = tick()
     for i,v in ipairs(workspace.LivingThings:GetChildren()) do
         if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
-            if v:GetAttribute("Team") == "Zombie" then Kill(v) end
+            if v:GetAttribute("Team") == "Zombie" then Kill(v, false) end
         end
     end
     find.Sniper(true):Destroy()
@@ -367,17 +369,17 @@ task.spawn(function()
                                 if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
                                     if b:GetAttribute("Team") == "Human" then
                                         if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-                                            game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+											if (tick() - startTime.Eleven) >= 0.5 then
+                                                startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+											end
                                         end
                                         if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-                                            repeat
-                                                if (os.clock() - startTime.Ten) >= 0.01 then
-                                                    startTime.Ten = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-                                                end
-                                            until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-                                        end
+                                            if (os.clock() - startTime.Ten) >= 0.5 then
+                                                startTime.Ten = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+                                            end
+										end
                                         if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(torso) end
-                                    elseif b:GetAttribute("Team") == "Zombie" then Kill(torso.Parent) end
+                                    elseif b:GetAttribute("Team") == "Zombie" then Kill(torso.Parent, true) end
                                 end
                             end
                         end
