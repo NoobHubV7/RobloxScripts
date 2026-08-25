@@ -80,7 +80,7 @@ function KillZombies()
             if v:GetAttribute("Team") == "Zombie" then Kill(v, false) end
         end
     end
-    find.Sniper(true):Destroy()
+    game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
 end
 function Acid(pos, pos2)
        if not pos2 then
