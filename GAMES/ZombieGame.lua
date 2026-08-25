@@ -222,7 +222,7 @@ function RemoveAttack()
     if connecting2 then connecting2:Disconnect(); connecting2 = nil end
 end
 
-function Infect(part)
+function Infect(model)
 	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
 		if (tick() - startTime.Eleven) >= 0.5 then
@@ -237,11 +237,11 @@ function Infect(part)
     if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
 		repeat
 			if (os.clock() - startTime.Fourteen) >= 0.01 then
-			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(part.Position + Vector3.new(0, -5, 0)); game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(part)
+			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.Position + Vector3.new(0, -5, 0)); game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(model.Torso)
 			end
-		until part.Parent:GetAttribute("Team") == "Zombie" or part.Parent.Humanoid.Health <= 0 or part.Parent:FindFirstChildOfClass("ForceField")
+		until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
+	    RemoveAttack(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
 	end
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
 end
 
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
@@ -429,7 +429,7 @@ task.spawn(function()
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
                                     if b:GetAttribute("Team") == "Human" then
-                                        Infect(torso)
+                                        Infect(b)
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (os.clock() - startTime.Twelve) >= 0.25 then
 										    startTime.Twelve = os.clock(); Kill(torso.Parent, true)
