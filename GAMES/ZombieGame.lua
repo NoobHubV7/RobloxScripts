@@ -431,7 +431,7 @@ task.spawn(function()
                                     if b:GetAttribute("Team") == "Human" then
                                         Infect(b)
                                     elseif b:GetAttribute("Team") == "Zombie" then
-										if (os.clock() - startTime.Twelve) >= 0.25 then
+										if (os.clock() - startTime.Twelve) >= 0.5 then
 										    startTime.Twelve = os.clock(); Kill(torso.Parent, true)
 										end
 									end
