@@ -363,8 +363,8 @@ task.spawn(function()
                     for _,b in pairs(workspace.LivingThings:GetChildren()) do
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
-                            if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) >= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-                                if b ~= game.Players.LocalPlayer.Character then
+                            if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
+                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
                                     if b:GetAttribute("Team") == "Human" then
                                         if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
                                             game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
