@@ -114,7 +114,7 @@ function Become(team)
 end
 function GetPlayer(Player)
     local function findPlayer(stringg)
-	    if (stringg == ("me")) or not stringg or (stringg == ("")) then
+	    if (stringg == ("me")) or not stringg then
 		    return game.Players.LocalPlayer
 		else
 		    for _,player in pairs(game.Players:GetPlayers()) do
