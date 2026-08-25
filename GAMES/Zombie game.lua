@@ -34,7 +34,8 @@ local startTime = {
        Eight = 1,
        Nine = 1,
        Ten = 1,
-	   Eleven = 1
+	   Eleven = 1,
+	   Twelve = 1
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -379,7 +380,11 @@ task.spawn(function()
                                             end
 										end
                                         if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(torso) end
-                                    elseif b:GetAttribute("Team") == "Zombie" then Kill(torso.Parent, true) end
+                                    elseif b:GetAttribute("Team") == "Zombie" then
+										if (os.clock() - startTime.Twelve) >= 0.2 then
+										    startTime.Twelve = os.clock(); Kill(torso.Parent, true)
+										end
+									end
                                 end
                             end
                         end
