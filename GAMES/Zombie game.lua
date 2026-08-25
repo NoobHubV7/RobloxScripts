@@ -68,7 +68,7 @@ function Kill(model, isDestroy)
         until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
     end
     if find.Sniper(true) then game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer("GUN_DAMAGE", model) end
-	if find.Sniper(true) then find.Sniper(true):Destroy() end
+	if find.Sniper(true) and isDestroy then find.Sniper(true):Destroy() end
 end
 function KillZombies()
     if (tick() - startTime.Nine) < 0.5 then return nil end
