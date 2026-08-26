@@ -45,8 +45,7 @@ local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
 local stop3, Settings = nil, {
-	   DestroyGuns = true,
-	   Whitelisted = {}
+	   DestroyGuns = true
 }
 do
     for i,v in next, find do
@@ -84,10 +83,6 @@ function Noclip(bool)
 	end
 end
 
-function CheckWhitelist(player)
-	return not (Settings.Whitelisted[player.UserId])
-end
-
 function CheckFriends(player)
 	return not player:IsFriendsWith(game.Players.LocalPlayer.UserId)
 end
@@ -113,10 +108,11 @@ function KillZombies()
     startTime.Nine = tick()
     for i,v in ipairs(workspace.LivingThings:GetChildren()) do
         if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
-            if v:GetAttribute("Team") == "Zombie" and CheckWhitelist(v) and CheckFriends(v) then Kill(v, false) end
+            if v:GetAttribute("Team") == "Zombie" and CheckFriends(v) then Kill(v, false) end
         end
     end
-    if not Settings.DestroyGuns == false then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+	if not Settings.DestroyGuns == true then return false end
+    game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
 end
 function Acid(pos, pos2)
        if not pos2 then
@@ -292,14 +288,8 @@ Section:AddToggle({text = "Kill Aura", flag = "toggle", callback = function(stat
                      killAura.Me = true
               elseif tar ~= game.Players.LocalPlayer then
                      killAura.Plr[tar.UserId] = tar
-					 Settings.Whitelisted[tar.UserId] = tar
               end
        elseif not state == true then
-			  if Settings.Whitelisted then
-                     for _,v in next, Settings.Whitelisted do
-                            Settings.Whitelisted[v.UserId] = nil
-                     end
-			  end
               if killAura.Plr then
                      for _,v in next, killAura.Plr do
                             killAura.Plr[v.UserId] = nil
@@ -479,7 +469,8 @@ task.spawn(function()
 										end
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (os.clock() - startTime.Twelve) >= 0.5 then
-										    startTime.Twelve = os.clock(); Kill(torso.Parent, Settings.DestroyGuns)
+											local isDestroy = ((Settings.DestroyGuns ~= false) and true) or false
+										    startTime.Twelve = os.clock(); Kill(torso.Parent, isDestroy)
 										end
 									end
                                 end
