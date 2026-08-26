@@ -20,6 +20,7 @@ local target, TargetAcid = nil, {}
 local weaponTable, RNG = {}, Random.new()
 local SpreadAcid, find = {}, {
        Weapons = "Hitbox" or "Handle" or "Damage"
+	   bodyParts = {"HumanoidRootPart", "Torso", "Head", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
 }
 local TeleportService : TeleportService = cloneref(game:GetService("TeleportService"))
 local networkCli : NetworkClient = cloneref(game:GetService("NetworkClient"))
@@ -43,16 +44,27 @@ local startTime = {
 local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
+local body = {}
 do
     for i,v in next, find do
         find[i] = function(bool)
-            local char = game.Players.LocalPlayer.Character; local back = game.Players.LocalPlayer.Backpack
-            local container = ((bool ~= false) and char) or back
-            if not (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then return false end
-            if (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then
-                local Finding = (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v))
-                return Finding.Parent.Parent
-            end
+			if i == "Weapons" then
+                local char = game.Players.LocalPlayer.Character; local back = game.Players.LocalPlayer.Backpack
+                local container = ((bool ~= false) and char) or back
+                if not (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then return false end
+                if (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then
+                    local Finding = (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v))
+                    return Finding.Parent.Parent
+		    	end
+			elseif i == "bodyParts" then
+				for _,b in next, game.Players.LocalPlayer.Character:GetChildren() do
+					if typeof(v) == "string" then
+				        if b.Name == v then
+							body[#body + 1] = b
+						end
+					end
+				end
+			end
         end
     end
 end
@@ -242,7 +254,7 @@ function Infect(model)
     if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
 		repeat
 			if (os.clock() - startTime.Fourteen) >= 0.01 then
-			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(model.Torso)
+			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
 			end
 		until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
 	    RemoveAttack(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
