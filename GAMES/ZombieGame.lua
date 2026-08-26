@@ -43,7 +43,7 @@ local startTime = {
 local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
-local bdyParts = {"HumanoidRootPart", "Torso", "Head", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
+local bdyParts, stop3 = {"HumanoidRootPart", "Torso", "Head", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}, nil
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -246,6 +246,7 @@ function RemoveAttack()
 end
 
 function Infect(model)
+	if not stop3 == false then return false end
 	stop3 = true
 	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
