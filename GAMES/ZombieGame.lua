@@ -495,15 +495,9 @@ task.spawn(function()
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and b ~= v.Character and CheckFriends(game.Players[b.Name]) then
                                     if b:GetAttribute("Team") == "Human" then
-										if (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-									        if (tick() - startTime.Fourteen) >= 0.5 then
+										if CheckFriends(game.Players[v.Name]) then
+											if (tick() - startTime.Fourteen) >= 0.5 then
                                                 startTime.Fourteen = tick(); Infect(b)
-							    			end
-										elseif not (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-											if CheckFriends(game.Players[v.Name]) then
-												if (tick() - startTime.Fourteen) >= 0.5 then
-                                                    startTime.Fourteen = tick(); Infect(b)
-												end
 											end
 										end
                                     elseif b:GetAttribute("Team") == "Zombie" then
