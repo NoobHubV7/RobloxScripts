@@ -37,8 +37,7 @@ local startTime = {
 	   Eleven = 1,
 	   Twelve = 1,
 	   Thirteen = 1,
-	   Fourteen = 1,
-	   Fifteen = 1
+	   Fourteen = 1
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -263,10 +262,8 @@ function Infect(model)
         end
 	end
     if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
-		repeat
-			if (os.clock() - startTime.Fourteen) >= 0.01 then
-			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
-			end
+		repeat game:GetService("RunService").RenderStepped:Wait()
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
 		until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
 	    RemoveAttack(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved; stop3 = false
 	end
@@ -457,8 +454,8 @@ task.spawn(function()
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
                                     if b:GetAttribute("Team") == "Human" then
-									    if (tick() - startTime.Fifteen) >= 0.5 then
-                                            startTime.Fifteen = tick(); Infect(b)
+									    if (tick() - startTime.Fourteen) >= 0.5 then
+                                            startTime.Fourteen = tick(); Infect(b)
 										end
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (os.clock() - startTime.Twelve) >= 0.5 then
