@@ -23,6 +23,7 @@ local weaponTable, RNG = {}, Random.new()
 local SpreadAcid, find = {}, {
        Weapons = "Hitbox" or "Handle" or "Damage"
 }
+local event = require(game.ReplicatedStorage.NewModules.Network)
 local TeleportService : TeleportService = cloneref(game:GetService("TeleportService"))
 local networkCli : NetworkClient = cloneref(game:GetService("NetworkClient"))
 local startTime = {
@@ -34,7 +35,7 @@ local startTime = {
        Six = 1,
        Seven = 1,
        Eight = 1,
-       Nine = 1,
+       Nine = 1, --nil
        Ten = 1,
 	   Eleven = 1,
 	   Twelve = 1,
@@ -45,7 +46,9 @@ local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
 local stop3 = nil
-local DestroyGuns = true
+local Settings = {
+	   DestroyGuns = true
+}
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -86,7 +89,9 @@ function CheckFriends(player)
 	return not (player:IsFriendsWith(game.Players.LocalPlayer.UserId))
 end
 
-function Kill(model, isDestroy)
+function Kill(model, isDestroy, bool)
+	if not stop == false then return false end
+	if not bool == false and not stop == true then stop = true end
     if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
         if (tick() - startTime.Thirteen) >= 0.5 then
 		    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
@@ -99,24 +104,26 @@ function Kill(model, isDestroy)
             end
         until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
     end
-    if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer("GUN_DAMAGE", model) end
+    if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
 	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+	if not stop == false then stop = false end
 end
-function KillZombies()
-    if (tick() - startTime.Nine) < 0.5 then return nil end
-    startTime.Nine = tick()
+function KillZombies(bool)
+    if not stop3 == false then return false end
+	if not bool == false and not stop3 == true then stop3 = true end
     for i,v in ipairs(workspace.LivingThings:GetChildren()) do
         if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
             if v:GetAttribute("Team") == "Zombie" then
 				if (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-					Kill(v, false)
+					Kill(v, false, false)
 				elseif not (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
 					if CheckFriends(game.Players[v.Name]) then Kill(v, false) end
 				end
 			end
         end
     end
-	if not DestroyGuns == true then return false end
+	if not stop3 == false then stop3 = false end
+	if not Settings.DestroyGuns == true then return false end
     game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
 end
 function Acid(pos, pos2)
@@ -129,7 +136,7 @@ function Summon(name)
        if name == "NpcZombie" then
               game:GetService("ReplicatedStorage").Remotes.ZombieRelated.Necro.AbilityPlayer:FireServer()
        elseif name == "Landmine" then
-              game:GetService("ReplicatedStorage").NetworkEvents.RemoteEvent:FireServer("PLACE_LANDMINE")
+              event.FireServer("PLACE_LANDMINE")
        elseif name == "Acid" then
               for coverX = -266, 378, 18 do
                      for coverZ = -266, 378, 18 do
@@ -336,7 +343,7 @@ Section:AddToggle({text = "Spread Acid (Target)", flag = "toggle", callback = fu
 end})
 Section:AddButton({text = "Heal", flag = "button", callback = function() Heal() end})
 Section:AddToggle({text = "Auto Heal", flag = "button", callback = function(state) autoHeal = state end})
-Section2:AddButton({text = "Kill Zombies", flag = "button", callback = function() stop2 = true; KillZombies(); stop2 = false end})
+Section2:AddButton({text = "Kill Zombies", flag = "button", callback = function() stop2 = true; KillZombies(false); stop2 = false end})
 Section2:AddToggle({text = "Loopkill Zombies", flag = "toggle", callback = function(state)
     LoopkillZombies = state
     stop2 = state
@@ -382,7 +389,7 @@ Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = f
 		end
 	end
 end})
-Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) DestroyGuns = state end})
+Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) Settings.DestroyGuns = state end})
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
         if killAura.Me then
@@ -435,7 +442,7 @@ task.spawn(function()
             end
         end
         if LoopsummonLandmine then Summon("Landmine") end
-        if LoopkillZombies then KillZombies() end
+        if LoopkillZombies then KillZombies(true) end
         if LoopsummonNecro then Summon("NpcZombie") end
     end)
     game:GetService("RunService").PreSimulation:Connect(function(dt)
@@ -496,21 +503,21 @@ task.spawn(function()
                                 if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
                                     if b:GetAttribute("Team") == "Human" then
 										if CheckFriends(game.Players[v.Name]) then
-											if (tick() - startTime.Fourteen) >= 0.5 then
+											if (tick() - startTime.Fourteen) >= 0.25 then
                                                 startTime.Fourteen = tick(); Infect(b)
 											end
 										end
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
-										    if (os.clock() - startTime.Twelve) >= 0.5 then
+										    if (os.clock() - startTime.Twelve) >= 0.1 then
 									    		local State = ((DestroyGuns ~= false) and true) or false
-									    	    startTime.Twelve = os.clock(); Kill(torso.Parent, State)
+									    	    startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
 											end
 										elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
 											if CheckFriends(game.Players[v.Name]) then
-												if (os.clock() - startTime.Twelve) >= 0.5 then
-									    	    	local State = ((DestroyGuns ~= false) and true) or false
-									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, State)
+												if (os.clock() - startTime.Twelve) >= 0.1 then
+									    	    	local State = ((Settings.DestroyGuns ~= false) and true) or false
+									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
 												end
 											end
 										end
