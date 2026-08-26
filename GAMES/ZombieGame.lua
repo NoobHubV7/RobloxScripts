@@ -105,8 +105,8 @@ function Kill(model, isDestroy, bool)
         until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
     end
     if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
-	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 	if not stop == false then stop = false end
+	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 end
 function KillZombies(bool)
     if not stop3 == false then return false end
@@ -223,7 +223,7 @@ function Heal()
     if game.Players.LocalPlayer.Character.Humanoid.Health <= 50 then
         local pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
         repeat task.wait()
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = medkit.CFrame * CFrame.new(0, 7, 0)
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(medkit.CFrame.p + Vector3.new(0, 7, 0)); coroutine.wrap(event.FireServer, "Medkit_Heal")()
             if (tick() - startTime.One) >= 0.2 then
                 startTime.One = tick(); fireproximityprompt(medkit.ProximityPrompt)
             end
