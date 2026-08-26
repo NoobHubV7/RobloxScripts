@@ -43,7 +43,7 @@ local startTime = {
 local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
-local bdyParts, stop3 = {"HumanoidRootPart", "Torso", "Head", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}, nil
+local stop3 = nil
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -246,7 +246,7 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	if not stop3 == false then return false end
+	if not stop3 == false then return nil end
 	stop3 = true
 	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
@@ -265,10 +265,10 @@ function Infect(model)
     if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
 		repeat
 			if (os.clock() - startTime.Fourteen) >= 0.01 then
-			    startTime.Fourteen = os.clock(); Noclip(true); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p + Vector3.new(0, -5, 0)); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
+			    startTime.Fourteen = os.clock(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
 			end
 		until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
-	    RemoveAttack(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved; Noclip(false); stop3 = false
+	    RemoveAttack(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved; stop3 = false
 	end
 end
 
