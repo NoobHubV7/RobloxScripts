@@ -90,23 +90,25 @@ function CheckFriends(player)
 end
 
 function Kill(model, isDestroy, bool)
-	if not stop == false then return false end
-	if not bool == false and not stop == true then stop = true end
-    if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
-        if (tick() - startTime.Thirteen) >= 0.5 then
-		    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
-		end
-    end
-    if game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") then
-        repeat
-            if (os.clock() - startTime.Eight) >= 0.01 then
-                startTime.Eight = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper"))
-            end
-        until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
-    end
-    if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
-	if not stop == false then stop = false end
-	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid", true).Health > 0 then
+	    if not stop == false then return false end
+	    if not bool == false and not stop == true then stop = true end
+        if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
+            if (tick() - startTime.Thirteen) >= 0.5 then
+	    	    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+	    	end
+        end
+        if game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") then
+            repeat
+                if (os.clock() - startTime.Eight) >= 0.01 then
+                    startTime.Eight = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper"))
+                end
+            until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
+        end
+        if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
+    	if not stop == false then stop = false end
+    	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+	endl
 end
 function KillZombies(bool)
     if not stop3 == false then return false end
@@ -500,7 +502,7 @@ task.spawn(function()
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
+                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
                                     if b:GetAttribute("Team") == "Human" then
 										if CheckFriends(game.Players[v.Name]) then
 											if (tick() - startTime.Fourteen) >= 0.25 then
