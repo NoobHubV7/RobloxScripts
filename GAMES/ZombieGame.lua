@@ -1,6 +1,7 @@
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/NoobHubV7/RobloxScripts/refs/heads/main/library/main.lua"))()
 local Window = lib:CreateWindow("Zombie game")
 local Window2 = lib:CreateWindow("Zombie game 2")
+local Window3 = lib:CreateWindow("Settings")
 local Section = Window:AddFolder("Main")
 local Section2 = Window:AddFolder("Kill")
 local Section3 = Window:AddFolder("Summon")
@@ -8,6 +9,7 @@ local Section4 = Window2:AddFolder("Team")
 local Section5 = Window2:AddFolder("Weapon")
 local Section6 = Window2:AddFolder("Lag Server")
 local Section7 = Window:AddFolder("Items")
+local Section8 = Window:AddFolder("BoolValue")
 local killAura = {
        Plr = {},
        Me = false
@@ -42,7 +44,10 @@ local startTime = {
 local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
-local stop3 = nil
+local stop3, Settings = nil, {
+	   DestroyGuns = true,
+	   Whitelisted = {}
+}
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -79,6 +84,14 @@ function Noclip(bool)
 	end
 end
 
+function CheckWhitelist(player)
+	return not (Settings.Whitelisted[player.UserId])
+end
+
+function CheckFriends(player)
+	return not player:IsFriendsWith(game.Players.LocalPlayer.UserId)
+end
+
 function Kill(model, isDestroy)
     if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
         if (tick() - startTime.Thirteen) >= 0.5 then
@@ -100,10 +113,10 @@ function KillZombies()
     startTime.Nine = tick()
     for i,v in ipairs(workspace.LivingThings:GetChildren()) do
         if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
-            if v:GetAttribute("Team") == "Zombie" then Kill(v, false) end
+            if v:GetAttribute("Team") == "Zombie" and CheckWhitelist(v) and CheckFriends(v) then Kill(v, false) end
         end
     end
-    game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
+    if not Settings.DestroyGuns == false then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 end
 function Acid(pos, pos2)
        if not pos2 then
@@ -279,8 +292,14 @@ Section:AddToggle({text = "Kill Aura", flag = "toggle", callback = function(stat
                      killAura.Me = true
               elseif tar ~= game.Players.LocalPlayer then
                      killAura.Plr[tar.UserId] = tar
+					 Settings.Whitelisted[tar.UserId] = tar
               end
        elseif not state == true then
+			  if Settings.Whitelisted then
+                     for _,v in next, Settings.Whitelisted do
+                            Settings.Whitelisted[v.UserId] = nil
+                     end
+			  end
               if killAura.Plr then
                      for _,v in next, killAura.Plr do
                             killAura.Plr[v.UserId] = nil
@@ -368,11 +387,12 @@ Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = f
 		end
 	end
 end})
+Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) Settings.DestroyGuns = state end})
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
         if killAura.Me then
             for i,v in ipairs(game.Workspace.LivingThings:GetChildren()) do
-                if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField") then
+                if (v ~= game.Players.LocalPlayer.Character and CheckFriends(v)) and v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField") then
                     if v:FindFirstChild("Head") and v:GetAttribute("Team") ~= game.Players.LocalPlayer.Character:GetAttribute("Team") then
                         local head = v:FindFirstChild("Head")
                         if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 8.5 and not stop2 == true then
@@ -414,7 +434,7 @@ task.spawn(function()
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
                     local root = v.HumanoidRootPart
                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 5 and v:FindFirstChild("Humanoid").Health > 0 then
-                        if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" then
+                        if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" and CheckFriends(v) then
                             if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
                                 if (tick() - startTime.Six) >= 0.75 then
                                     startTime.Six = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
@@ -452,14 +472,14 @@ task.spawn(function()
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character then
+                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character and CheckFriends(b) then
                                     if b:GetAttribute("Team") == "Human" then
 									    if (tick() - startTime.Fourteen) >= 0.5 then
                                             startTime.Fourteen = tick(); Infect(b)
 										end
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (os.clock() - startTime.Twelve) >= 0.5 then
-										    startTime.Twelve = os.clock(); Kill(torso.Parent, true)
+										    startTime.Twelve = os.clock(); Kill(torso.Parent, Settings.DestroyGuns)
 										end
 									end
                                 end
@@ -471,5 +491,5 @@ task.spawn(function()
         end
     end)
 end)
-Window:AddFolder("Created by NoobHubV7"); Window2:AddFolder("Created by NoobHubV7")
+Window:AddFolder("Created by NoobHubV7"); Window2:AddFolder("Created by NoobHubV7"); Window3:AddFolder("Created by NoobHubV7")
 lib:Init()
