@@ -108,7 +108,7 @@ function Kill(model, isDestroy, bool)
         if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
     	if not stop == false then stop = false end
     	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
-	endl
+	end
 end
 function KillZombies(bool)
     if not stop3 == false then return false end
