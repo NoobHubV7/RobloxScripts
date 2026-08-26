@@ -44,9 +44,8 @@ local startTime = {
 local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
-local stop3, Settings = nil, {
-	   DestroyGuns = true
-}
+local stop3 = nil
+local DestroyGuns = true
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -111,7 +110,7 @@ function KillZombies()
             if v:GetAttribute("Team") == "Zombie" and CheckFriends(v) then Kill(v, false) end
         end
     end
-	if not Settings.DestroyGuns == true then return false end
+	if not DestroyGuns == true then return false end
     game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
 end
 function Acid(pos, pos2)
@@ -377,7 +376,7 @@ Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = f
 		end
 	end
 end})
-Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) Settings.DestroyGuns = state end})
+Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) DestroyGuns = state end})
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
         if killAura.Me then
@@ -469,8 +468,8 @@ task.spawn(function()
 										end
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (os.clock() - startTime.Twelve) >= 0.5 then
-											local isDestroy = ((Settings.DestroyGuns ~= false) and true) or false
-										    startTime.Twelve = os.clock(); Kill(torso.Parent, isDestroy)
+											local State = ((DestroyGuns ~= false) and true) or false
+										    startTime.Twelve = os.clock(); Kill(torso.Parent, State)
 										end
 									end
                                 end
