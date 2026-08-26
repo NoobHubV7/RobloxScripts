@@ -83,7 +83,7 @@ function Noclip(bool)
 end
 
 function CheckFriends(player)
-	return not player:IsFriendsWith(game.Players.LocalPlayer.UserId)
+	return not (player:IsFriendsWith(game.Players.LocalPlayer.UserId))
 end
 
 function Kill(model, isDestroy)
@@ -107,7 +107,7 @@ function KillZombies()
     startTime.Nine = tick()
     for i,v in ipairs(workspace.LivingThings:GetChildren()) do
         if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
-            if v:GetAttribute("Team") == "Zombie" and CheckFriends(v) then Kill(v, false) end
+            if v:GetAttribute("Team") == "Zombie" and CheckFriends(game.Players[v.Name]) then Kill(v, false) end
         end
     end
 	if not DestroyGuns == true then return false end
@@ -381,7 +381,7 @@ task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
         if killAura.Me then
             for i,v in ipairs(game.Workspace.LivingThings:GetChildren()) do
-                if (v ~= game.Players.LocalPlayer.Character and CheckFriends(v)) and v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField") then
+                if (v ~= game.Players.LocalPlayer.Character and CheckFriends(game.Players[v.Name])) and v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField") then
                     if v:FindFirstChild("Head") and v:GetAttribute("Team") ~= game.Players.LocalPlayer.Character:GetAttribute("Team") then
                         local head = v:FindFirstChild("Head")
                         if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 8.5 and not stop2 == true then
@@ -423,7 +423,7 @@ task.spawn(function()
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
                     local root = v.HumanoidRootPart
                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 5 and v:FindFirstChild("Humanoid").Health > 0 then
-                        if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" and CheckFriends(v) then
+                        if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" and CheckFriends(game.Players[v.Name]) then
                             if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
                                 if (tick() - startTime.Six) >= 0.75 then
                                     startTime.Six = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
@@ -461,7 +461,7 @@ task.spawn(function()
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character and CheckFriends(b) then
+                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character and CheckFriends(game.Players[b.Name]) then
                                     if b:GetAttribute("Team") == "Human" then
 									    if (tick() - startTime.Fourteen) >= 0.5 then
                                             startTime.Fourteen = tick(); Infect(b)
