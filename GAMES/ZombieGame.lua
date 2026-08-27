@@ -503,27 +503,29 @@ task.spawn(function()
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-                                if b ~= game.Players.LocalPlayer.Character and b ~= v.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
-                                    if b:GetAttribute("Team") == "Human" then
-										if CheckFriends(game.Players[v.Name]) then
-											if (tick() - startTime.Fourteen) >= 0.25 then
-                                                startTime.Fourteen = tick(); Infect(b)
-											end
-										end
-                                    elseif b:GetAttribute("Team") == "Zombie" then
-										if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
-										    if (os.clock() - startTime.Twelve) >= 0.1 then
-									    		local State = ((Settings.DestroyGuns ~= false) and true) or false
-									    	    startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
-											end
-										elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
-											if CheckFriends(game.Players[v.Name]) then
-												if (os.clock() - startTime.Twelve) >= 0.1 then
-									    	    	local State = ((Settings.DestroyGuns ~= false) and true) or false
+                                if b ~= game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
+									if b ~= v.Character then
+                                        if b:GetAttribute("Team") == "Human" then
+										    if CheckFriends(game.Players[v.Name]) then
+											    if (tick() - startTime.Fourteen) >= 0.25 then
+                                                    startTime.Fourteen = tick(); Infect(b)
+											    end
+										    end
+                                        elseif b:GetAttribute("Team") == "Zombie" then
+										    if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
+										        if (os.clock() - startTime.Twelve) >= 0.1 then
+									    		    local State = ((Settings.DestroyGuns ~= false) and true) or false
 									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
-												end
-											end
-										end
+											    end
+										    elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
+											    if CheckFriends(game.Players[v.Name]) then
+												    if (os.clock() - startTime.Twelve) >= 0.1 then
+									    	    	    local State = ((Settings.DestroyGuns ~= false) and true) or false
+									    	            startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
+												    end
+											    end
+										    end
+									    end
 									end
                                 end
                             end
