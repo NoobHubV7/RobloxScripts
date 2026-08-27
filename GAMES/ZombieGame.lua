@@ -126,12 +126,11 @@ function KillZombies(bool)
             if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
 				if v:GetAttribute("Team") == "Zombie" then
 					task.spawn(function()
-						Kill(v, false, false)
+						Kill(v, false, true)
 					end)
 				end
             end
         end
-		if not Settings.DestroyGuns == true then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 	end)
 	if success then
 		if not stop3 == false then stop3 = false end
