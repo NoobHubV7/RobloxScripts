@@ -506,7 +506,7 @@ task.spawn(function()
                                 if b ~= game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
 									if b ~= v.Character then
                                         if b:GetAttribute("Team") == "Human" then
-										    if CheckFriends(game.Players[v.Name]) then
+										    if CheckFriends(game.Players[b.Name]) then
 											    if (tick() - startTime.Fourteen) >= 0.25 then
                                                     startTime.Fourteen = tick(); Infect(b)
 											    end
@@ -518,7 +518,7 @@ task.spawn(function()
 									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
 											    end
 										    elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
-											    if CheckFriends(game.Players[v.Name]) then
+											    if CheckFriends(game.Players[b.Name]) then
 												    if (os.clock() - startTime.Twelve) >= 0.1 then
 									    	    	    local State = ((Settings.DestroyGuns ~= false) and true) or false
 									    	            startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
