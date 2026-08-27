@@ -419,7 +419,7 @@ task.spawn(function()
                         local head = v:FindFirstChild("Head")
                         if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 8.5 and not stop2 == true then
                             if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-								if v.Name ~= "HumanNpc" then
+								if v.Name == "HumanNpc" then return nil end
 								if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
                                     if not (find.Weapons(true) or find.Weapons(false)) then
                                         if (tick() - startTime.Two) >= 0.5 then
