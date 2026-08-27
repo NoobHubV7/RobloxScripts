@@ -10,7 +10,7 @@ local Section5 = Window2:AddFolder("Weapon")
 local Section6 = Window2:AddFolder("Lag Server")
 local Section7 = Window:AddFolder("Items")
 local Section8 = Window3:AddFolder("BoolValue")
-local Section9 = Window3:AddFolder("Cilent")
+local Section9 = Window2:AddFolder("Cilent")
 local killAura = {
        Plr = {},
        Me = false
@@ -413,7 +413,11 @@ end})
 Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) Settings.DestroyGuns = state end})
 Section9:AddToggle({text = "Unload Entities", flag = "toggle", callback = function(state)
 	game.Players.LocalPlayer.Character.Parent = ((state ~= false) and workspace) or living
-	living.Parent = ((state ~= false) and nil) or workspace
+	if not state == false then
+		living.Parent = nil
+	elseif not state == true then
+		living.Parent = workspace
+	end
 end})
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
