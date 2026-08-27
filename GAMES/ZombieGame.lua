@@ -1,7 +1,5 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-task.wait(1)
-
 Compkiller:Loader(nil , 1).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
@@ -14,23 +12,28 @@ local Window = Compkiller.new({
 });
 
 local Teams = Window:DrawTab({
-	Name = "Teams"
+	Name = "Teams",
+	Type = "Single"
 });
 
 local Items = Window:DrawTab({
-	Name = "Items"
+	Name = "Items",
+    Type = "Single"
 });
 
 local Teams = Window:DrawTab({
-	Name = "Weapons"
+	Name = "Weapons",
+	Type = "Single"
 });
 
 local Teams = Window:DrawTab({
-	Name = "Cilent"
+	Name = "Cilent",
+	Type = "Single"
 });
 
 local Teams = Window:DrawTab({
-	Name = "Server"
+	Name = "Server",
+	Type = "Single"
 });
 
 local killAura = {
@@ -445,9 +448,10 @@ end})
 end
 
 do
-	Teams:AddButton({Name = "Become Human", Callback = function() Become("Human") end,})
-	Teams:AddButton({Name = "Become Zombie", Callback = function() Become("Zombie") end,})
-	Teams:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
+	local main = Teams:DrawSection({Name = "Select Button"})
+	main:AddButton({Name = "Become Human", Callback = function() Become("Human") end,})
+	main:AddButton({Name = "Become Zombie", Callback = function() Become("Zombie") end,})
+	main:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
 end
 	
 task.spawn(function()
