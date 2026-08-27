@@ -93,44 +93,48 @@ function Kill(model, isDestroy, bool)
 	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid", true).Health > 0 then
 	    if not stop == false then return false end
 	    if not bool == false and not stop == true then stop = true end
-        if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
-            if (tick() - startTime.Thirteen) >= 0.5 then
-	    	    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
-	    	end
-        end
-        if game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") then
-            repeat
-                if (os.clock() - startTime.Eight) >= 0.01 then
-                    startTime.Eight = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper"))
-                end
-            until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
-        end
-        if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
-    	if not stop == false then stop = false end
-    	if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+		pcall(function()
+            if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
+                if (tick() - startTime.Thirteen) >= 0.5 then
+	        	    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+	        	end
+            end
+            if game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") then
+                repeat
+                    if (os.clock() - startTime.Eight) >= 0.01 then
+                        startTime.Eight = os.clock(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper"))
+                    end
+                until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
+            end
+            if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
+			if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+		end)
+        if not stop == false then stop = false end
 	end
 end
 function KillZombies(bool)
     if not stop3 == false then return false end
 	if not bool == false and not stop3 == true then stop3 = true end
-    for i,v in ipairs(workspace.LivingThings:GetChildren()) do
-        if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
-            if v:GetAttribute("Team") == "Zombie" then
-				if (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-					Kill(v, false, false)
-				elseif not (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-					if CheckFriends(game.Players[v.Name]) then Kill(v, false) end
-				end
-			end
+	pcall(function()
+        for i,v in ipairs(workspace.LivingThings:GetChildren()) do
+            if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
+                if v:GetAttribute("Team") == "Zombie" then
+		    		if (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
+		    			Kill(v, false, false)
+		    		elseif not (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
+		    			if CheckFriends(game.Players[v.Name]) then Kill(v, false) end
+		   	 	    end
+	       		end
+            end
         end
-    end
+		if not Settings.DestroyGuns == true then return false end
+		game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
+	end)
 	if not stop3 == false then stop3 = false end
-	if not Settings.DestroyGuns == true then return false end
-    game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
 end
 function Acid(pos, pos2)
        if not pos2 then
-              pos2 = def(0, 0, 0)
+              s2 = def(0, 0, 0)
        end
        game:GetService("ReplicatedStorage").Remotes.ZombieRelated.AcidSpit:FireServer(pos,pos2)
 end
@@ -445,7 +449,7 @@ task.spawn(function()
             end
         end
         if LoopsummonLandmine then Summon("Landmine") end
-        if LoopkillZombies and not stop3 == true then KillZombies(true) end
+        if LoopkillZombies then task.spawn(KillZombies, true) end
         if LoopsummonNecro then Summon("NpcZombie") end
     end)
     game:GetService("RunService").PreSimulation:Connect(function(dt)
