@@ -11,6 +11,12 @@ local Window = Compkiller.new({
 	Keybind = "RightShift",
 });
 
+local players = Window:DrawTab({
+	Name = "Players",
+	Icon = "nil",
+	Type = "Single"
+});
+
 local Teams = Window:DrawTab({
 	Name = "Teams",
 	Icon = "users",
