@@ -114,7 +114,7 @@ function Kill(model, isDestroy, bool)
 		    if not stop == false then stop = false end
 		elseif not success then
 			if not stop == false then stop = false end
-			warn(tostring(error))
+			warn("error: "..tostring(error))
 		end
 	end
 end
@@ -136,7 +136,7 @@ function KillZombies(bool)
 		if not stop3 == false then stop3 = false end
 	elseif not success then
 		if not stop3 == false then stop3 = false end
-		warn(tostring(error))
+		warn("error: "..tostring(error))
 	end
 end
 function Acid(pos, pos2)
@@ -305,7 +305,7 @@ function Infect(model)
 	end)
 	if success then stop2 = false
 	elseif not success then
-		stop2 = false; warn(tostring(error))
+		stop2 = false; warn("error: "..tostring(error))
 	end
 end
 
@@ -522,7 +522,7 @@ task.spawn(function()
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
 												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
-													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(Settings.DestroyGuns, true) end) end
+													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(targ.Character, Settings.DestroyGuns, true) end) end
 												end
 											end
 										end
