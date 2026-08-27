@@ -97,6 +97,7 @@ function Kill(model, isDestroy, bool)
             if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
                 if (tick() - startTime.Thirteen) >= 0.5 then
 	        	    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+					repeat game:GetService("RunService").Heartbeat:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
 	        	end
             end
             if game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") then
@@ -125,12 +126,16 @@ function KillZombies(bool)
             if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
 				if v.Name ~= "HumanNpc" then
                     if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
-			    		task.spawn(Kill, v, false, false)
+			    		task.spawn(function()
+							Kill(v, false, false)
+						end)
 			    	elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
 			    		if game.Players[v.Name] then
 			    			local obj = game.Players[v.Name]
 			    			if CheckFriends(obj) and obj.Character:GetAttribute("Team") == "Zombie" then
-			    			    task.spawn(Kill, obj.Character, false, false)
+								task.spawn(function()
+			    			        Kill(obj.Character, false, false)
+								end)
 				    		end
 				   	    end
 					end
@@ -523,13 +528,15 @@ task.spawn(function()
 									if b ~= v.Character then
 										if b.Name ~= "HumanNpc" then
                                             if (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro")) then
-					                            Kill(b, Settings.DestroyGuns, true)
+												task.spawn(function()
+					                                Kill(b, Settings.DestroyGuns, true)
+												end)
 								      	    elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro")) then
 								   			    if game.Players[b.Name] then
 												    local targ = game.Players[b.Name]
 											        if CheckFriends(targ) then
 												    	if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
-													    elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, Settings.DestroyGuns, true) end
+													    elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(Settings.DestroyGuns, true) end) end
 												    end
 												end
 										    end
