@@ -313,10 +313,11 @@ Section:AddToggle({text = "Kill Aura", flag = "toggle", callback = function(stat
        end
 end})
 Section:AddToggle({text = "Infect Aura", flag = "toggle", callback = function(state)
-       local function Get(bool)
-	          return ((bool and AddAttack()) or RemoveAttack())
+       if not state == false then
+	       AddAttack()
+	   elseif not state == true then
+		   RemoveAttack()
 	   end
-	   Get(state)
        InfectAura = state
 end})
 Section:AddToggle({text = "Target Acid", flag = "toggle", callback = function(state)
