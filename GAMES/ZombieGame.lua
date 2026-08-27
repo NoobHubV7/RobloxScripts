@@ -554,13 +554,6 @@ do
 	    end
     end,})
     local main5 = Weapons:DrawSection({Name = "Select Weapons"})
-    for i,v in next, game:GetService("ReplicatedStorage").Assets.Weapons:GetChildren() do
-        if v:IsA("Tool") then
-            main5:AddButton({Name = "Give ".. v.Name, Callback = function()
-				game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer(v.Name)
-			end)
-        end
-    end
 end
 	
 task.spawn(function()
