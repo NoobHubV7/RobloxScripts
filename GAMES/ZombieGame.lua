@@ -1,16 +1,38 @@
-local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/NoobHubV7/RobloxScripts/refs/heads/main/library/main.lua"))()
-local Window = lib:CreateWindow("Zombie game")
-local Window2 = lib:CreateWindow("Zombie game 2")
-local Window3 = lib:CreateWindow("Settings")
-local Section = Window:AddFolder("Main")
-local Section2 = Window:AddFolder("Kill")
-local Section3 = Window:AddFolder("Summon")
-local Section4 = Window2:AddFolder("Team")
-local Section5 = Window2:AddFolder("Weapon")
-local Section6 = Window2:AddFolder("Lag Server")
-local Section7 = Window:AddFolder("Items")
-local Section8 = Window3:AddFolder("BoolValue")
-local Section9 = Window2:AddFolder("Cilent")
+local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
+
+task.wait(1)
+
+Compkiller:Loader(nil , 1).yield()
+
+local FileWatcher = Compkiller:ConfigManager({
+	Directory = "Compkiller",
+	Config = "Example-Configs"	
+});
+
+local Window = Compkiller.new({
+	Keybind = "RightShift",
+});
+
+local Teams = Window:DrawTab({
+	Name = "Teams"
+});
+
+local Items = Window:DrawTab({
+	Name = "Items"
+});
+
+local Teams = Window:DrawTab({
+	Name = "Weapons"
+});
+
+local Teams = Window:DrawTab({
+	Name = "Cilent"
+});
+
+local Teams = Window:DrawTab({
+	Name = "Server"
+});
+
 local killAura = {
        Plr = {},
        Me = false
@@ -310,6 +332,7 @@ function Infect(model)
 	end
 end
 
+function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
        target = text
 end, type = "TextBox", flag = "TextBox"})
@@ -419,6 +442,14 @@ Section9:AddToggle({text = "Unload Entities", flag = "toggle", callback = functi
 		living.Parent = workspace
 	end
 end})
+end
+
+do
+	Teams:AddButton({Name = "Become Human", Callback = function() Become("Human") end,})
+	Teams:AddButton({Name = "Become Zombie", Callback = function() Become("Zombie") end,})
+	Teams:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
+end
+	
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
         if killAura.Me then
