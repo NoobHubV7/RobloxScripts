@@ -478,7 +478,7 @@ do
                 if not buttonDown and tool.Parent == game.Players.LocalPlayer.Character then
                     buttonDown = true
                     repeat
-                        coroutine.wrap(scr.FireGun)(mouse.X, mouse.Y)
+                        coroutine.wrap(script.FireGun)(mouse.X, mouse.Y)
                         game:GetService("RunService").Heartbeat:Wait()
                     until not buttonDown
 				end
