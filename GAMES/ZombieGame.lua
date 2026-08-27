@@ -288,7 +288,7 @@ function Infect(model)
 		repeat game:GetService("RunService").RenderStepped:Wait()
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
 		until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
-	    RemoveAttack(); game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved; stop3 = false
+	    if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved; stop3 = false
 	end
 end
 
