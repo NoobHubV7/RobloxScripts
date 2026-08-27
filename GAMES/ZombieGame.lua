@@ -38,9 +38,9 @@ local startTime = {
        Nine = 1, --nil
        Ten = 1,
 	   Eleven = 1,
-	   Twelve = 1,
+	   Twelve = 1, --nil
 	   Thirteen = 1,
-	   Fourteen = 1
+	   Fourteen = 1 --nil
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -122,7 +122,7 @@ function KillZombies(bool)
 		    		if (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
 		    			Kill(v, false, false)
 		    		elseif not (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-		    			if CheckFriends(game.Players[v.Name]) then Kill(v, false) end
+		    			if CheckFriends(game.Players[v.Name]) then Kill(v, false, false) end
 		   	 	    end
 	       		end
             end
@@ -272,28 +272,31 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	if not stop3 == false then return nil end
-	stop3 = true
-	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-	if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
-		if (tick() - startTime.Eleven) >= 0.5 then
-            startTime.Eleven = tick(); AddAttack()
-		end
-    end
-    if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
-        if (os.clock() - startTime.Ten) >= 0.5 then
-            startTime.Ten = os.clock()
-			repeat task.wait()
-			    game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
-			until game.Players.LocalPlayer.Character:FindFirstChild("Attack")
+	if not stop2 == false then return nil end
+	stop2 = true
+	pcall(function()
+	    local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
+	    	if (tick() - startTime.Eleven) >= 0.5 then
+                startTime.Eleven = tick(); AddAttack()
+	        end
         end
-	end
-    if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
-		repeat game:GetService("RunService").RenderStepped:Wait()
-			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
-		until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
-	    if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved; stop3 = false
-	end
+        if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
+            if (os.clock() - startTime.Ten) >= 0.5 then
+                startTime.Ten = os.clock()
+	    		repeat task.wait()
+		    	    game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
+		    	until game.Players.LocalPlayer.Character:FindFirstChild("Attack")
+            end
+    	end
+        if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
+    		repeat game:GetService("RunService").RenderStepped:Wait()
+	    		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
+	    	until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
+	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
+    	end
+	end)
+	stop2 = false
 end
 
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
@@ -509,25 +512,17 @@ task.spawn(function()
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
 									if b ~= v.Character then
-                                        if b:GetAttribute("Team") == "Human" then
-										    if CheckFriends(game.Players[b.Name]) then
-											    if (tick() - startTime.Fourteen) >= 0.25 then
-                                                    startTime.Fourteen = tick(); Infect(b)
-											    end
-										    end
-                                        elseif b:GetAttribute("Team") == "Zombie" then
-										    if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
-										        if (os.clock() - startTime.Twelve) >= 0.1 then
-									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, Settings.DestroyGuns, true)
-											    end
-										    elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
-											    if CheckFriends(game.Players[b.Name]) then
-												    if (os.clock() - startTime.Twelve) >= 0.1 then
-									    	            startTime.Twelve = os.clock(); Kill(torso.Parent, Settings.DestroyGuns, true)
-												    end
-											    end
-										    end
-									    end
+                                        if (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon")) then
+					                        Kill(b, Settings.DestroyGuns, true)
+										elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
+											if game.Players[b.Name] then
+												local targ = game.Players[b.Name]
+											    if CheckFriends(targ) then
+													if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect)
+													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, Settings.DestroyGuns, true) end
+												end
+											end
+										end
 									end
                                 end
                             end
