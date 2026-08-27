@@ -123,13 +123,16 @@ function KillZombies(bool)
 	local success, error = pcall(function()
         for i,v in ipairs(workspace.LivingThings:GetChildren()) do
             if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
-                if v:GetAttribute("Team") == "Zombie" then
-		    		if (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-		    			Kill(v, false, false)
-		    		elseif not (string.find(v.Name, "Npc") or string.find(v.Name, "Summon")) then
-		    			if CheckFriends(game.Players[v.Name]) then Kill(v, false, false) end
-		   	 	    end
-	       		end
+                if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
+					task.spawn(Kill, v, false, false)
+				elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
+					if game.Players[v.Name] then
+						local obj = game.Players[v.Name]
+						if CheckFriends(obj) and obj.Character:GetAttribute("Team") == "Zombie" then
+						    task.spawn(Kill, obj.Character, false, false)
+						end
+					end
+				end
             end
         end
 		if not Settings.DestroyGuns == true then return false end
