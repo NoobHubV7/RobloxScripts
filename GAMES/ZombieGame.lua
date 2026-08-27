@@ -13,7 +13,7 @@ local Window = Compkiller.new({
 
 local players = Window:DrawTab({
 	Name = "Players",
-	Icon = "nil",
+	Icon = "user",
 	Type = "Single"
 });
 
