@@ -10,6 +10,7 @@ local Section5 = Window2:AddFolder("Weapon")
 local Section6 = Window2:AddFolder("Lag Server")
 local Section7 = Window:AddFolder("Items")
 local Section8 = Window3:AddFolder("BoolValue")
+local Section9 = Window3:AddFolder("Cilent")
 local killAura = {
        Plr = {},
        Me = false
@@ -45,7 +46,7 @@ local startTime = {
 local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
-local stop3 = nil
+local stop3, living = nil, workspace.LivingThings
 local Settings = {
 	   DestroyGuns = true
 }
@@ -67,7 +68,7 @@ table.freeze(find)
 
 function bodyParts()
 	local Found = {}
-	for i,v in next, bodyParts do
+	for i,v in next, {"HumanoidRootPart","Torso","Head","Left Arm","Right Arm","Left Leg","Right Leg"} do
 		if typeof(v) == "string" and game.Players.LocalPlayer.Character then
 			if game.Players.LocalPlayer.Character[v] then
 				Found[#Found + 1] = game.Players.LocalPlayer.Character[v]
@@ -122,7 +123,7 @@ function KillZombies(bool)
     if not stop3 == false then return false end
 	if not bool == false and not stop3 == true then stop3 = true end
 	local success, error = pcall(function()
-        for i,v in ipairs(workspace.LivingThings:GetChildren()) do
+        for i,v in ipairs(living:GetChildren()) do
             if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
 				if v:GetAttribute("Team") == "Zombie" then
 					task.spawn(function()
@@ -141,7 +142,7 @@ function KillZombies(bool)
 end
 function Acid(pos, pos2)
        if not pos2 then
-              s2 = def(0, 0, 0)
+              pos2 = def(0, 0, 0)
        end
        game:GetService("ReplicatedStorage").Remotes.ZombieRelated.AcidSpit:FireServer(pos,pos2)
 end
@@ -390,7 +391,7 @@ Section6:AddButton({text = "Landmine", flag = "button", callback = function()
 end})
 Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = function() Click("Antidote") end})
 Section7:AddButton({text = "Give Rainbow Potion", flag = "button", callback = function() Click("Rainbow Potion") end})
-Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = function()
+Section7:AddButton({text = "Give All Sign", flag = "button", callback = function()
 	if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
         if not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign3", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign3", true) then
             fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign.ClickDetector)
@@ -410,10 +411,14 @@ Section7:AddButton({text = "Give Antidote Potion", flag = "button", callback = f
 	end
 end})
 Section8:AddToggle({text = "Destroy Guns", state = true, flag = "toggle", callback = function(state) Settings.DestroyGuns = state end})
+Section9:AddToggle({text = "Unload Entities", flag = "toggle", callback = function(state)
+	game.Players.LocalPlayer.Character.Parent = ((state ~= false) and workspace) or living
+	living.Parent = ((state ~= false) and nil) or workspace
+end})
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
         if killAura.Me then
-            for i,v in ipairs(game.Workspace.LivingThings:GetChildren()) do
+            for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField")) then
                     if v:FindFirstChild("Head") and v:GetAttribute("Team") ~= game.Players.LocalPlayer.Character:GetAttribute("Team") then
                         local head = v:FindFirstChild("Head")
@@ -468,7 +473,7 @@ task.spawn(function()
     end)
     game:GetService("RunService").PreSimulation:Connect(function(dt)
         if InfectAura then
-            for i,v in ipairs(game.Workspace.LivingThings:GetChildren()) do
+            for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
                     local root = v.HumanoidRootPart
                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 5 and v:FindFirstChild("Humanoid").Health > 0 then
@@ -506,7 +511,7 @@ task.spawn(function()
         if killAura.Plr then
             for i,v in next, killAura.Plr do
                 if (v.Character and v.Character:IsA("Model")) then
-                    for _,b in pairs(workspace.LivingThings:GetChildren()) do
+                    for _,b in pairs(living:GetChildren()) do
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
