@@ -335,6 +335,10 @@ function Infect(model)
 	end
 end
 
+do
+	local main = Teams:DrawSection({Name = "Select Button"})
+end
+
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
        target = text
@@ -448,7 +452,6 @@ end})
 end
 
 do
-	local main = Teams:DrawSection({Name = "Select Button"})
 	main:AddButton({Name = "Become Human", Callback = function() Become("Human") end,})
 	main:AddButton({Name = "Become Zombie", Callback = function() Become("Zombie") end,})
 	main:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
