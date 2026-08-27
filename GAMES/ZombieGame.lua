@@ -23,7 +23,7 @@ local weaponTable, RNG = {}, Random.new()
 local SpreadAcid, find = {}, {
        Weapons = "Hitbox" or "Handle" or "Damage"
 }
-local event = require(game.ReplicatedStorage.NewModules.Network)
+local event = game.ReplicatedStorage.NetworkEvents.RemoteEvent
 local TeleportService : TeleportService = cloneref(game:GetService("TeleportService"))
 local networkCli : NetworkClient = cloneref(game:GetService("NetworkClient"))
 local startTime = {
@@ -93,7 +93,7 @@ function Kill(model, isDestroy, bool)
 	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid", true).Health > 0 then
 	    if not stop == false then return false end
 	    if not bool == false and not stop == true then stop = true end
-		pcall(function()
+		local success, error = pcall(function()
             if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
                 if (tick() - startTime.Thirteen) >= 0.5 then
 	        	    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
@@ -106,16 +106,21 @@ function Kill(model, isDestroy, bool)
                     end
                 until game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
             end
-            if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event.FireServer("GUN_DAMAGE", model) end
+            if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event:FireServer("GUN_DAMAGE", model) end
 			if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 		end)
-        if not stop == false then stop = false end
+        if success then
+		    if not stop == false then stop = false end
+		elseif not success then
+			if not stop == false then stop = false end
+			warn(tostring(error))
+		end
 	end
 end
 function KillZombies(bool)
     if not stop3 == false then return false end
 	if not bool == false and not stop3 == true then stop3 = true end
-	pcall(function()
+	local success, error = pcall(function()
         for i,v in ipairs(workspace.LivingThings:GetChildren()) do
             if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChild("ForceField") then
                 if v:GetAttribute("Team") == "Zombie" then
@@ -130,7 +135,12 @@ function KillZombies(bool)
 		if not Settings.DestroyGuns == true then return false end
 		game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy()
 	end)
-	if not stop3 == false then stop3 = false end
+	if success then
+		if not stop3 == false then stop3 = false end
+	elseif not success then
+		if not stop3 == false then stop3 = false end
+		warn(tostring(error))
+	end
 end
 function Acid(pos, pos2)
        if not pos2 then
@@ -142,7 +152,7 @@ function Summon(name)
        if name == "NpcZombie" then
               game:GetService("ReplicatedStorage").Remotes.ZombieRelated.Necro.AbilityPlayer:FireServer()
        elseif name == "Landmine" then
-              event.FireServer("PLACE_LANDMINE")
+              event:FireServer("PLACE_LANDMINE")
        elseif name == "Acid" then
               for coverX = -266, 378, 18 do
                      for coverZ = -266, 378, 18 do
@@ -274,7 +284,7 @@ end
 function Infect(model)
 	if not stop2 == false then return nil end
 	stop2 = true
-	pcall(function()
+	local success, error = pcall(function()
 	    local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
 	    	if (tick() - startTime.Eleven) >= 0.5 then
@@ -296,7 +306,10 @@ function Infect(model)
 	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
     	end
 	end)
-	stop2 = false
+	if success then stop2 = false
+	elseif not success then
+		stop2 = false; warn(tostring(error))
+	end
 end
 
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
@@ -518,7 +531,7 @@ task.spawn(function()
 											if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
-													if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect)
+													if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, Settings.DestroyGuns, true) end
 												end
 											end
