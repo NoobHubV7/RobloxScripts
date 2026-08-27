@@ -514,14 +514,12 @@ task.spawn(function()
                                         elseif b:GetAttribute("Team") == "Zombie" then
 										    if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
 										        if (os.clock() - startTime.Twelve) >= 0.1 then
-									    		    local State = ((Settings.DestroyGuns ~= false) and true) or false
-									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
+									    	        startTime.Twelve = os.clock(); Kill(torso.Parent, Settings.DestroyGuns, true)
 											    end
 										    elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
 											    if CheckFriends(game.Players[b.Name]) then
 												    if (os.clock() - startTime.Twelve) >= 0.1 then
-									    	    	    local State = ((Settings.DestroyGuns ~= false) and true) or false
-									    	            startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
+									    	            startTime.Twelve = os.clock(); Kill(torso.Parent, Settings.DestroyGuns, true)
 												    end
 											    end
 										    end
