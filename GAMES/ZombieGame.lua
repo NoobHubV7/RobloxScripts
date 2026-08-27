@@ -19,21 +19,25 @@ local Teams = Window:DrawTab({
 
 local Items = Window:DrawTab({
 	Name = "Items",
+	Icon = "package",
     Type = "Single"
 });
 
-local Teams = Window:DrawTab({
+local Weapons = Window:DrawTab({
 	Name = "Weapons",
+	Icon = "swords",
 	Type = "Single"
 });
 
-local Teams = Window:DrawTab({
-	Name = "Cilent",
+local Client = Window:DrawTab({
+	Name = "Client",
+	Icon = "monitor",
 	Type = "Single"
 });
 
-local Teams = Window:DrawTab({
+local Server = Window:DrawTab({
 	Name = "Server",
+	Icon = "server",
 	Type = "Single"
 });
 
@@ -335,11 +339,6 @@ function Infect(model)
 		stop2 = false; warn("error: "..tostring(error))
 	end
 end
-
-do
-	local main = Teams:DrawSection({Name = "Select Button"})
-end
-
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
        target = text
@@ -453,6 +452,7 @@ end})
 end
 
 do
+	local main = Teams:DrawSection({Name = "Select Team"})
 	main:AddButton({Name = "Become Human", Callback = function() Become("Human") end,})
 	main:AddButton({Name = "Become Zombie", Callback = function() Become("Zombie") end,})
 	main:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
