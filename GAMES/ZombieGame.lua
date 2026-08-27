@@ -219,15 +219,6 @@ function GetPlayer(Player)
 	end
 	return findPlayer(Player)
 end
-
-do
-    for i,v in next, game:GetService("ReplicatedStorage").Assets.Weapons:GetChildren() do
-        if v:IsA("Tool") then
-            weaponTable[#weaponTable + 1] = v.Name
-        end
-    end
-end
-
 do
     for i,v in next, workspace.Scripted.Medkits:GetChildren() do
         if v:FindFirstChild("Handle") then
@@ -456,11 +447,125 @@ do
 	main:AddButton({Name = "Become Human", Callback = function() Become("Human") end,})
 	main:AddButton({Name = "Become Zombie", Callback = function() Become("Zombie") end,})
 	main:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
+	local main2 = Items:DrawSection({Name = "Buff Sniper"})
+	main2:AddButton({Name = "Minigun Sniper", Callback = function()
+		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+		repeat game:GetService("RunService").Heartbeat:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
+		local tool = game.Players.LocalPlayer:FindFirstChild("Sniper", true)
+		if tool then
+			local script = getsenv(tool.LocalScript)
+			local shoot, calc = debug.getupvalue(script.FireGun, 5), debug.getupvalue(script.FireGun, 6)
+			local firesound = tool.Handle["Sniper fire sound"]
+			script.FireGun = function(...)
+                local soundc = firesound:Clone()
+                soundc.Playing = true
+                soundc.Parent = tool.Handle
+                task.delay(soundc.TimeLength, function()
+                    soundc:Destroy() 
+                end)
+                shoot(tool.Flash2.Position, calc(...))
+            end
+    
+            local mouse = game.Players.LocalPlayer:GetMouse()
+            local buttonDown = false
+            mouse.Button1Down:Connect(function()
+                if not buttonDown and tool.Parent == game.Players.LocalPlayer.Character then
+                    buttonDown = true
+                    repeat
+                        coroutine.wrap(scr.FireGun)(mouse.X, mouse.Y)
+                        game:GetService("RunService").Heartbeat:Wait()
+                    until not buttonDown
+				end
+			end)
+    
+            mouse.Button1Up:Connect(function()
+                buttonDown = false
+            end)
+		end
+	end,})
+	local main3 = Items:DrawSection({Name = "Give Item"})
+	main3:AddButton({Name = "Give Antidote Potion", Callback = function() Click("Antidote") end,})
+	main3:AddButton({Name = "Give Rainbow Potion", Callback = function() Click("Rainbow Potion") end,})
+	main3:AddButton({Name = "Give All Sign", Callback = function()
+		if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
+            if not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign3", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign3", true) then
+                fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign.ClickDetector)
+                fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign2.ClickDetector)
+                fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign3.ClickDetector)
+                fireclickdetector(workspace.Interaction.ZombieSign.ClickDetector)
+                fireclickdetector(workspace.Interaction:GetChildren()[15].ClickDetector or workspace.Interaction:GetChildren()[16].ClickDetector)
+		    end
+        else
+            if not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign2", true) and not game.Players.LocalPlayer:FindFirstChild("AntiZombieSign3", true) and not game.Players.LocalPlayer.Character:FindFirstChild("AntiZombieSign", true) and not game.Players.LocalPlayer:FindFirstChild("ZombieSign", true) and not game.Players.LocalPlayer.Character:FindFirstChild("ZombieSign") and not game.Players.LocalPlayer:FindFirstChild("ZombieSign2", true) and not game.Players.LocalPlayer.Character:FindFirstChild("ZombieSign2", true) then
+                fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign.ClickDetector)
+                fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign2.ClickDetector)
+                fireclickdetector(workspace.Interaction.ToolGivers.AntiZombieSign3.ClickDetector)
+                fireclickdetector(workspace.Interaction.ZombieSign.ClickDetector)
+                fireclickdetector(workspace.Interaction:GetChildren()[15].ClickDetector or workspace.Interaction:GetChildren()[16].ClickDetector)
+		    end
+		end
+	end,})
+	local main4 = Items:DrawSection({Name = "Remove Cooldown"})
+	main4:AddButton({Name = "Remove Melee & Spit Cooldown", Callback = function()
+	    local MeleeFunction = require(game.ReplicatedStorage.Modules.MeleeFunctions)
+	    local ShovelModule = require(game.ReplicatedStorage.Modules.Items.Shovel)
+	    local ShovelNew = ShovelModule.new
+	    local SpitModule = require(game.ReplicatedStorage.Modules.Items.Spit)
+	    local FireGun = SpitModule.FireGun
+
+	    MeleeFunction.AddCooldown = function() end
+	    MeleeFunction.CheckForCooldown = function() return false end
+
+	    ShovelModule.new = function(...)
+            local shovelObject = ShovelNew(...)
+        
+            if shovelObject and shovelObject.AnimationTracks and shovelObject.AnimationTracks.Attack then
+                shovelObject.AnimationTracks.Attack.Speed = 1.30
+            end
+        
+            return shovelObject
+        end
+
+        SpitModule.FireGun = function(spitObject, mouseX, mouseY)
+            local headPosition = spitObject.Character.Head.Position
+        
+            local localPlayer = game:GetService("Players").LocalPlayer
+            local cameraRay = workspace.CurrentCamera:ScreenPointToRay(mouseX, mouseY)
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+            raycastParams.FilterDescendantsInstances = { localPlayer.Character }
+            local raycastResult = workspace:Raycast(cameraRay.Origin, cameraRay.Direction * 1000, raycastParams)
+            local aimPosition = raycastResult and raycastResult.Position or (cameraRay.Origin + cameraRay.Direction * 1000)
+
+            local directionVector = aimPosition - headPosition
+        
+            game.ReplicatedStorage.Remotes.ZombieRelated.AcidSpit:FireServer(headPosition, aimPosition)
+
+            local projectileMagnitude = directionVector.Magnitude
+            if projectileMagnitude > 41 then
+                directionVector = directionVector.Unit * 40
+                projectileMagnitude = 40
+            end
+
+            local timeToTarget = math.log(1.001 + projectileMagnitude * 0.01)
+            local projectileVelocity = directionVector / timeToTarget + Vector3.new(0, workspace.Gravity * 0.5 * timeToTarget, 0)
+        
+            require(game.ReplicatedStorage.VisualFunctions.AcidProjectile)(headPosition, projectileVelocity)
+	    end
+    end,})
+    local main5 = Weapons:DrawSection({Name = "Select Weapons"})
+    for i,v in next, game:GetService("ReplicatedStorage").Assets.Weapons:GetChildren() do
+        if v:IsA("Tool") then
+            main5:AddButton({Name = "Give ".. v.Name, Callback = function()
+				game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer(v.Name)
+			end)
+        end
+    end
 end
 	
 task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
-        if killAura.Me then
+	    if killAura.Me then
             for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField")) then
                     if v:FindFirstChild("Head") and v:GetAttribute("Team") ~= game.Players.LocalPlayer.Character:GetAttribute("Team") then
