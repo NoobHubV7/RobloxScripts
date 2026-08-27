@@ -444,7 +444,7 @@ task.spawn(function()
             end
         end
         if LoopsummonLandmine then Summon("Landmine") end
-        if LoopkillZombies then KillZombies(true) end
+        if LoopkillZombies and not stop3 == true then KillZombies(true) end
         if LoopsummonNecro then Summon("NpcZombie") end
     end)
     game:GetService("RunService").PreSimulation:Connect(function(dt)
@@ -512,7 +512,7 @@ task.spawn(function()
                                     elseif b:GetAttribute("Team") == "Zombie" then
 										if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
 										    if (os.clock() - startTime.Twelve) >= 0.1 then
-									    		local State = ((DestroyGuns ~= false) and true) or false
+									    		local State = ((Settings.DestroyGuns ~= false) and true) or false
 									    	    startTime.Twelve = os.clock(); Kill(torso.Parent, State, true)
 											end
 										elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon")) then
