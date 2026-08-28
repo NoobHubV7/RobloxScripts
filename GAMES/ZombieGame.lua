@@ -74,7 +74,7 @@ local startTime = {
        Seven = 1,
        Eight = 1,
        Nine = 1, --nil
-       Ten = 1,
+       Ten = 1, --nil
 	   Eleven = 1,
 	   Twelve = 1, --nil
 	   Thirteen = 1,
@@ -341,15 +341,7 @@ function Infect(model)
 	        end
         end
         if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
-            if (os.clock() - startTime.Ten) >= 0.5 then
-                startTime.Ten = os.clock()
-	    		repeat task.wait()
-		    	    game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
-		    	until game.Players.LocalPlayer.Character:FindFirstChild("Attack")
-            end
-    	end
-        if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
-    		startTime.Nine = workspace:GetServerTimeNow(); repeat game:GetService("RunService").RenderStepped:Wait()
+    		startTime.Nine = tick(); repeat game:GetService("RunService").RenderStepped:Wait()
 	    		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
 	    	until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField") or (tick() - startTime.Nine) >= 5
 	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
