@@ -834,7 +834,7 @@ task.spawn(function()
 														 	    end
 															    if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
 																    task.spawn(function()
-				                                                        game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, b.HumanoidRootPart.Position}, "Raygun")
+				                                                        game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.Character.HumanoidRootPart.Position, b.HumanoidRootPart.Position}, "Raygun")
 				                                                        game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, b.HumanoidRootPart)
 				                                                        game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
 				                                                    end)
