@@ -178,7 +178,7 @@ function KillZombies(bool)
 	if not bool == false and not stop3 == true then stop3 = true end
 	local success, error = pcall(function()
         for i,v in ipairs(living:GetChildren()) do
-            if v:IsA("Model") and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
+            if (v and v:IsA("Model")) and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
 				if v:GetAttribute("Team") == "Zombie" then
 					task.spawn(function()
 						Kill(v, false, true)
@@ -630,6 +630,7 @@ do
             if killAura.Me then killAura.Me = false end
 		end
 	end,})
+	main8:AddButton({Name = "Kill Zombies", Callback = function() stop2 = true; KillZombies(false); stop2 = false end,})
 end
 	
 task.spawn(function()
