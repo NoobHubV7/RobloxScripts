@@ -84,7 +84,7 @@ local startTime = {
 	   Eleven = 1,
 	   Twelve = 1, --nil
 	   Thirteen = 1,
-	   Fourteen = 1 --nil
+	   Fourteen = 1
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -720,7 +720,7 @@ task.spawn(function()
                 if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField")) then
                     if v:FindFirstChild("Head") then
                         local head = v:FindFirstChild("Head")
-                        if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 8.5 and not stop2 == true then
+                        if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 8 and not stop2 == true then
                             if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
 								if v.Name == "HumanNpc" then return nil end
 								if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
@@ -750,8 +750,8 @@ task.spawn(function()
 										elseif v:GetAttribute("Team") == "Human" then
 											return task.spawn(function()
 												if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-	    	                                        if (tick() - startTime.Eleven) >= 0.5 then
-                                                        startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+	    	                                        if (tick() - startTime.Fourteen) >= 0.5 then
+                                                        startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
 	                                                end
 		                                            repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
                                                 end        
