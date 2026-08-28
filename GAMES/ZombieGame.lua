@@ -596,7 +596,7 @@ do
 	    end
     })
 	local main7 = Client:DrawSection({Name = "Toggle"})
-	main7:AddToggle({Name = "Remove Team Barriers", Flag = djshajfkfehdad", Callback = function(state)
+	main7:AddToggle({Name = "Remove Team Barriers", Flag = "djshajfkfehdad", Default = false, Callback = function(state)
 		RemoveBarrier = state
 		if not RemoveBarrier == false then
 			Barrier.Parent = nil
