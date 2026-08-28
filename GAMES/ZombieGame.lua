@@ -180,31 +180,34 @@ function Kill(model, isDestroy, bool)
 		end
 	end
 end
-function KillZombies(bool)
-    if not stop3 == false then return false end
-	if not bool == false and not stop3 == true then stop3 = true end
-	local success, error = pcall(function()
-        for i,v in ipairs(living:GetChildren()) do
-            if (v and v:IsA("Model")) then
-				if v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
-				    if v:GetAttribute("Team") == "Zombie" then
-					    task.spawn(function()
-						    Kill(v, false, true)
-					    end)
-				    end
-                end
-			elseif not (v and v:IsA("Model")) then
-				continue
+function KillZombies()
+	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
+	if not gun and not (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Shotgun")
+		repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun")
+		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
+	end
+	local hasplayers = nil, nil
+	local ShootEvents = {}
+	for i,v in pairs(living:GetChildren()) do
+		if not (v == game.Players.LocalPlayer.Character) then
+			if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
+				hasplayers = true
+				for i = 1, 10 do
+					ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
+				end
 			end
 		end
-		if not Settings.DestroyGuns == false and game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
-	end)
-	if success then
-		if not stop3 == false then stop3 = false end
-	elseif not success then
-		if not stop3 == false then stop3 = false end
-		warn("error: "..tostring(error))
 	end
+	if not hasplayers then
+		return
+	end
+	task.spawn(function()
+		for i = 1, 6 do
+			game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
+		end
+	end)
+	game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
 end
 function Acid(pos, pos2)
        if not pos2 then
