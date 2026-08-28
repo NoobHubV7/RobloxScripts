@@ -90,9 +90,9 @@ local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
 local stop3, living = nil, workspace.LivingThings
-local Settings = {
+local Settings, stop4 = {
 	   DestroyGuns = true
-}
+}, nil
 local Namebarriers, RemoveBarrier = {
 	   "ZombieSIGN",
        "ZombieDoor",
@@ -180,7 +180,7 @@ function Kill(model, isDestroy, bool)
 		end
 	end
 end
-function KillZombies()
+function oldKillZombies()
 	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
 	if not gun and not (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Shotgun")
@@ -208,6 +208,32 @@ function KillZombies()
 	for i = 1, 6, 1 do
 	    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
 		game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
+	end
+end
+function KillZombies(bool)
+    if not stop3 == false then return false end
+	if not bool == false and not stop3 == true then stop3 = true end
+	local success, error = pcall(function()
+        for i,v in ipairs(living:GetChildren()) do
+            if (v and v:IsA("Model")) then
+				if v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
+				    if v:GetAttribute("Team") == "Zombie" then
+					    task.spawn(function()
+						    Kill(v, false, true)
+					    end)
+				    end
+                end
+			elseif not (v and v:IsA("Model")) then
+				continue
+			end
+		end
+		if not Settings.DestroyGuns == false and game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
+	end)
+	if success then
+		if not stop3 == false then stop3 = false end
+	elseif not success then
+		if not stop3 == false then stop3 = false end
+		warn("error: "..tostring(error))
 	end
 end
 function Acid(pos, pos2)
@@ -351,7 +377,7 @@ function Infect(model)
 	        end
         end
         if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
-    		startTime.Nine = tick(); repeat game:GetService("RunService").RenderStepped:Wait()
+    		repeat game:GetService("RunService").RenderStepped:Wait()
 	    		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
 	    	until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField") or (tick() - startTime.Nine) >= 5
 	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
@@ -360,6 +386,33 @@ function Infect(model)
 	if success then stop2 = false
 	elseif not success then
 		stop2 = false; warn("error: "..tostring(error))
+	end
+end
+function KillPlr(model)
+	if not stop4 == false then return nil end
+	stop4 = true
+	local success, error = pcall(function()
+	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
+	    	if (tick() - startTime.Eleven) >= 0.5 then
+                startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+	        end
+			repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+        end
+        if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
+    		game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+			repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+    	end
+		if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
+			local originalPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position; local hitPos = model.HumanoidRootPart.Position
+			for i = 1,10 do
+				game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({originalPos, hitPos}, "Raygun")
+				game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(targ.Character.HumanoidRootPart)
+			end
+		end
+	end)
+	if success then stop4 = false
+	elseif not success then
+		stop4 = false; warn("error: "..tostring(error))
 	end
 end
 function old()
@@ -793,21 +846,7 @@ task.spawn(function()
 								   			if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
-												    if targ.Character:GetAttribute("Team") == "Human" then
-														local gun = game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
-														if not gun then
-															game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-															repeat game:GetService("RunService").Heartbeat:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
-														end
-														if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-															game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-															repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-														end
-														if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-															local originPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position; local hitPos = targ.Character.HumanoidRootPart.Position
-															game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({originPos, hitPos}, "Raygun")
-															game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(targ.Character.HumanoidRootPart)
-														end
+												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(KillPlr, targ.Character)
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(targ.Character, Settings.DestroyGuns, true) end) end
 												end
 											end
