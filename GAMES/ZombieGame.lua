@@ -1,6 +1,6 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-Compkiller:Loader(nil, 5).yield()
+Compkiller:Loader(nil, 6).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
 	Directory = "Compkiller",
@@ -793,7 +793,21 @@ task.spawn(function()
 								   			if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
-												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
+												    if targ.Character:GetAttribute("Team") == "Human" then
+														local gun = game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+														if not gun then
+															game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+															repeat game:GetService("RunService").Heartbeat:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+														end
+														if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
+															game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+															repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+														end
+														if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
+															local originPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position; local hitPos = targ.Character.HumanoidRootPart.Position
+															game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({originPos, hitPos}, "Raygun")
+															game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(targ.Character.HumanoidRootPart)
+														end
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(targ.Character, Settings.DestroyGuns, true) end) end
 												end
 											end
