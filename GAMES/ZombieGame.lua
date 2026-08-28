@@ -1,6 +1,6 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-Compkiller:Loader("rbxassetid://11754490336", 6).yield()
+Compkiller:Loader(nil, 6).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
 	Directory = "Compkiller",
@@ -816,7 +816,7 @@ task.spawn(function()
 					                            Kill(b, Settings.DestroyGuns, true)
 											 end)
 								      	elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro")) then
-								   			if game.Players[b.Name] then
+								   			if game.Players[b.Name] and not game.Players[v.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
 												    if targ.Character:GetAttribute("Team") == "Human" then
