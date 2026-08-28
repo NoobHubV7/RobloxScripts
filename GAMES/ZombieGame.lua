@@ -392,6 +392,7 @@ function KillPlr(model)
 	if not stop4 == false then return nil end
 	stop4 = true
 	local success, error = pcall(function()
+		local pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
 	    	if (tick() - startTime.Eleven) >= 0.5 then
                 startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
@@ -409,7 +410,11 @@ function KillPlr(model)
 				end)()
 				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, model.HumanoidRootPart)
 				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
+				task.spawn(function()
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = model.HumanoidRootPart.CFrame
+				end)
 			until model:FindFirstChild("Humanoid", true).Health <= 0
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
 		end
 	end)
 	if success then stop4 = false
