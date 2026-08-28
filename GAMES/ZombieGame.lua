@@ -406,7 +406,8 @@ function KillPlr(model)
 			local originalPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position; local hitPos = model.HumanoidRootPart.Position
 			for i = 1,10 do
 				game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({originalPos, hitPos}, "Raygun")
-				game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(targ.Character.HumanoidRootPart)
+				game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(model.HumanoidRootPart)
+				game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
 			end
 		end
 	end)
