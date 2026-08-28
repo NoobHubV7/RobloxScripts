@@ -604,6 +604,32 @@ do
 			Barrier.Parent = workspace
 		end
 	end,})
+	main7:AddToggle({Name = "Unload Entities", Flag = "fjiwheu23xj", Default = false, Callback = function(state)
+		game.Players.LocalPlayer.Character.Parent = ((state ~= false) and workspace) or living
+	    if not state == false then
+		    living.Parent = nil
+	    elseif not state == true then
+	    	living.Parent = workspace
+		end
+	end,})
+	local main8 = Server:DrawSection({Name = "Kills"})
+	main8:AddToggle({Name = "Kill Aura", Flag = "wifyriwfujw789jd", Default = false, Callback = function(state)
+		if not state == false then
+            local tar = GetPlayer(target)
+            if tar == game.Players.LocalPlayer then
+                    killAura.Me = true
+            elseif tar ~= game.Players.LocalPlayer then
+                    killAura.Plr[tar.UserId] = tar
+            end
+        elseif not state == true then
+            if killAura.Plr then
+                    for _,v in next, killAura.Plr do
+                        killAura.Plr[v.UserId] = nil
+                    end
+            end
+            if killAura.Me then killAura.Me = false end
+		end
+	end,})
 end
 	
 task.spawn(function()
