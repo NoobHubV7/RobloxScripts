@@ -193,9 +193,7 @@ function KillZombies()
 		if not (v == game.Players.LocalPlayer.Character) then
 			if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
 				hasplayers = true
-				for i = 1, 10 do
-					ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
-				end
+				ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
 			end
 		end
 	end
@@ -207,7 +205,9 @@ function KillZombies()
 			game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
 		end
 	end)
-	game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
+	for i = 1, 6, 1 do
+	    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
+	end
 end
 function Acid(pos, pos2)
        if not pos2 then
