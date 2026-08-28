@@ -9,6 +9,7 @@ local FileWatcher = Compkiller:ConfigManager({
 
 local Window = Compkiller.new({
 	Keybind = "RightShift",
+	Name = "Zombie Game"
 });
 
 local players = Window:DrawTab({
