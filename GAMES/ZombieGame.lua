@@ -816,31 +816,33 @@ task.spawn(function()
 					                            Kill(b, Settings.DestroyGuns, true)
 											 end)
 								      	elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro")) then
-								   			if game.Players[b.Name] and not game.Players[v.Name] then
+								   			if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
 												    if targ.Character:GetAttribute("Team") == "Human" then
-														return task.spawn(function()
-														    if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-	    	                                                    if (tick() - startTime.Eleven) >= 0.5 then
-                                                                    startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-	                                                            end
-		                                                	    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
-                                                            end        
-                                                            if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-    		                                                    game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-			                                                    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-															end
-															if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-																task.spawn(function()
-				                                                    coroutine.wrap(function()
-				                                                        game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, b.HumanoidRootPart.Position}, "Raygun")
-				                                                    end)()
-				                                                    coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, b.HumanoidRootPart)
-				                                                    coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
-				                                                end)
-															end
-														end)
+														if targ.Name ~= v.Name then
+														    return task.spawn(function()
+													    	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
+	    	                                                        if (tick() - startTime.Eleven) >= 0.5 then
+                                                                        startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+	                                                                end
+		                                                    	    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+                                                                end        
+                                                                if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
+    		                                                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+			                                                        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+														 	    end
+															    if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
+																    task.spawn(function()
+				                                                        coroutine.wrap(function()
+				                                                            game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, b.HumanoidRootPart.Position}, "Raygun")
+				                                                        end)()
+				                                                        coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, b.HumanoidRootPart)
+				                                                        coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
+				                                                    end)
+															    end
+														    end)
+														end
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(targ.Character, Settings.DestroyGuns, true) end) end
 												end
 											end
