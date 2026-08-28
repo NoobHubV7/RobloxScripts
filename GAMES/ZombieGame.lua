@@ -86,13 +86,13 @@ local stop3, living = nil, workspace.LivingThings
 local Settings = {
 	   DestroyGuns = true
 }
-local Namebarriers = {
+local Namebarriers, RemoveBarrier = {
 	   "ZombieSIGN",
        "ZombieDoor",
        "ZombieDoor2",
        "ZombieDoor3",
        "NoZombie"
-}
+}, false
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -588,18 +588,19 @@ do
 	local main6 = players:DrawSection({Name = "Write Player Name"})
 	main6:AddTextBox({
 	    Name = "Player Name",
-    	Default = "",
+    	Default = "roblox123",
     	PlaceholderText = "Username or Displayname",
     	ClearTextOnFocus = true,
     	Callback = function(Value)
-		    target = Value
+		    target = tostring(Value)
 	    end
     })
 	local main7 = Client:DrawSection({Name = "Toggle"})
 	main7:AddToggle({Name = "Remove Team Barriers", Flag = djshajfkfehdad", Callback = function(state)
-		if not state == false then
+		RemoveBarrier = state
+		if not RemoveBarrier == false then
 			Barrier.Parent = nil
-	    elseif not state == true then
+	    elseif not RemoveBarrier == true then
 			Barrier.Parent = workspace
 		end
 	end,})
@@ -731,5 +732,3 @@ task.spawn(function()
         end
     end)
 end)
-Window:AddFolder("Created by NoobHubV7"); Window2:AddFolder("Created by NoobHubV7"); Window3:AddFolder("Created by NoobHubV7")
-lib:Init()
