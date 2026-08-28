@@ -404,7 +404,9 @@ function KillPlr(model)
     	end
 		if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
 			repeat game:GetService("RunService").Stepped:Wait()
-				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.ReplicateBullet.FireServer)(game.ReplicatedStorage.Remotes.Guns.ReplicateBullet, {originalPos, hitPos}, "Raygun")
+				coroutine.wrap(function()
+					game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, model.HumanoidRootPart.Position}, "Raygun")
+				end)()
 				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, model.HumanoidRootPart)
 				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
 			until v:FindFirstChild("Humanoid", true).Health <= 0
