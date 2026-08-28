@@ -1,6 +1,6 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-Compkiller:Loader(nil , 1).yield()
+Compkiller:Loader("10921008740" , 5).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
 	Directory = "Compkiller",
@@ -45,6 +45,12 @@ local Client = Window:DrawTab({
 local Server = Window:DrawTab({
 	Name = "Server",
 	Icon = "server",
+	Type = "Single"
+});
+
+local Setting = Window:DrawTab({
+	Name = "Settings",
+	Icon = "settings",
 	Type = "Single"
 });
 
@@ -641,6 +647,8 @@ do
 		end
 	    InfectAura = state
 	end,})
+	local main10 = Setting:DrawSection({Name = "Script Settings"})
+    main10:AddToggle({Name = "Destroy Guns", Flag = "sjwidifuduwid67", Default = true, Callback = function(state) Settings.DestroyGuns = state end,})
 end
 	
 task.spawn(function()
