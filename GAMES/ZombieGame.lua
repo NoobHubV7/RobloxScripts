@@ -153,7 +153,7 @@ end
 
 function Kill(model, isDestroy, bool)
 	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid", true).Health > 0 then
-	    if not stop == false then return false end
+	    if (not stop == false or not stop4 == false) then return false end
 	    if not bool == false and not stop == true then stop = true end
 		local success, error = pcall(function()
             if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
@@ -211,7 +211,7 @@ function oldKillZombies()
 	end
 end
 function KillZombies(bool)
-    if not stop3 == false then return false end
+    if (not stop3 == false or not stop4 == false) then return false end
 	if not bool == false and not stop3 == true then stop3 = true end
 	local success, error = pcall(function()
         for i,v in ipairs(living:GetChildren()) do
@@ -392,7 +392,6 @@ function KillPlr(model)
 	if not stop4 == false then return nil end
 	stop4 = true
 	local success, error = pcall(function()
-		local pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
 	    	if (tick() - startTime.Eleven) >= 0.5 then
                 startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
@@ -411,16 +410,18 @@ function KillPlr(model)
 	                end
 			        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
 				end
+				if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
+    		        game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+			        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+				end
 				task.spawn(function()
 				    coroutine.wrap(function()
 				        game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, model.HumanoidRootPart.Position}, "Raygun")
 				    end)()
 				    coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, model.HumanoidRootPart)
 				    coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
-					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = model.HumanoidRootPart.CFrame
 				end)
 			until model:FindFirstChild("Humanoid", true).Health <= 0
-			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
 		end
 	end)
 	if success then stop4 = false
