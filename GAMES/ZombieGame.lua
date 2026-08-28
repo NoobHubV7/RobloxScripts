@@ -409,7 +409,7 @@ function KillPlr(model)
 				end)()
 				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, model.HumanoidRootPart)
 				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
-			until v:FindFirstChild("Humanoid", true).Health <= 0
+			until model:FindFirstChild("Humanoid", true).Health <= 0
 		end
 	end)
 	if success then stop4 = false
@@ -836,7 +836,7 @@ task.spawn(function()
                     for _,b in pairs(living:GetChildren()) do
                         if (b and b:FindFirstChild("Torso") and b:FindFirstChild("Humanoid")) and b.Humanoid.Health > 0 and not b:FindFirstChildOfClass("ForceField") then
                             local torso = b:FindFirstChild("Torso")
-                            if (v.Character.Torso.Position - torso.Position).Magnitude - (b.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
+                            if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 7 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
 									if b ~= v.Character then
 										if b.Name == "HumanNpc" then return nil end
