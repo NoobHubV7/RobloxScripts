@@ -179,14 +179,19 @@ function KillZombies(bool)
 	if not bool == false and not stop3 == true then stop3 = true end
 	local success, error = pcall(function()
         for i,v in ipairs(living:GetChildren()) do
-            if (v and v:IsA("Model")) and v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
-				if v:GetAttribute("Team") == "Zombie" then
-					task.spawn(function()
-						Kill(v, false, true)
-					end)
-				end
-            end
-        end
+            if (v and v:IsA("Model")) then
+				if v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
+				    if v:GetAttribute("Team") == "Zombie" then
+					    task.spawn(function()
+						    Kill(v, false, true)
+					    end)
+				    end
+                end
+			elseif not (v and v:IsA("Model")) then
+				continue
+			end
+		end
+		if not Settings.DestroyGuns == false and game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 	end)
 	if success then
 		if not stop3 == false then stop3 = false end
@@ -632,6 +637,9 @@ do
 		end
 	end,})
 	main8:AddButton({Name = "Kill Zombies", Callback = function() stop2 = true; KillZombies(false); stop2 = false end,})
+	main8:AddToggle({Name = "Loopkill Zombies", Flag = "wifhcueiwkfjch367", Default = false, Callback = function(state)
+		LoopkillZombies = state
+	end,})
 end
 	
 task.spawn(function()
