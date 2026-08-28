@@ -1,6 +1,6 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-Compkiller:Loader("10921008740" , 5).yield()
+Compkiller:Loader(nil, 5).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
 	Directory = "Compkiller",
@@ -218,7 +218,7 @@ function Summon(name)
        elseif name == "Landmine" then
               event:FireServer("PLACE_LANDMINE")
        elseif name == "Acid" then
-              for coverX = -266, 378, 18 do
+              for coverX = -268, 378, 18 do
                      for coverZ = -266, 378, 18 do
                             Acid(def(coverX, 255, coverZ))
                      end
@@ -477,8 +477,10 @@ do
 	main:AddButton({Name = "Become Spitter", Callback = function() Become("Spitter") end,})
 	local main2 = Items:DrawSection({Name = "Buff Sniper"})
 	main2:AddButton({Name = "Minigun Sniper", Callback = function()
-		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
-		repeat game:GetService("RunService").Heartbeat:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
+		if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
+		    game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+		    repeat game:GetService("RunService").Heartbeat:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
+		end
 		local tool = game.Players.LocalPlayer:FindFirstChild("Sniper", true)
 		if tool then
 			local script = getsenv(tool.LocalScript)
@@ -649,6 +651,36 @@ do
 	end,})
 	local main10 = Setting:DrawSection({Name = "Script Settings"})
     main10:AddToggle({Name = "Destroy Guns", Flag = "sjwidifuduwid67", Default = true, Callback = function(state) Settings.DestroyGuns = state end,})
+	local main11 = Server:DrawSection({Name = "Acid"})
+	main11:AddButton({Name = "Summon Acid", Callback = function() Summon("Acid") end,})
+	main11:AddToggle({Name = "Target Acid", Flag = "Hwkcjcuriwkef61", Default = false, Callback = function(state)
+		if not state == false then
+            local played = GetPlayer(target)
+            if played then
+                TargetAcid[played.UserId] = played
+            end
+        elseif state == false then
+            for _,v in next, TargetAcid do
+                TargetAcid[v.UserId] = nil
+            end
+		end
+	end,})
+	main11:AddToggle({Name = "Spread Acid (Target)", Flag = "wodjfiwowndh69", Default = false, Callback = function(state)
+		if not state == false then
+            local played = GetPlayer(target)
+            if played then
+                SpreadAcid[played.UserId] = played
+            end
+        elseif state == false then
+            for _,v in next, SpreadAcid do
+                SpreadAcid[v.UserId] = nil
+            end
+		end
+	end,})
+	local main12 = Server:DrawSection({Name = "Landmine"})
+	main12:AddButton({Name = "Summon Landmine", Callback = function() Summon("Landmine") end,})
+	local main13 = Server:DrawSection({Name = "Necro"})
+	main13:AddButton({Name = "Summon Acid", Callback = function() Summon("NpcZombie") end,})
 end
 	
 task.spawn(function()
