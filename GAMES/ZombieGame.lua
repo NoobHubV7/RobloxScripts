@@ -413,7 +413,7 @@ function KillPlr(model)
 				task.spawn(function()
 					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = model.HumanoidRootPart.CFrame
 				end)
-			until model:FindFirstChild("Humanoid", true).Health <= 0
+			until model:FindFirstChild("Humanoid", true).Health <= 0 or not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
 		end
 	end)
