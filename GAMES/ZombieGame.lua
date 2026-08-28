@@ -207,6 +207,7 @@ function KillZombies()
 	end)
 	for i = 1, 6, 1 do
 	    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
+		game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
 	end
 end
 function Acid(pos, pos2)
