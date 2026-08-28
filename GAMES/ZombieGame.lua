@@ -86,6 +86,13 @@ local stop3, living = nil, workspace.LivingThings
 local Settings = {
 	   DestroyGuns = true
 }
+local Namebarriers = {
+	   "ZombieSIGN",
+       "ZombieDoor",
+       "ZombieDoor2",
+       "ZombieDoor3",
+       "NoZombie"
+}
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -121,6 +128,17 @@ function Noclip(bool)
 		end
 	end
 end
+
+if not workspace:FindFirstChild("Teambarriers") then
+	local folder = Instance.new("Folder",workspace)
+	folder.Name = "Teambarriers"
+	for i,v in next, Namebarriers do
+		if workspace:FindFirstChild(v, true) then
+			workspace:FindFirstChild(v, true).Parent = folder
+		end
+	end
+end
+local Barrier = workspace:FindFirstChild("Teambarriers")
 
 function CheckFriends(player)
 	return not (player:IsFriendsWith(game.Players.LocalPlayer.UserId))
@@ -560,6 +578,31 @@ do
 	    end
     end,})
     local main5 = Weapons:DrawSection({Name = "Select Weapons"})
+	for i,v in next, game:GetService("ReplicatedStorage").Assets.Weapons:GetChildren() do
+		if v:IsA("Tool") then
+			main5:AddButton({Name = "Give ".. v.Name, Callback = function()
+				game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer(v.Name)
+			end,})
+		end
+	end
+	local main6 = players:DrawSection({Name = "Write Player Name"})
+	main6:AddTextBox({
+	    Name = "Player Name",
+    	Default = "",
+    	PlaceholderText = "Username or Displayname",
+    	ClearTextOnFocus = true,
+    	Callback = function(Value)
+		    target = Value
+	    end
+    })
+	local main7 = Client:DrawSection({Name = "Toggle"})
+	main7:AddToggle({Name = "Remove Team Barriers", Flag = djshajfkfehdad", Callback = function(state)
+		if not state == false then
+			Barrier.Parent = nil
+	    elseif not state == true then
+			Barrier.Parent = workspace
+		end
+	end,})
 end
 	
 task.spawn(function()
