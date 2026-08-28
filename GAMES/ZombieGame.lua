@@ -1,4 +1,4 @@
-local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
+llocal Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
 Compkiller:Loader(nil , 1).yield()
 
@@ -349,9 +349,9 @@ function Infect(model)
             end
     	end
         if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then
-    		repeat game:GetService("RunService").RenderStepped:Wait()
+    		startTime.Nine = workspace:GetServerTimeNow(); repeat game:GetService("RunService").RenderStepped:Wait()
 	    		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
-	    	until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField")
+	    	until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField") or (tick() - startTime.Nine) >= 5
 	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
     	end
 	end)
@@ -640,6 +640,15 @@ do
 	main8:AddToggle({Name = "Loopkill Zombies", Flag = "wifhcueiwkfjch367", Default = false, Callback = function(state)
 		LoopkillZombies = state
 	end,})
+	local main9 = Server:DrawSection({Name = "Infect Human"})
+	main9:AddToggle({Name = "Infect Aura", Flag = "djsiejfhcuriw", Default = false, Callback = function(state)
+		if not state == false then
+			AddAttack()
+		elseif state == false then
+			RemoveAttack()
+		end
+	    InfectAura = state
+	end,})
 end
 	
 task.spawn(function()
@@ -705,12 +714,7 @@ task.spawn(function()
                     local root = v.HumanoidRootPart
                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 5 and v:FindFirstChild("Humanoid").Health > 0 then
                         if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" then
-							if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
-                                if (tick() - startTime.Six) >= 0.75 then
-                                    startTime.Six = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Attack"))
-                                end
-                            end
-                            if game.Players.LocalPlayer.Character:FindFirstChild("Attack") then game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(root) end
+                            if (game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") or game.Players.LocalPlayer.Character:FindFirstChild("Attack")) then game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(root) end
                         end
                     end
                 end
