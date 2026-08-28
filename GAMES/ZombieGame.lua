@@ -405,15 +405,21 @@ function KillPlr(model)
     	end
 		if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
 			repeat game:GetService("RunService").Stepped:Wait()
-				coroutine.wrap(function()
-					game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, model.HumanoidRootPart.Position}, "Raygun")
-				end)()
-				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, model.HumanoidRootPart)
-				coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
+				if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
+	    	        if (tick() - startTime.Fourteen) >= 0.5 then
+                        startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+	                end
+			        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+				end
 				task.spawn(function()
+				    coroutine.wrap(function()
+				        game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({game.Players.LocalPlayer.Character.HumanoidRootPart.Position, model.HumanoidRootPart.Position}, "Raygun")
+				    end)()
+				    coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Damage.FireServer)(game.ReplicatedStorage.Remotes.Guns.Damage, model.HumanoidRootPart)
+				    coroutine.wrap(game.ReplicatedStorage.Remotes.Guns.Reload.FireServer)(game.ReplicatedStorage.Remotes.Guns.Reload)
 					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = model.HumanoidRootPart.CFrame
 				end)
-			until model:FindFirstChild("Humanoid", true).Health <= 0 or not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+			until model:FindFirstChild("Humanoid", true).Health <= 0
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
 		end
 	end)
