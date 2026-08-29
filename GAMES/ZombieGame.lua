@@ -191,12 +191,13 @@ function oldKillZombies()
 		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
 	end
 	local hasplayers = nil, nil
-	local ShootEvents = {}
+	local ShootEvents, BulletEvents = {}, {}
 	for i,v in pairs(living:GetChildren()) do
 		if not (v == game.Players.LocalPlayer.Character) then
 			if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
 				hasplayers = true
 				ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
+				BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
 			end
 		end
 	end
@@ -208,7 +209,8 @@ function oldKillZombies()
 			game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
 		end
 	end)
-	for i = 1, 6, 1 do
+	for i = 1, 6 do
+		game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunReplicateBullet:FireServer(BulletEvents)
 	    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
 		game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
 	end
@@ -673,6 +675,7 @@ do
 	main8:AddToggle({Name = "Loopkill Zombies", Flag = "wifhcueiwkfjch367", Default = false, Callback = function(state)
 		LoopkillZombies = state
 	end,})
+	main8:AddButton({Name = "Kill Zombies (old)", Callback = function() oldKillZombies() end,})
 	local main9 = Server:DrawSection({Name = "Infect Human"})
 	main9:AddToggle({Name = "Infect Aura", Flag = "djsiejfhcuriw", Default = false, Callback = function(state)
 		if not state == false then
