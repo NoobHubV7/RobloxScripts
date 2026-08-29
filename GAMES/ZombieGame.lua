@@ -751,25 +751,23 @@ task.spawn(function()
                                             end
                                             if find.Weapons(true) then game.ReplicatedStorage.Remotes.Melee.Damage:InvokeServer(head) end
 										elseif v:GetAttribute("Team") == "Human" then
-											return task.spawn(function()
-												if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-	    	                                        if (tick() - startTime.Fourteen) >= 0.5 then
-                                                        startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-	                                                end
-		                                            repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
-                                                end        
-                                                if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-    		                                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-			                                        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-												end
-												if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-													task.spawn(function()
-				                                        game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
-														game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
-				                                        game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
-				                                    end)
-												end
-											end)
+											if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
+	    	                                    if (tick() - startTime.Fourteen) >= 0.5 then
+                                                    startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+	                                            end
+		                                        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+                                            end        
+                                            if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
+    		                                    game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+			                                    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+											end
+											if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
+												coroutine.wrap(function()
+				                                    game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
+													game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
+				                                    game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
+				                                end)()
+											end
 										end
 							        end
 								end
@@ -844,28 +842,7 @@ task.spawn(function()
 								   			if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
-												    if targ.Character:GetAttribute("Team") == "Human" then
-														if targ.Name ~= v.Name then
-														    return task.spawn(function()
-													    	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-	    	                                                        if (tick() - startTime.Eleven) >= 0.5 then
-                                                                        startTime.Eleven = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-	                                                                end
-		                                                    	    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
-                                                                end        
-                                                                if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-    		                                                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-			                                                        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-														 	    end
-															    if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-																    task.spawn(function()
-				                                                        game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, b.HumanoidRootPart)
-																		game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({b.HumanoidRootPart.Position, b.HumanoidRootPart.Position}, "Raygun")
-				                                                        game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
-				                                                    end)
-															    end
-														    end)
-														end
+												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(targ.Character, Settings.DestroyGuns, true) end) end
 												end
 											end
