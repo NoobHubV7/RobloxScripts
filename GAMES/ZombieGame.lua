@@ -1,6 +1,6 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-Compkiller:Loader("rbxassetid://9716505031", 6).yield()
+Compkiller:Loader("rbxassetid://15544034532", 6).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
 	Directory = "Compkiller",
@@ -9,7 +9,10 @@ local FileWatcher = Compkiller:ConfigManager({
 
 local Window = Compkiller.new({
 	Keybind = "RightShift",
-	Name = "Zombie Game"
+	Name = "Zombie Game",
+	Logo = "rbxassetid://15544034532",
+	Scale = Compkiller.Scale.Mobile,
+	TextSize = 14
 });
 
 local players = Window:DrawTab({
