@@ -1,6 +1,6 @@
 local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
 
-Compkiller:Loader("rbxassetid://15544034532", 6).yield()
+Compkiller:Loader("rbxassetid://15544034532", 10).yield()
 
 local FileWatcher = Compkiller:ConfigManager({
 	Directory = "Compkiller",
