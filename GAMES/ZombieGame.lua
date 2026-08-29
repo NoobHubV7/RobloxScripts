@@ -270,7 +270,7 @@ function Become(team)
                      until not game.Players.LocalPlayer.Character:FindFirstChild("ForceField")
               end
               for i = 1,15 do
-                     game:GetService("ReplicatedStorage").Remotes.ZombieRelated.TouchedAcid:FireServer(nil)
+                     game:GetService("ReplicatedStorage").Remotes.ZombieRelated.TouchedAcid:FireServer("")
               end
        end
 end
