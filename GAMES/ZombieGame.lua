@@ -9,10 +9,10 @@ local FileWatcher = Compkiller:ConfigManager({
 
 local Window = Compkiller.new({
 	Keybind = "RightShift",
-	Name = "Zombie Game",
+	Name = "Zombie Game [upd3]",
 	Logo = "rbxassetid://15544034532",
 	Scale = Compkiller.Scale.Mobile,
-	TextSize = 14
+	TextSize = 15
 });
 
 local players = Window:DrawTab({
