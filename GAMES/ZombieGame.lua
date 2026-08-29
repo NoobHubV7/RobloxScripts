@@ -762,11 +762,11 @@ task.spawn(function()
 			                                    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
 											end
 											if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-												coroutine.wrap(function()
+												pcall(function()
 				                                    game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
 													game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
 				                                    game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
-				                                end)()
+				                                end)
 											end
 										end
 							        end
