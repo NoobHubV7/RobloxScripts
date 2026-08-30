@@ -218,7 +218,7 @@ function oldKillZombies()
 	    end
 	end)
 	if not success then
-		warn("error: " .. err)
+		warn("error:", err)
 	end
 end
 function KillZombies(bool)
