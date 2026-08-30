@@ -874,16 +874,24 @@ task.spawn(function()
                             if (v.Character.Torso.Position - torso.Position).Magnitude - (v.Character.Torso.Size.Magnitude / 2) - (torso.Size.Magnitude / 2) <= 8 and game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
                                 if b ~= game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
 									if b ~= v.Character then
-										if b.Name == "HumanNpc" then return nil end
-                                        if (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro") or string.find(b.Name, "Boss")) then return task.spawn(Kill, b)
-								      	elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro") or string.find(b.Name, "Boss")) then
-								   			if game.Players[b.Name] then
-												local targ = game.Players[b.Name]
-											    if CheckFriends(targ) then
-												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
-													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, targ.Character) end
-												end
-											end
+										if b.Name == "HumanNpc" then
+										    print("Yes")
+											return
+										end
+									    local success, err = pcall(function()
+                                            if (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro") or string.find(b.Name, "Boss")) then return task.spawn(Kill, b)
+								            elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro") or string.find(b.Name, "Boss")) then
+								   			    if game.Players[b.Name] then
+												    local targ = game.Players[b.Name]
+											        if CheckFriends(targ) then
+												        if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
+													    elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, targ.Character) end
+												    end
+											    end
+										    end
+										end)
+										if not success then
+											warn("error:", err)
 										end
 									end
                                 end
