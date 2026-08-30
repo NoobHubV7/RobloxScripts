@@ -83,7 +83,7 @@ local startTime = {
        Nine = 1, --nil
        Ten = 1, --nil
 	   Eleven = 1,
-	   Twelve = 1, --nil
+	   Twelve = 1,
 	   Thirteen = 1,
 	   Fourteen = 1
 }
@@ -402,21 +402,35 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	pcall(function()
-	    local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-		print("warn!")
-	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
-	    	if (tick() - startTime.Eleven) >= 0.5 then
-                startTime.Eleven = tick(); AddAttack()
-	        end
-        end
-        if game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") then
-    		repeat game:GetService("RunService").RenderStepped:Wait()
-	    		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(model.Torso.CFrame.p); coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, model.Torso)
-	    	until model:GetAttribute("Team") == "Zombie" or model.Humanoid.Health <= 0 or model:FindFirstChildOfClass("ForceField") or (tick() - startTime.Nine) >= 5
-	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
-    	end
+	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+	local melee = game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")
+	if not melee then
+		AddAttack()
+		repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")
+		melee = game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") or game.Players.LocalPlayer.Character:FindFirstChild("Attack")
+	else
+		melee = game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") or game.Players.LocalPlayer.Character:FindFirstChild("Attack")
+	end
+	local player, hasplayer = model, nil
+	if (player and player:IsA("Model")) and player:FindFirstChild("Humanoid").Health > 0 and not player:FindFirstChildOfClass("ForceField") then
+		if player:GetAttribute("Team") == "Human" then
+			hasplayer = true
+		end
+	end
+	if not hasplayer then
+		return
+	end
+	task.spawn(function()
+		startTime.Ten = tick()
+		repeat game:GetService("RunService").Heartbeat:Wait()
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(player.HumanoidRootPart.CFrame.p)
+			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
+		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
 	end)
+	if not InfectAura == true then
+		return RemoveAttack()
+	end
 end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
