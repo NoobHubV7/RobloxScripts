@@ -402,8 +402,7 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	if not stop2 == false then return nil end
-	stop2 = true
+	print("warn!")
 	local success, error = pcall(function()
 	    local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
@@ -418,9 +417,8 @@ function Infect(model)
 	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
     	end
 	end)
-	if success then stop2 = false
-	elseif not success then
-		stop2 = false; warn("error: "..tostring(error))
+	if not success then
+		warn("error: "..tostring(error))
 	end
 end
 function old()
