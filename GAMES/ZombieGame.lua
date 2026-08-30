@@ -461,7 +461,6 @@ Section2:AddToggle({text = "Loopkill Zombies", flag = "toggle", callback = funct
     LoopkillZombies = state
     stop2 = state
 end})
-Section2:AddButton({text = "Kill Zombies (old)", flag = "button", callback = function() oldKillZombies() end})
 Section3:AddButton({text = "Summon Necro", flag = "button", callback = function() Summon("NpcZombie") end})
 Section3:AddToggle({text = "Auto Spawn Necro", flag = "toggle", callback = function(state) LoopsummonNecro = state end})
 Section3:AddButton({text = "Summon Landmine", flag = "button", callback = function() Summon("Landmine") end})
@@ -777,7 +776,9 @@ task.spawn(function()
 												pcall(function()
 				                                    game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
 													game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
-				                                    game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
+													if (tick() - startTime.Twelve) >= 0.5 then
+				                                        game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
+													end
 				                                end)
 											end
 										end
