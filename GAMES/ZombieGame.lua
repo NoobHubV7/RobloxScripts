@@ -258,17 +258,22 @@ function KillZombies()
 	if not hasplayers then
 		return
 	end
-	if gun.Parent == game.Players.LocalPlayer.Backpack then
-		game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
-	end
-	task.spawn(function()
-		for i,v in next, ShootEvents do
-			if living[v] then
-				event:FireServer("GUN_DAMAGE", living[v])
-			end
-		end
+	local succ, err = pcall(function()
+	    if gun.Parent == game.Players.LocalPlayer.Backpack then
+    		game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
+    	end
+	    task.spawn(function()
+		    for i,v in next, ShootEvents do
+			    if living[v] then
+			    	event:FireServer("GUN_DAMAGE", living[v])
+			    end
+		    end
+	    end)
+	    if Settings.DestroyGuns then gun:Destroy() end
 	end)
-	if Settings.DestroyGuns then gun:Destroy() end
+	if not succ then
+	    warn("error:", err)
+	end
 end
 function Acid(pos, pos2)
        if not pos2 then
