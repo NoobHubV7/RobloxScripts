@@ -53,12 +53,6 @@ local Server = Window:DrawTab({
 	Type = "Single"
 });
 
-local Setting = Window:DrawTab({
-	Name = "Settings",
-	Icon = "settings",
-	Type = "Single"
-});
-
 local Notifier = Compkiller.newNotify();
 
 local killAura = {
@@ -97,9 +91,7 @@ local connecting, stop
 local connecting2, autoHeal
 local medkit, stop2
 local stop3, living = nil, workspace.LivingThings
-local Settings, stop4 = {
-	   DestroyGuns = true
-}, nil
+local stop4 = nil
 local Namebarriers, RemoveBarrier = {
 	   "ZombieSIGN",
        "ZombieDoor",
@@ -158,7 +150,7 @@ function CheckFriends(player)
 	return not (player:IsFriendsWith(game.Players.LocalPlayer.UserId))
 end
 
-function Kill(model, isDestroy)
+function Kill(model)
 	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") or game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
 	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie") then
 		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
@@ -196,7 +188,6 @@ function Kill(model, isDestroy)
 			end
 		end
 	end)
-	if isDestroy then gun:Destroy() end
 end
 function oldKillZombies()
 	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
@@ -279,7 +270,6 @@ function KillZombies()
 			end
 		end
 	end)
-	if Settings.DestroyGuns then gun:Destroy() end
 end
 function Acid(pos, pos2)
        if not pos2 then
@@ -725,11 +715,9 @@ do
 		end
 	    InfectAura = state
 	end,})
-	local main10 = Setting:DrawSection({Name = "Script Settings"})
-    main10:AddToggle({Name = "Destroy Guns", Flag = "sjwidifuduwid67", Default = true, Callback = function(state) Settings.DestroyGuns = state end,})
-	local main11 = Server:DrawSection({Name = "Acid"})
-	main11:AddButton({Name = "Summon Acid", Callback = function() Summon("Acid") end,})
-	main11:AddToggle({Name = "Target Acid", Flag = "Hwkcjcuriwkef61", Default = false, Callback = function(state)
+    local main10 = Server:DrawSection({Name = "Acid"})
+	main10:AddButton({Name = "Summon Acid", Callback = function() Summon("Acid") end,})
+	main10:AddToggle({Name = "Target Acid", Flag = "Hwkcjcuriwkef61", Default = false, Callback = function(state)
 		if not state == false then
             local played = GetPlayer(target)
             if played then
@@ -741,7 +729,7 @@ do
             end
 		end
 	end,})
-	main11:AddToggle({Name = "Spread Acid (Target)", Flag = "wodjfiwowndh69", Default = false, Callback = function(state)
+	main10:AddToggle({Name = "Spread Acid (Target)", Flag = "wodjfiwowndh69", Default = false, Callback = function(state)
 		if not state == false then
             local played = GetPlayer(target)
             if played then
@@ -753,16 +741,16 @@ do
             end
 		end
 	end,})
-	local main12 = Server:DrawSection({Name = "Landmine"})
-	main12:AddButton({Name = "Summon Landmine", Callback = function() Summon("Landmine") end,})
-	main12:AddButton({Name = "Lag Server (Landmine)", Callback = function()
+	local main11 = Server:DrawSection({Name = "Landmine"})
+	main11:AddButton({Name = "Summon Landmine", Callback = function() Summon("Landmine") end,})
+	main11:AddButton({Name = "Lag Server (Landmine)", Callback = function()
 		lagServer(event.FireServer, "PLACE_LANDMINE")
 		game:GetService("RunService").RenderStepped:Wait()
 		rejoin()
 	end,})
-	local main13 = Server:DrawSection({Name = "Necro"})
-	main13:AddButton({Name = "Summon Necro", Callback = function() Summon("NpcZombie") end,})
-	main13:AddButton({Name = "Lag Server (Necro)", Callback = function()
+	local main12 = Server:DrawSection({Name = "Necro"})
+	main12:AddButton({Name = "Summon Necro", Callback = function() Summon("NpcZombie") end,})
+	main12:AddButton({Name = "Lag Server (Necro)", Callback = function()
 		lagServer(game.ReplicatedStorage.Remotes.ZombieRelated.Necro.AbilityPlayer)
 		game:GetService("RunService").RenderStepped:Wait()
 		rejoin()
