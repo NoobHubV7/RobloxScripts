@@ -87,7 +87,7 @@ local startTime = {
        Nine = 1, --nil
        Ten = 1, --nil
 	   Eleven = 1,
-	   Twelve = 1,
+	   Twelve = 1, --nil
 	   Thirteen = 1,
 	   Fourteen = 1
 }
@@ -766,24 +766,18 @@ task.spawn(function()
 										elseif v:GetAttribute("Team") == "Human" then
 											if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
 	    	                                    if (tick() - startTime.Fourteen) >= 0.5 then
-                                                    startTime.Fourteen = tick(); repeat game:GetService("RunService").RenderStepped:Wait()
-														game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-													until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+                                                    startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
 												end
                                             end        
                                             if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
 												if (tick() - startTime.Ten) >= 0.5 then
-    		                                        startTime.Ten = tick(); repeat game:GetService("RunService").RenderStepped:Wait()
-														game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-													until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+    		                                        startTime.Ten = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
 												end
 											end
 											if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
 												pcall(function()
+												    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
 				                                    game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
-													if (tick() - startTime.Twelve) >= 0.5 then
-													    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
-													end
 				                                    game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
 				                                end)
 											end
