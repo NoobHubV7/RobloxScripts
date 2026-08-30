@@ -15,7 +15,7 @@ local Window = Compkiller.new({
 	TextSize = 15
 });
 
-task.wait(3)
+task.wait(1.5)
 
 local players = Window:DrawTab({
 	Name = "Players",
