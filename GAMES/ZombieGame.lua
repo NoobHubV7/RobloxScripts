@@ -459,6 +459,7 @@ Section2:AddToggle({text = "Loopkill Zombies", flag = "toggle", callback = funct
     LoopkillZombies = state
     stop2 = state
 end})
+Section2:AddButton({text = "Kill Zombies (old)", flag = "button", callback = function() oldKillZombies() end})
 Section3:AddButton({text = "Summon Necro", flag = "button", callback = function() Summon("NpcZombie") end})
 Section3:AddToggle({text = "Auto Spawn Necro", flag = "toggle", callback = function(state) LoopsummonNecro = state end})
 Section3:AddButton({text = "Summon Landmine", flag = "button", callback = function() Summon("Landmine") end})
