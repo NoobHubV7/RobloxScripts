@@ -59,7 +59,6 @@ local Setting = Window:DrawTab({
 	Type = "Single"
 });
 
-local UserSettings = Window.UserSettings:Create();
 local Notifier = Compkiller.newNotify();
 
 local killAura = {
@@ -215,7 +214,7 @@ function oldKillZombies()
 	    for i,v in pairs(living:GetChildren()) do
 		    if not (v == game.Players.LocalPlayer.Character) then
 		        if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
-					if v:FindFirstChild("Head") then
+					if v:FindFirstChild("Head") and v:GetAttribute("Team") == "Zombie" then
 				        hasplayers = true
 				        ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
 				        BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
@@ -756,16 +755,18 @@ do
 	end,})
 	local main12 = Server:DrawSection({Name = "Landmine"})
 	main12:AddButton({Name = "Summon Landmine", Callback = function() Summon("Landmine") end,})
+	main12:AddButton({Name = "Lag Server (Landmine)", Callback = function()
+		lagServer(event.FireServer, "PLACE_LANDMINE")
+		game:GetService("RunService").RenderStepped:Wait()
+		rejoin()
+	end,})
 	local main13 = Server:DrawSection({Name = "Necro"})
-	main13:AddButton({Name = "Summon Acid", Callback = function() Summon("NpcZombie") end,})
-	UserSettings:AddColorPicker({
-    	Name = "Menu Color",
-    	Default = Compkiller.Colors.Highlight,
-    	Callback = function(f)
-	    	Compkiller.Colors.Highlight = f;
-		    Compkiller:RefreshCurrentColor();
-	    end,
-    });
+	main13:AddButton({Name = "Summon Necro", Callback = function() Summon("NpcZombie") end,})
+	main13:AddButton({Name = "Lag Server (Necro)", Callback = function()
+		lagServer(game.ReplicatedStorage.Remotes.ZombieRelated.Necro.AbilityPlayer)
+		game:GetService("RunService").RenderStepped:Wait()
+		rejoin()
+	end,})
 end
 	
 task.spawn(function()
@@ -775,7 +776,7 @@ task.spawn(function()
                 if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField")) then
                     if v:FindFirstChild("Head") then
                         local head = v:FindFirstChild("Head")
-                        if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 8 and not stop2 == true then
+                        if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 7.5 and not stop2 == true then
                             if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
 								if v.Name == "HumanNpc" then return nil end
 								if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
@@ -814,7 +815,7 @@ task.spawn(function()
 												end
 											end
 											if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-												pcall(function()
+												task.spawn(function()
 												    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
 				                                    game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
 				                                    game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
@@ -849,7 +850,7 @@ task.spawn(function()
             for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
                     local root = v.HumanoidRootPart
-                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 5 and v:FindFirstChild("Humanoid").Health > 0 then
+                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 6 and v:FindFirstChild("Humanoid").Health > 0 then
                         if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" then
                             if (game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") or game.Players.LocalPlayer.Character:FindFirstChild("Attack")) then game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(root) end
                         end
@@ -886,16 +887,13 @@ task.spawn(function()
                                 if b ~= game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character.Humanoid.Health > 0) then
 									if b ~= v.Character then
 										if b.Name == "HumanNpc" then return nil end
-                                        if (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro")) then
-											 return task.spawn(function()
-					                            Kill(b, Settings.DestroyGuns, true)
-											 end)
-								      	elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro")) then
+                                        if (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro") or string.find(b.Name, "Boss")) then return task.spawn(Kill, b)
+								      	elseif not (string.find(b.Name, "Zombie") or string.find(b.Name, "Summon") or string.find(b.Name, "Necro") or string.find(b.Name, "Boss")) then
 								   			if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
 												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
-													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(function() Kill(targ.Character, Settings.DestroyGuns, true) end) end
+													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, targ.Character) end
 												end
 											end
 										end
