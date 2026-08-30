@@ -212,16 +212,10 @@ function oldKillZombies()
 	pcall(function()
 	    local hasplayers = nil
 	    local ShootEvents, BulletEvents = {}, {}
-	    for i,v in pairs(living:GetChildren()) do
-		    if not (v == game.Players.LocalPlayer.Character) then
-		        if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
-					if v:FindFirstChild("Head") and v:GetAttribute("Team") == "Zombie" then
-				        hasplayers = true
-				        ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
-				        BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
-					end
-			    end
-		    end
+	    for i,v in pairs(GetTeam("Zombie")) do
+			hasplayers = true
+			ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Torso")
+			BulletEvents[#BulletEvents + 1] = {{v:FindFirstChild("Torso").Position, v:FindFirstChild("Torso").Position}}
 	    end
 	    if not hasplayers then
 	    	return
@@ -774,74 +768,33 @@ task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
 	    if killAura.Me then
             for i,v in ipairs(living:GetChildren()) do
-                if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField")) then
-                    if v:FindFirstChild("Head") then
-                        local head = v:FindFirstChild("Head")
-                        if (game.Players.LocalPlayer.Character.Head.Position - head.Position).Magnitude - (game.Players.LocalPlayer.Character.Head.Size.Magnitude / 2) - (head.Size.Magnitude / 2) <= 7.5 and not stop2 == true then
-                            if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
-								if v.Name == "HumanNpc" then return nil end
-								if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
-                                    if not (find.Weapons(true) or find.Weapons(false)) then
-                                        if (tick() - startTime.Two) >= 0.5 then
-                                            startTime.Two = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
-                                        end
-                                    end; if find.Weapons(false) then
-                                        if (tick() - startTime.Three) >= 0.5 then
-                                            startTime.Three = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
-                                        end
-                                    end
-                                    if find.Weapons(true) then game.ReplicatedStorage.Remotes.Melee.Damage:InvokeServer(head) end
-							    elseif not (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
-									if CheckFriends(game.Players[v.Name]) then
-										if v:GetAttribute("Team") == "Zombie" then
-										    if not (find.Weapons(true) or find.Weapons(false)) then
-                                                if (tick() - startTime.Two) >= 0.5 then
-                                                startTime.Two = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
-                                                end
-                                            end; if find.Weapons(false) then
-                                                if (tick() - startTime.Three) >= 0.5 then
-                                                    startTime.Three = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
-                                                end
-                                            end
-                                            if find.Weapons(true) then game.ReplicatedStorage.Remotes.Melee.Damage:InvokeServer(head) end
-										elseif v:GetAttribute("Team") == "Human" then
-											if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
-	    	                                    if (tick() - startTime.Fourteen) >= 0.5 then
-                                                    startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-												end
-                                            end        
-                                            if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-												if (tick() - startTime.Ten) >= 0.5 then
-    		                                        startTime.Ten = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-												end
-											end
-											if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
-												task.spawn(function()
-												    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.HumanoidRootPart.Position, v.HumanoidRootPart.Position}, "Raygun")
-				                                    game.ReplicatedStorage.Remotes.Guns.Damage.FireServer(game.ReplicatedStorage.Remotes.Guns.Damage, v.HumanoidRootPart)
-				                                    game.ReplicatedStorage.Remotes.Guns.Reload.FireServer(game.ReplicatedStorage.Remotes.Guns.Reload)
-				                                end)
-											end
-										end
-							        end
+				if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
+					if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2)) <= 7.5 then
+						if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Zombie" then
+							if v.Name == "HumanNpc" then return end
+							if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
+								local weapon = find.Weapons(true) or find.Weapons(false)
+								if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+									game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
+									repeat game:GetService("RunService").PreSimulation:Wait() until find.Weapons(false)
+									weapon = find.Weapons(true) or find.Weapons(false)
+								elseif weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+									weapon = find.Weapons(true) or find.Weapons(false)
 								end
-                            elseif game.Players.LocalPlayer.Character:GetAttribute("Team") == "Zombie" then
-                                if not (find.Weapons(true) or find.Weapons(false)) then
-                                    if (tick() - startTime.Four) >= 0.5 then
-                                        startTime.Four = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Bone Sword")
-                                    end
-                                end; if find.Weapons(false) then
-                                    if (tick() - startTime.Five) >= 0.5 then
-                                        startTime.Five = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
-                                    end
-                                end
-                                if find.Weapons(true) then game.ReplicatedStorage.Remotes.Melee.Damage:InvokeServer(head) end
-                            end
-                        end
-                    end
-                end
-            end
-        end
+								if weapon.Parent == game.Players.LocalPlayer.Backpack then
+									game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+								end
+								task.spawn(function()
+									if weapon.Parent == game.Players.LocalPlayer.Character then
+										coroutine.wrap(game.ReplicatedStorage.Remotes.Melee.Damage.InvokeServer)(game.ReplicatedStorage.Remotes.Melee.Damage, v.HumanoidRootPart)
+									end
+								end)
+							end
+						end
+					end
+				end
+			end
+		end
         if LoopsummonLandmine then Summon("Landmine") end
         if LoopkillZombies then task.spawn(KillZombies, true) end
         if LoopsummonNecro then Summon("NpcZombie") end
