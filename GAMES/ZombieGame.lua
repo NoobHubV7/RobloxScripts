@@ -881,8 +881,7 @@ task.spawn(function()
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
 												    if targ.Character:GetAttribute("Team") == "Human" then
-														task.spawn(Infect, targ.Character)
-														return print("Test!")
+														return task.spawn(Infect, targ.Character)
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, targ.Character) end
 												end
 											end
