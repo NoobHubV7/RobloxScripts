@@ -85,7 +85,7 @@ local startTime = {
        Nine = 1, --nil
        Ten = 1, --nil
 	   Eleven = 1,
-	   Twelve = 1, --nil
+	   Twelve = 1,
 	   Thirteen = 1,
 	   Fourteen = 1
 }
@@ -764,13 +764,17 @@ task.spawn(function()
 										elseif v:GetAttribute("Team") == "Human" then
 											if not (game.Players.LocalPlayer.Character:FindFirstChild("Raygun") or game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")) then
 	    	                                    if (tick() - startTime.Fourteen) >= 0.5 then
-                                                    startTime.Fourteen = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-	                                            end
-		                                        repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+                                                    startTime.Fourteen = tick(); repeat game:GetService("RunService").RenderStepped:Wait()
+														game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+													until game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun")
+												end
                                             end        
                                             if game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") then
-    		                                    game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
-			                                    repeat game:GetService("RunService").RenderStepped:Wait() until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+												if (tick() - startTime.Ten) >= 0.5 then
+    		                                        startTime.Ten = tick(); repeat game:GetService("RunService").RenderStepped:Wait()
+														game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+													until game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+												end
 											end
 											if game.Players.LocalPlayer.Character:FindFirstChild("Raygun") then
 												pcall(function()
