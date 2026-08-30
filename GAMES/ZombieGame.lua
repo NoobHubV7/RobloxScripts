@@ -234,9 +234,9 @@ function KillZombies()
 		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
 		repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
 		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
-	elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
+	elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie") then
 		game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
-		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun")
+		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
 	end
 	local hasplayers = nil
 	local ShootEvents = {}
