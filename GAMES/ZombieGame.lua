@@ -127,6 +127,22 @@ function bodyParts()
 	return Found
 end
 
+function GetTeam(team)
+	local Found, hasplayers = {}, nil
+	for i,v in ipairs(living:GetChildren()) do
+		if (v and v:IsA("Model")) and v:FindFirstChild("Humanoid").Health > 0 and not v.FindFirstChildOfClass(v, "ForceField") then
+			if v ~= game.Players.LocalPlayer.Character and v:GetAttribute("Team") == team and v:FindFirstChild("Torso") then
+				hasplayers = true
+				Found[#Found + 1] = v
+			end
+		end
+	end
+	if not hasplayers then
+		return
+	end
+	return Found
+end
+
 function Noclip(bool)
 	for i,v in pairs(bodyParts()) do
 		if v then
@@ -162,16 +178,10 @@ function Kill(model)
 	local hasplayers = nil
 	local ShootEvents = {}
 	pcall(function()
-		for i,v in ipairs(living:GetChildren()) do
+		for i,v in next, GetTeam("Zombie") do
 			if v == model then
-			    if (v and v:FindFirstChild("Humanoid")) and not v:FindFirstChildOfClass("ForceField") then
-			    	if v:FindFirstChild("Humanoid").Health > 0 and v:FindFirstChild("Torso") then
-				    	if v ~= game.Players.LocalPlayer.Character and v:GetAttribute("Team") ~= "Human" then
-						    hasplayers = true
-					        ShootEvents[#ShootEvents + 1] = v
-					    end
-				    end
-			    end
+				hasplayers = true
+				ShootEvents[#ShootEvents + 1] = v
 			end
 		end
 	end)
@@ -246,15 +256,9 @@ function KillZombies()
 	local hasplayers = nil
 	local ShootEvents = {}
 	pcall(function()
-		for i,v in ipairs(living:GetChildren()) do
-			if (v and v:FindFirstChild("Humanoid")) and not v:FindFirstChildOfClass("ForceField") then
-				if v:FindFirstChild("Humanoid").Health > 0 and v:FindFirstChild("Torso") then
-					if v ~= game.Players.LocalPlayer.Character and v:GetAttribute("Team") ~= "Human" then
-						hasplayers = true
-					    ShootEvents[#ShootEvents + 1] = v
-					end
-				end
-			end
+		for i,v in next, GetTeam("Zombie") do
+			hasplayers = true
+			ShootEvents[#ShootEvents + 1] = v
 		end
 	end)
 	if not hasplayers then
