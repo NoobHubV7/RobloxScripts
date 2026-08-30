@@ -246,7 +246,7 @@ function KillZombies()
 				if v:FindFirstChild("Humanoid").Health > 0 and v:FindFirstChild("Torso") then
 					if v ~= game.Players.LocalPlayer.Character and v:GetAttribute("Team") ~= "Human" then
 						hasplayers = true
-					    ShootEvents[#ShootEvents + 1] = v.Name
+					    ShootEvents[#ShootEvents + 1] = v
 					end
 				end
 			end
@@ -264,9 +264,9 @@ function KillZombies()
     	end
 	    task.spawn(function()
 		    for i,v in next, ShootEvents do
-			    if workspace.LivingThings[v] then
-			    	event:FireServer("GUN_DAMAGE", workspace.LivingThings[v])
-					print("Kiểm tra:", living[v])
+			    if (v and v:IsA("Model")) then
+			    	event:FireServer("GUN_DAMAGE", v)
+					print("Kiểm tra:", v)
 			    end
 		    end
 	    end)
