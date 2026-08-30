@@ -15,46 +15,6 @@ local Window = Compkiller.new({
 	TextSize = 15
 });
 
-task.wait(1.5)
-
-local players = Window:DrawTab({
-	Name = "Players",
-	Icon = "user",
-	Type = "Single"
-});
-
-local Teams = Window:DrawTab({
-	Name = "Teams",
-	Icon = "users",
-	Type = "Single"
-});
-
-local Items = Window:DrawTab({
-	Name = "Items",
-	Icon = "package",
-    Type = "Single"
-});
-
-local Weapons = Window:DrawTab({
-	Name = "Weapons",
-	Icon = "swords",
-	Type = "Single"
-});
-
-local Client = Window:DrawTab({
-	Name = "Client",
-	Icon = "monitor",
-	Type = "Single"
-});
-
-local Server = Window:DrawTab({
-	Name = "Server",
-	Icon = "server",
-	Type = "Single"
-});
-
-local Notifier = Compkiller.newNotify();
-
 local killAura = {
        Plr = {},
        Me = false
@@ -534,6 +494,46 @@ Section9:AddToggle({text = "Unload Entities", flag = "toggle", callback = functi
 	end
 end})
 end
+task.wait(1.5)
+do
+	local players = Window:DrawTab({
+	    Name = "Players",
+	    Icon = "user",
+	    Type = "Single"
+    });
+
+    local Teams = Window:DrawTab({
+	    Name = "Teams",
+	    Icon = "users",
+	    Type = "Single"
+    });
+
+    local Items = Window:DrawTab({
+	    Name = "Items",
+	    Icon = "package",
+        Type = "Single"
+    });
+
+    local Weapons = Window:DrawTab({
+	    Name = "Weapons",
+	    Icon = "swords",
+	    Type = "Single"
+    });
+
+    local Client = Window:DrawTab({
+	    Name = "Client",
+	    Icon = "monitor",
+	    Type = "Single"
+    });
+
+    local Server = Window:DrawTab({
+	    Name = "Server",
+	    Icon = "server",
+	    Type = "Single"
+    });
+
+local Notifier = Compkiller.newNotify();
+end
 
 do
 	local main = Teams:DrawSection({Name = "Select Team"})
@@ -882,7 +882,9 @@ task.spawn(function()
 								   			if game.Players[b.Name] then
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
-												    if targ.Character:GetAttribute("Team") == "Human" then return task.spawn(Infect, targ.Character)
+												    if targ.Character:GetAttribute("Team") == "Human" then
+														task.spawn(Infect, targ.Character)
+														return print("Test!")
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, targ.Character) end
 												end
 											end
