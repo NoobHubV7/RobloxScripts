@@ -15,6 +15,46 @@ local Window = Compkiller.new({
 	TextSize = 15
 });
 
+task.wait(1.5)
+
+local players = Window:DrawTab({
+	Name = "Players",
+	Icon = "user",
+	Type = "Single"
+});
+
+local Teams = Window:DrawTab({
+	Name = "Teams",
+	Icon = "users",
+	Type = "Single"
+});
+
+local Items = Window:DrawTab({
+	Name = "Items",
+	Icon = "package",
+    Type = "Single"
+});
+
+local Weapons = Window:DrawTab({
+	Name = "Weapons",
+	Icon = "swords",
+	Type = "Single"
+});
+
+local Client = Window:DrawTab({
+	Name = "Client",
+	Icon = "monitor",
+	Type = "Single"
+});
+
+local Server = Window:DrawTab({
+	Name = "Server",
+	Icon = "server",
+	Type = "Single"
+});
+
+local Notifier = Compkiller.newNotify();
+
 local killAura = {
        Plr = {},
        Me = false
@@ -494,44 +534,6 @@ Section9:AddToggle({text = "Unload Entities", flag = "toggle", callback = functi
 	end
 end})
 end
-task.wait(1.5)
-local players = Window:DrawTab({
-	Name = "Players",
-	Icon = "user",
-	Type = "Single"
-});
-
-local Teams = Window:DrawTab({
-	Name = "Teams",
-	Icon = "users",
-	Type = "Single"
-});
-
-local Items = Window:DrawTab({
-	Name = "Items",
-	Icon = "package",
-    Type = "Single"
-});
-
-local Weapons = Window:DrawTab({
-	Name = "Weapons",
-	Icon = "swords",
-	Type = "Single"
-});
-
-local Client = Window:DrawTab({
-	Name = "Client",
-	Icon = "monitor",
-	Type = "Single"
-});
-
-local Server = Window:DrawTab({
-	Name = "Server",
-	Icon = "server",
-	Type = "Single"
-});
-
-local Notifier = Compkiller.newNotify();
 
 do
 	local main = Teams:DrawSection({Name = "Select Team"})
