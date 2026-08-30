@@ -264,8 +264,9 @@ function KillZombies()
     	end
 	    task.spawn(function()
 		    for i,v in next, ShootEvents do
-			    if living[v] then
-			    	event:FireServer("GUN_DAMAGE", living[v])
+			    if workspace.LivingThings[v] then
+			    	event:FireServer("GUN_DAMAGE", workspace.LivingThings[v])
+					print("Kiểm tra:", living[v])
 			    end
 		    end
 	    end)
