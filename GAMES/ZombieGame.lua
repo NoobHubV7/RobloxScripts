@@ -194,9 +194,11 @@ function oldKillZombies()
 	    for i,v in pairs(living:GetChildren()) do
 		    if not (v == game.Players.LocalPlayer.Character) then
 		        if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
-				    hasplayers = true
-				    ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
-				    BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
+					if v:FindFirstChild("Head") then
+				        hasplayers = true
+				        ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
+				        BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
+					end
 			    end
 		    end
 	    end
