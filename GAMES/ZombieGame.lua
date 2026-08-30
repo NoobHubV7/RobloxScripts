@@ -60,6 +60,7 @@ local Setting = Window:DrawTab({
 });
 
 local UserSettings = Window.UserSettings:Create();
+local Notifier = Compkiller.newNotify();
 
 local killAura = {
        Plr = {},
@@ -158,7 +159,7 @@ function CheckFriends(player)
 	return not (player:IsFriendsWith(game.Players.LocalPlayer.UserId))
 end
 
-function Kill(model, isDestroy, bool)
+function Kill(model, isDestroy)
 	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid", true).Health > 0 then
 		local success, error = pcall(function()
             if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
@@ -227,31 +228,47 @@ function oldKillZombies()
 		warn("error:", err)
 	end
 end
-function KillZombies(bool)
-    if (not stop3 == false or not stop4 == false) then return false end
-	if not bool == false and not stop3 == true then stop3 = true end
+function KillZombies()
+	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") or game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
+	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie") then
+		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Sniper")
+		repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
+		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")
+	elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
+		game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
+		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun")
+	end
+	local hasplayers = nil
+	local ShootEvents = {}
 	local success, error = pcall(function()
-        for i,v in ipairs(living:GetChildren()) do
-            if (v and v:IsA("Model")) then
-				if v:FindFirstChild("Torso") and v.Humanoid.Health > 0 and not v:FindFirstChildOfClass("ForceField") then
-				    if v:GetAttribute("Team") == "Zombie" then
-					    task.spawn(function()
-						    Kill(v, false, true)
-					    end)
-				    end
-                end
-			elseif not (v and v:IsA("Model")) then
-				continue
+		for i,v in ipairs(living:GetChildren()) do
+			if (v and v:FindFirstChild("Humanoid")) and not v:FindFirstChildOfClass("ForceField") then
+				if v:FindFirstChild("Humanoid").Health > 0 and v:FindFirstChild("Torso") then
+					if v ~= game.Players.LocalPlayer.Character and v:GetAttribute("Team") ~= "Human" then
+						hasplayers = true
+					    ShootEvents[#ShootEvents + 1] = v.Name
+					end
+				end
 			end
 		end
-		if not Settings.DestroyGuns == false and game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 	end)
-	if success then
-		if not stop3 == false then stop3 = false end
-	elseif not success then
-		if not stop3 == false then stop3 = false end
-		warn("error: "..tostring(error))
+	if not success then
+		warn("error:", error)
 	end
+	if not hasplayers then
+		return
+	end
+	if gun.Parent == game.Players.LocalPlayer.Backpack then
+		game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
+	end
+	task.spawn(function()
+		for i,v in next, ShootEvents do
+			if workspace[v] then
+				event:FireServer("GUN_DAMAGE", workspace[v])
+			end
+		end
+	end)
+	if Settings.DestroyGuns then gun:Destroy() end
 end
 function Acid(pos, pos2)
        if not pos2 then
