@@ -402,9 +402,9 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	print("warn!")
-	local success, error = pcall(function()
+	pcall(function()
 	    local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+		print("warn!")
 	    if not (game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")) then
 	    	if (tick() - startTime.Eleven) >= 0.5 then
                 startTime.Eleven = tick(); AddAttack()
@@ -417,9 +417,6 @@ function Infect(model)
 	        if not InfectAura == true then RemoveAttack() end; game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
     	end
 	end)
-	if not success then
-		warn("error: "..tostring(error))
-	end
 end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
