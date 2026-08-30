@@ -15,7 +15,7 @@ local Window = Compkiller.new({
 	TextSize = 15
 });
 
-task.wait(1)
+task.wait(3)
 
 local players = Window:DrawTab({
 	Name = "Players",
@@ -58,6 +58,8 @@ local Setting = Window:DrawTab({
 	Icon = "settings",
 	Type = "Single"
 });
+
+local UserSettings = Window.UserSettings:Create();
 
 local killAura = {
        Plr = {},
@@ -727,6 +729,14 @@ do
 	main12:AddButton({Name = "Summon Landmine", Callback = function() Summon("Landmine") end,})
 	local main13 = Server:DrawSection({Name = "Necro"})
 	main13:AddButton({Name = "Summon Acid", Callback = function() Summon("NpcZombie") end,})
+	UserSettings:AddColorPicker({
+    	Name = "Menu Color",
+    	Default = Compkiller.Colors.Highlight,
+    	Callback = function(f)
+	    	Compkiller.Colors.Highlight = f;
+		    Compkiller:RefreshCurrentColor();
+	    end,
+    });
 end
 	
 task.spawn(function()
@@ -870,3 +880,9 @@ task.spawn(function()
         end
     end)
 end)
+Notifier.new({
+	Title = "Loader Script!",
+	Content = "Thank you for use this script!",
+	Duration = 10,
+	Icon = "rbxassetid://15544034532"
+});
