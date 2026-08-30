@@ -156,8 +156,6 @@ end
 
 function Kill(model, isDestroy, bool)
 	if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid", true).Health > 0 then
-	    if (not stop == false or not stop4 == false) then return false end
-	    if not bool == false and not stop == true then stop = true end
 		local success, error = pcall(function()
             if not (game.Players.LocalPlayer.Character:FindFirstChild("Sniper") or game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper")) then
                 if (tick() - startTime.Thirteen) >= 0.5 then
@@ -175,44 +173,52 @@ function Kill(model, isDestroy, bool)
             if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") then event:FireServer("GUN_DAMAGE", model) end
 			if game.Players.LocalPlayer.Character:FindFirstChild("Sniper") and isDestroy then game.Players.LocalPlayer.Character:FindFirstChild("Sniper"):Destroy() end
 		end)
-        if success then
-		    if not stop == false then stop = false end
-		elseif not success then
-			if not stop == false then stop = false end
+        if not success then
 			warn("error: "..tostring(error))
 		end
 	end
 end
 function oldKillZombies()
 	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
-	if not gun and not (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie") then
 		game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Shotgun")
 		repeat game:GetService("RunService").PreSimulation:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun")
-		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun") or game.Players.LocalPlayer.Character:FindFirstChild("Shotgun")
+		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun")
+	elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie") then
+		game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
+		gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Shotgun")
 	end
-	local hasplayers = nil, nil
-	local ShootEvents, BulletEvents = {}, {}
-	for i,v in pairs(living:GetChildren()) do
-		if not (v == game.Players.LocalPlayer.Character) then
-			if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
-				hasplayers = true
-				ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
-				BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
-			end
+	local success, err = pcall(function()
+	    local hasplayers = nil
+	    local ShootEvents, BulletEvents = {}, {}
+	    for i,v in pairs(living:GetChildren()) do
+		    if not (v == game.Players.LocalPlayer.Character) then
+		        if v and not v:FindFirstChildWhichIsA("ForceField") and not (v:FindFirstChild("Humanoid").Health == 0) then
+				    hasplayers = true
+				    ShootEvents[#ShootEvents + 1] = v:FindFirstChild("Head")
+				    BulletEvents[#BulletEvents + 1] = {{game.Players.LocalPlayer.Character:FindFirstChild("Head").Position, v:FindFirstChild("Head").Position}}
+			    end
+		    end
+	    end
+	    if not hasplayers then
+	    	return
+	    end
+		if gun.Parent == game.Players.LocalPlayer.Backpack then
+			game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
 		end
-	end
-	if not hasplayers then
-		return
-	end
-	task.spawn(function()
-		for i = 1, 6 do
-			game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
-		end
+	    task.spawn(function()
+	    	for i = 1, 6 do
+		    	game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
+		    end
+	    end)
+	    for i = 1, 6 do
+		    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunReplicateBullet:FireServer(BulletEvents)
+	        game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
+		    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
+	    end
 	end)
-	for i = 1, 6 do
-		game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunReplicateBullet:FireServer(BulletEvents)
-	    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
-		game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
+	if not success then
+		warn("error: " .. err)
 	end
 end
 function KillZombies(bool)
