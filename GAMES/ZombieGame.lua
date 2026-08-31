@@ -66,7 +66,8 @@ local def, zList = Vector3.new, {-268, -250, -232, -214, -196, -178, -142, -124,
 local target, TargetAcid = nil, {}
 local weaponTable, RNG = {}, Random.new()
 local SpreadAcid, find = {}, {
-       Weapons = "Hitbox" or "Handle" or "Damage"
+       Weapons = "Hitbox" or "Handle" or "Damage",
+	   Raygun = "Gun"
 }
 local event = game.ReplicatedStorage.NetworkEvents.RemoteEvent
 local TeleportService : TeleportService = cloneref(game:GetService("TeleportService"))
@@ -105,13 +106,27 @@ local SavedPositions = {
 do
     for i,v in next, find do
         find[i] = function(bool)
-            local char = game.Players.LocalPlayer.Character; local back = game.Players.LocalPlayer.Backpack
-            local container = ((bool ~= false) and char) or back
-            if not (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then return false end
-            if (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then
-                local Finding = (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v))
-                return Finding.Parent.Parent
-		    end
+			if i == "Weapons" then
+                local char = game.Players.LocalPlayer.Character; local back = game.Players.LocalPlayer.Backpack
+                local container = ((bool ~= false) and char) or back
+                if not (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then return false end
+                if (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then
+					if not (container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild("Gun")) then
+                        local Finding = (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v))
+                        return Finding.Parent.Parent
+					end
+		        end
+			elseif i == "Raygun" then
+				local char = game.Players.LocalPlayer.Character; local back = game.Players.LocalPlayer.Backpack
+                local container = ((bool ~= false) and char) or back
+                if not (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then return false end
+                if (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v)) then
+					if (container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild("Gun")) then
+                        local Finding = (container:FindFirstChildOfClass("Tool") and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model') and container:FindFirstChildOfClass("Tool"):FindFirstChildOfClass('Model'):FindFirstChild(v))
+                        return Finding.Parent.Parent
+					end
+				end
+			end
         end
     end
 end
