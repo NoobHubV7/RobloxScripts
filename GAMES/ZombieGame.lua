@@ -829,8 +829,8 @@ task.spawn(function()
 												elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 													gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
 												end
-												if weapon.Parent == game.Players.LocalPlayer.Backpack then
-							    		            game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+												if gun.Parent == game.Players.LocalPlayer.Backpack then
+							    		            game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
 												end
 										        task.spawn(function()
 													if gun.Parent == game.Players.LocalPlayer.Character then
