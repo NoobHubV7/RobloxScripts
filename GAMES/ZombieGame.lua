@@ -838,12 +838,12 @@ task.spawn(function()
 										elseif players.Character:GetAttribute("Team") ~= "Zombie" then
 											return task.spawn(function()
 												local success, err = pcall(function()
-												    local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+												    local gun = find.Raygun(false) or find.Raygun(true)
 											    	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 												    	game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-												    	gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+												    	gun = find.Raygun(false) or find.Raygun(true)
 												    elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-												    	gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+												    	gun = find.Raygun(true) or find.Raygun(false)
 											    	end
 											    	if gun.Parent == game.Players.LocalPlayer.Backpack then
 							    		                gun.Parent = game.Players.LocalPlayer.Character
@@ -884,7 +884,7 @@ task.spawn(function()
             for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
                     local root = v.HumanoidRootPart
-                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 6.5 and v:FindFirstChild("Humanoid").Health > 0 then
+                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 7 and v:FindFirstChild("Humanoid").Health > 0 then
                         if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" then
                             if (game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") or game.Players.LocalPlayer.Character:FindFirstChild("Attack")) then game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(root) end
                         end
