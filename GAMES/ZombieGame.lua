@@ -777,7 +777,7 @@ do
 	local main11 = Server:DrawSection({Name = "Landmine"})
 	main11:AddButton({Name = "Summon Landmine", Callback = function() Summon("Landmine") end,})
 	main11:AddButton({Name = "Lag Server (Landmine)", Callback = function()
-		lagServer(event.FireServer, "PLACE_LANDMINE")
+		lagServer(event, "PLACE_LANDMINE")
 		game:GetService("RunService").RenderStepped:Wait()
 		rejoin()
 	end,})
