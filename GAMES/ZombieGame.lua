@@ -406,8 +406,8 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	if not stop2 == false then return nil end
-	stop2 = true
+	if not stop == false then return nil end
+	stop = true
 	SavedPositions.InfectFunction = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	local melee = game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")
 	if not melee then
@@ -424,7 +424,7 @@ function Infect(model)
 		end
 	end
 	if not hasplayer then
-		stop2 = false
+		stop = false
 		return
 	end
 	task.spawn(function()
@@ -434,10 +434,11 @@ function Infect(model)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
-        stop2 = false
 	    if not InfectAura == true then
-		    return RemoveAttack()
+		    RemoveAttack()
 		end
+		stop = false
+		return stop
 	end)
 end
 function old()
@@ -779,7 +780,7 @@ task.spawn(function()
 	    if killAura.Me then
             for i,v in ipairs(living:GetChildren()) do
 				if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
-					if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2)) <= 7.5 then
+					if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2)) <= 7 then
 						if game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
 							if v.Name == "HumanNpc" then return end
 							if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
