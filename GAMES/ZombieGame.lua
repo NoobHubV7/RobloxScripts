@@ -336,6 +336,7 @@ function Removing(char)
     connecting2 = char:GetAttributeChangedSignal("Team"):Connect(function()
         if char:GetAttribute("Team") == "Zombie" then
             if tool then tool:Destroy(); tool = nil end
+			if connecting2 then connecting2:Disconnect(); connecting2 = nil end
         end
     end)
 end
@@ -377,7 +378,9 @@ function Click(name)
 end
 
 function AddAttack()
-	if game.Players.LocalPlayer:FindFirstChild("Attack", true) and game.Players.LocalPlayer.Character:FindFirstChild("Attack", true) then return nil end
+	if game.Players.LocalPlayer:FindFirstChild("Attack", true) and game.Players.LocalPlayer.Character:FindFirstChild("Attack", true) then
+		return
+	end
     if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human" then
         tool = game:GetService("ReplicatedStorage").Attack:Clone()
         tool.Parent = game.Players.LocalPlayer.Backpack
@@ -424,14 +427,14 @@ function Infect(model)
 		stop2 = false
 		return
 	end
-	if melee then
+	task.spawn(function()
 		startTime.Ten = tick()
 		repeat game:GetService("RunService").Heartbeat:Wait()
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(player.HumanoidRootPart.CFrame.p)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
-	end
+	end)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
 	stop2 = false
 	if not InfectAura == true then
 		return RemoveAttack()
