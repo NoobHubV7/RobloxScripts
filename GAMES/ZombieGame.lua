@@ -418,19 +418,17 @@ function Infect(model)
 	if not hasplayer then
 		return
 	end
-	task.spawn(function()
+	if melee then
 		startTime.Ten = tick()
 		repeat game:GetService("RunService").Heartbeat:Wait()
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(player.HumanoidRootPart.CFrame.p)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
-	end)
+	end
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
 	if not InfectAura == true then
 		return RemoveAttack()
 	end
-	startTime.Nine = tick()
-	repeat game:GetService("RunService").Stepped:Wait() until (tick() - startTime.Nine) >= 0.1
 end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
