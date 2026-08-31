@@ -831,7 +831,7 @@ task.spawn(function()
 												    	gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
 											    	end
 											    	if gun.Parent == game.Players.LocalPlayer.Backpack then
-							    		                game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+							    		                gun.Parent = game.Players.LocalPlayer.Character
 											    	end
 										            task.spawn(function()
 												    	if gun.Parent == game.Players.LocalPlayer.Character then
