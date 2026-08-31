@@ -433,12 +433,12 @@ function Infect(model)
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(player.HumanoidRootPart.CFrame.p)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
+        stop2 = false
+	    if not InfectAura == true then
+		    return RemoveAttack()
+		end
 	end)
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
-	stop2 = false
-	if not InfectAura == true then
-		return RemoveAttack()
-	end
 end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
