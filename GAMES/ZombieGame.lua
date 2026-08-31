@@ -779,30 +779,34 @@ task.spawn(function()
     game:GetService('RunService').RenderStepped:Connect(function(dt)
 	    if killAura.Me then
             for i,v in ipairs(living:GetChildren()) do
-				if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
-					if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2)) <= 7 then
-						if game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
-							if v.Name == "HumanNpc" then return end
-							if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
-								local weapon = find.Weapons(true) or find.Weapons(false)
-								if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-									game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
-									repeat game:GetService("RunService").PreSimulation:Wait() until find.Weapons(false)
-									weapon = find.Weapons(true) or find.Weapons(false)
-								elseif weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-									weapon = find.Weapons(true) or find.Weapons(false)
-								end
-								if weapon.Parent == game.Players.LocalPlayer.Backpack then
-									game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
-								end
-								task.spawn(function()
-									if weapon.Parent == game.Players.LocalPlayer.Character then
-										coroutine.wrap(game.ReplicatedStorage.Remotes.Melee.Damage.InvokeServer)(game.ReplicatedStorage.Remotes.Melee.Damage, v.HumanoidRootPart)
-									end
-								end)
-							end
-						end
-					end
+				local success, err = pcall(function()
+				    if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
+				    	if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2)) <= 7 then
+				    		if game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
+				    			if v.Name == "HumanNpc" then return end
+				    			if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
+					    			local weapon = find.Weapons(true) or find.Weapons(false)
+							    	if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+								    	game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
+								    	weapon = find.Weapons(true) or find.Weapons(false)
+							    	elseif weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+								    	weapon = find.Weapons(true) or find.Weapons(false)
+							    	end
+							    	if weapon.Parent == game.Players.LocalPlayer.Backpack then
+							    		game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+							    	end
+							    	task.spawn(function()
+							    		if weapon.Parent == game.Players.LocalPlayer.Character then
+							     		    coroutine.wrap(game.ReplicatedStorage.Remotes.Melee.Damage.InvokeServer)(game.ReplicatedStorage.Remotes.Melee.Damage, v.HumanoidRootPart)
+									    end
+								    end)
+						    	end
+						    end
+					    end
+				    end
+				end)
+				if not success then
+					warn("[KillAura Error]:", err)
 				end
 			end
 		end
@@ -815,7 +819,7 @@ task.spawn(function()
             for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
                     local root = v.HumanoidRootPart
-                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 6 and v:FindFirstChild("Humanoid").Health > 0 then
+                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2) <= 6.5 and v:FindFirstChild("Humanoid").Health > 0 then
                         if not v:FindFirstChildOfClass("ForceField") and v:GetAttribute("Team") == "Human" then
                             if (game.Players.LocalPlayer.Backpack:FindFirstChild("Attack") or game.Players.LocalPlayer.Character:FindFirstChild("Attack")) then game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack:InvokeServer(root) end
                         end
