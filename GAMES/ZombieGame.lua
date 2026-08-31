@@ -427,9 +427,8 @@ function Infect(model)
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(player.HumanoidRootPart.CFrame.p)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
 	end
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
-	game:GetService("RunService").PreSimulation:Wait()
 	if not InfectAura == true then
 		return RemoveAttack()
 	end
