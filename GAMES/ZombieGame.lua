@@ -80,13 +80,13 @@ local startTime = {
        Five = 1,
        Six = 1,
        Seven = 1,
-       Eight = 1,
+       Eight = 1, --nil
        Nine = 1, --nil
-       Ten = 1,
-	   Eleven = 1,
-	   Twelve = 1,
-	   Thirteen = 1,
-	   Fourteen = 1
+       Ten = 1, --nil
+	   Eleven = 1, --nil
+	   Twelve = 1, --nil
+	   Thirteen = 1, --nil
+	   Fourteen = 1 --nil
 }
 local connecting, stop
 local connecting2, autoHeal
@@ -801,13 +801,17 @@ task.spawn(function()
 				    			if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
 					    			local weapon = find.Weapons(true) or find.Weapons(false)
 							    	if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-								    	game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
+										if (tick() - startTime.Two) >= 0.5 then
+								            startTime.Two = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
+										end
 								    	weapon = find.Weapons(true) or find.Weapons(false)
 							    	elseif weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 								    	weapon = find.Weapons(true) or find.Weapons(false)
 							    	end
 							    	if weapon.Parent == game.Players.LocalPlayer.Backpack then
-							    		game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+										if (tick() - startTime.Three) >= 0.5 then
+								            startTime.Three = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+										end
 							    	end
 							    	task.spawn(function()
 							    		if weapon.Parent == game.Players.LocalPlayer.Character then
@@ -821,13 +825,17 @@ task.spawn(function()
 											return task.spawn(function()
 												local weapon = find.Weapons(true) or find.Weapons(false)
 							    	            if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-								    	            game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
+								    	            if (tick() - startTime.Four) >= 0.5 then
+								                        startTime.Four = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Classic Sword")
+													end
 								    	            weapon = find.Weapons(true) or find.Weapons(false)
 							    	            elseif weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 								    	            weapon = find.Weapons(true) or find.Weapons(false)
 							    	            end
 							    	            if weapon.Parent == game.Players.LocalPlayer.Backpack then
-							    		            game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+							    		            if (tick() - startTime.Five) >= 0.5 then
+								                        startTime.Five = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Weapons(false))
+													end
 							    	            end
 							    	            task.spawn(function()
 							    		            if weapon.Parent == game.Players.LocalPlayer.Character then
@@ -840,13 +848,17 @@ task.spawn(function()
 												local success, err = pcall(function()
 												    local gun = find.Raygun(false) or find.Raygun(true)
 											    	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-												    	game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+												    	if (tick() - startTime.Six) >= 0.5 then
+								                            startTime.Six = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+														end
 												    	gun = find.Raygun(false) or find.Raygun(true)
 												    elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 												    	gun = find.Raygun(true) or find.Raygun(false)
 											    	end
 											    	if gun.Parent == game.Players.LocalPlayer.Backpack then
-							    		                gun.Parent = game.Players.LocalPlayer.Character
+							    		                if (tick() - startTime.Seven) >= 0.5 then
+								                            startTime.Seven = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Raygun(false))
+														end
 											    	end
 										            task.spawn(function()
 												    	if gun.Parent == game.Players.LocalPlayer.Character then
