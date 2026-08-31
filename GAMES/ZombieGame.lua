@@ -403,6 +403,8 @@ function RemoveAttack()
 end
 
 function Infect(model)
+	if not stop2 == false then return nil end
+	stop2 = true
 	SavedPositions.InfectFunction = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	local melee = game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")
 	if not melee then
@@ -419,6 +421,7 @@ function Infect(model)
 		end
 	end
 	if not hasplayer then
+		stop2 = false
 		return
 	end
 	if melee then
@@ -429,6 +432,7 @@ function Infect(model)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
 	end
+	stop2 = false
 	if not InfectAura == true then
 		return RemoveAttack()
 	end
