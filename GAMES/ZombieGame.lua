@@ -99,6 +99,9 @@ local Namebarriers, RemoveBarrier = {
        "ZombieDoor3",
        "NoZombie"
 }, false
+local SavedPositions = {
+	   InfectFunction = nil
+}
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -400,7 +403,7 @@ function RemoveAttack()
 end
 
 function Infect(model)
-	local Saved = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+	SavedPositions.InfectFunction = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	local melee = game.Players.LocalPlayer.Character:FindFirstChild("Attack") or game.Players.LocalPlayer.Backpack:FindFirstChild("Attack")
 	if not melee then
 		AddAttack()
@@ -425,7 +428,7 @@ function Infect(model)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
 	end
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
 	if not InfectAura == true then
 		return RemoveAttack()
 	end
