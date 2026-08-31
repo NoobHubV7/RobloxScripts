@@ -780,10 +780,10 @@ task.spawn(function()
 	    if killAura.Me then
             for i,v in ipairs(living:GetChildren()) do
 				local success, err = pcall(function()
-				    if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
-				    	if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and ((game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2))) <= 7 then
+				    if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid").Health > 0 and not v:FindFirstChildOfClass("ForceField") then
+				    	if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") and (v:FindFirstChild("HumanoidRootPart") and ((game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2))) <= 7 then
 				    		if game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
-				    			if v.Name == "HumanNpc" then return end
+				    			if v.Name == "HumanNpc" then continue end
 				    			if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
 					    			local weapon = find.Weapons(true) or find.Weapons(false)
 							    	if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
