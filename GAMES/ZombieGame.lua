@@ -781,7 +781,7 @@ task.spawn(function()
             for i,v in ipairs(living:GetChildren()) do
 				local success, err = pcall(function()
 				    if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
-				    	if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2)) <= 7 then
+				    	if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and ((game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (v.HumanoidRootPart.Size.Magnitude / 2))) <= 7 then
 				    		if game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
 				    			if v.Name == "HumanNpc" then return end
 				    			if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
