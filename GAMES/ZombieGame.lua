@@ -81,7 +81,7 @@ local startTime = {
        Seven = 1,
        Eight = 1,
        Nine = 1, --nil
-       Ten = 1, --nil
+       Ten = 1,
 	   Eleven = 1,
 	   Twelve = 1,
 	   Thirteen = 1,
@@ -424,11 +424,13 @@ function Infect(model)
 			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(player.HumanoidRootPart.CFrame.p)
 			coroutine.wrap(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack.InvokeServer)(game.ReplicatedStorage.Remotes.ZombieRelated.PlayerAttack, player.HumanoidRootPart)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
 	end)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Saved
 	if not InfectAura == true then
 		return RemoveAttack()
 	end
+	startTime.Nine = tick()
+	repeat game:GetService("RunService").Stepped:Wait() until (tick() - startTime.Nine) >= 0.1
 end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
@@ -770,7 +772,7 @@ task.spawn(function()
             for i,v in ipairs(living:GetChildren()) do
 				if (v and v:IsA("Model")) and v.FindFirstChild(v, "Humanoid") and not v:FindFirstChildOfClass("ForceField") then
 					if v ~= game.Players.LocalPlayer.Character and (v:FindFirstChild("HumanoidRootPart") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude - (game.Players.LocalPlayer.Character.HumanoidRootPart.Size.Magnitude / 2) - (root.Size.Magnitude / 2)) <= 7.5 then
-						if game.Players.LocalPlayer.Character:GetAttribute("Team") == "Zombie" then
+						if game.Players.LocalPlayer.Character:GetAttribute("Team") ~= "Zombie" then
 							if v.Name == "HumanNpc" then return end
 							if (string.find(v.Name, "Zombie") or string.find(v.Name, "Summon") or string.find(v.Name, "Necro")) then
 								local weapon = find.Weapons(true) or find.Weapons(false)
