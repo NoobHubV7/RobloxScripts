@@ -822,25 +822,30 @@ task.spawn(function()
 											end)
 										elseif players.Character:GetAttribute("Team") ~= "Zombie" then
 											return task.spawn(function()
-												local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-												if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-													game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-													gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-												elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-													gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
-												end
-												if gun.Parent == game.Players.LocalPlayer.Backpack then
-							    		            game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
-												end
-										        task.spawn(function()
-													if gun.Parent == game.Players.LocalPlayer.Character then
-														coroutine.wrap(function()
-															game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({players.Character.HumanoidRootPart.Position, players.Character.HumanoidRootPart.Position}, "Raygun")
-															game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(players.Character.HumanoidRootPart)
-															game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
-														end)()
-													end
+												local success, err = pcall(function()
+												    local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+											    	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+												    	game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+												    	gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+												    elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+												    	gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun") or game.Players.LocalPlayer.Character:FindFirstChild("Raygun")
+											    	end
+											    	if gun.Parent == game.Players.LocalPlayer.Backpack then
+							    		                game.Players.LocalPlayer.Character.Humanoid:EquipTool(game.Players.LocalPlayer.Backpack:FindFirstChild("Raygun"))
+											    	end
+										            task.spawn(function()
+												    	if gun.Parent == game.Players.LocalPlayer.Character then
+													    	coroutine.wrap(function()
+														    	game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({players.Character.HumanoidRootPart.Position, players.Character.HumanoidRootPart.Position}, "Raygun")
+														        game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(players.Character.HumanoidRootPart)
+															    game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
+														    end)()
+													    end
+												    end)
 												end)
+												if not success then
+													warn("[KillAura Error]:", err)
+												end
 											end)
 										end
 									end
