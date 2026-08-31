@@ -429,6 +429,7 @@ function Infect(model)
 		until player:GetAttribute("Team") == "Zombie" or player:FindFirstChildOfClass("ForceField") or (tick() - startTime.Ten) >= 5
 	end
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.InfectFunction
+	game:GetService("RunService").PreSimulation:Wait()
 	if not InfectAura == true then
 		return RemoveAttack()
 	end
