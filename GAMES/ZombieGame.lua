@@ -456,6 +456,37 @@ function Infect(model)
 		return true
 	end)
 end
+function Dupe(amount)
+	for i = 1, tonumber(amount or 1) do
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1000000, 0)
+		task.wait(.1)
+		game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+		local part = workspace.Interaction.ToolGivers["Rainbow Potion"]:FindFirstChildOfClass("ClickDetector")
+		if (part and not game.Players.LocalPlayer.Backpack:FindFirstChild("Rainbow Potion")) then
+			fireclickdetector(part)
+			repeat game:GetService("RunService").PreRender:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Rainbow Potion")
+		elseif not part then
+		    return
+		end
+		task.wait(.1)
+		game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
+		for i,v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+			if v:IsA("Tool") and v.Name == "Rainbow Potion" then
+				v.Parent = game.Players.LocalPlayer.Character
+				v.Parent = workspace
+			end
+		end
+		repeat game:GetService("RunService").PostSimulation:Wait() until workspace.Interaction.ToolGivers["Rainbow Potion"]:FindFirstChildOfClass("ClickDetector")
+		fireclickdetector(workspace.Interaction.ToolGivers["Rainbow Potion"]:FindFirstChildOfClass("ClickDetector"))
+		task.wait(.1)
+		for i,v in ipairs(workspace:GetChildren()) do
+			if v:IsA("Tool") and v.Name == "Rainbow Potion" then
+				v.Parent = game.Players.LocalPlayer.Backpack
+			end
+		end
+		task.wait(.3)
+	end
+end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
        target = text
@@ -788,6 +819,16 @@ do
 		game:GetService("RunService").RenderStepped:Wait()
 		rejoin()
 	end,})
+	local main13 = Client:DrawSection({Name = "Dupe"})
+	main13:AddTextBox({
+	    Name = "Dupe Rainbow Potion",
+    	Default = "1",
+    	PlaceholderText = "Amount",
+    	ClearTextOnFocus = false,
+    	Callback = function(Value)
+		    Dupe(Value)
+	    end
+    })
 end
 	
 task.spawn(function()
