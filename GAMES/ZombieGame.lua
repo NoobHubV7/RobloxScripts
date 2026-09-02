@@ -466,7 +466,7 @@ function Dupe(amount)
 		if (part and not tool) then
 			fireclickdetector(part)
 			repeat game:GetService("RunService").PreRender:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Rainbow Potion")
-		elseif not (part and tool) then
+		elseif not part and not tool then
 		    return
 		end
 		task.wait(.15)
