@@ -459,16 +459,17 @@ end
 function Dupe(amount)
 	for i = 1, tonumber(amount or 1) do
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1000000, 0)
-		task.wait(.1)
+		task.wait(.15)
 		game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
 		local part = workspace.Interaction.ToolGivers["Rainbow Potion"]:FindFirstChildOfClass("ClickDetector")
-		if (part and not game.Players.LocalPlayer.Backpack:FindFirstChild("Rainbow Potion")) then
+		local tool = game.Players.LocalPlayer.Backpack:FindFirstChild("Rainbow Potion") or game.Players.LocalPlayer.Character:FindFirstChild("Rainbow Potion")
+		if (part and not tool) then
 			fireclickdetector(part)
 			repeat game:GetService("RunService").PreRender:Wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Rainbow Potion")
-		elseif not part then
+		elseif not (part and tool) then
 		    return
 		end
-		task.wait(.1)
+		task.wait(.15)
 		game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
 		for i,v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
 			if v:IsA("Tool") and v.Name == "Rainbow Potion" then
