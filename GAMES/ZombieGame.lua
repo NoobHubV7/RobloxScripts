@@ -489,9 +489,10 @@ function Dupe(amount)
 				v.Parent = game.Players.LocalPlayer.Backpack
 			end
 		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.Dupe
 		task.wait(.3)
 	end
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.Dupe
 	stop3 = false
 end
 function old()
