@@ -895,34 +895,29 @@ task.spawn(function()
 											end)
 										elseif players.Character:GetAttribute("Team") ~= "Zombie" then
 											return task.spawn(function()
-												local success, err = pcall(function()
-												    local gun = find.Raygun(false) or find.Raygun(true)
-											    	if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-												    	if (tick() - startTime.Six) >= 1 then
-								                            startTime.Six = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
-														end
-												    	gun = find.Raygun(false) or find.Raygun(true)
-												    elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
-												    	gun = find.Raygun(true) or find.Raygun(false)
-											    	end
-											    	if gun.Parent == game.Players.LocalPlayer.Backpack then
-							    		                if (tick() - startTime.Seven) >= 1.25 then
-								                            startTime.Seven = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Raygun(false))
-														end
-											    	end
-										            task.spawn(function()
-												    	if gun.Parent == game.Players.LocalPlayer.Character then
-													    	coroutine.wrap(function()
-														    	game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({players.Character.HumanoidRootPart.Position, players.Character.HumanoidRootPart.Position}, "Raygun")
-														        game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(players.Character.HumanoidRootPart)
-															    game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
-														    end)()
-													    end
-												    end)
+												local gun = find.Raygun(false) or find.Raygun(true)
+											    if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+												    if (tick() - startTime.Six) >= 1 then
+								                        startTime.Six = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+													end
+												    gun = find.Raygun(false) or find.Raygun(true)
+												elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+												    gun = find.Raygun(true) or find.Raygun(false)
+											    end
+											    if gun.Parent == game.Players.LocalPlayer.Backpack then
+							    		            if (tick() - startTime.Seven) >= 1.25 then
+								                        startTime.Seven = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Raygun(false))
+													end
+											    end
+										        task.spawn(function()
+												    if gun.Parent == game.Players.LocalPlayer.Character then
+													    coroutine.wrap(function()
+														    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({players.Character.HumanoidRootPart.Position, players.Character.HumanoidRootPart.Position}, "Raygun")
+														    game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(players.Character.HumanoidRootPart)
+															game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
+														end)()
+													end
 												end)
-												if not success then
-													warn("[KillAura Error]:", err)
-												end
 											end)
 										end
 									end
@@ -988,7 +983,31 @@ task.spawn(function()
 												local targ = game.Players[b.Name]
 											    if CheckFriends(targ) then
 												    if targ.Character:GetAttribute("Team") == "Human" then
-														return task.spawn(Infect, targ.Character)
+														return task.spawn(function()
+														    local gun = find.Raygun(false) or find.Raygun(true)
+											                if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+											        	        if (tick() - startTime.Eight) >= 0.5 then
+								                                    startTime.Eight = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+													            end
+												                gun = find.Raygun(false) or find.Raygun(true)
+											      	        elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
+												                gun = find.Raygun(true) or find.Raygun(false)
+											                end
+											                if gun.Parent == game.Players.LocalPlayer.Backpack then
+							    		                        if (tick() - startTime.Nine) >= 0.75 then
+								                                    startTime.Seven = tick(); game.Players.LocalPlayer.Character.Humanoid:EquipTool(find.Raygun(false))
+													            end
+											                end
+										                    task.spawn(function()
+												                if gun.Parent == game.Players.LocalPlayer.Character then
+													                coroutine.wrap(function()
+														                game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({b.HumanoidRootPart.Position, targ.Character.HumanoidRootPart.Position}, "Raygun")
+														                game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(targ.Character.HumanoidRootPart)
+														            	game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
+														            end)()
+												            	end
+												            end)
+														end)
 													elseif targ.Character:GetAttribute("Team") == "Zombie" then return task.spawn(Kill, targ.Character) end
 												end
 											end
