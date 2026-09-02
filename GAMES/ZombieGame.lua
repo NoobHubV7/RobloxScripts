@@ -999,18 +999,7 @@ task.spawn(function()
                                                         task.spawn(function()
                                                             if gun.Parent == game.Players.LocalPlayer.Character then
                                                                 coroutine.wrap(function()
-                                                                    local posV = v.Character.HumanoidRootPart.Position
-                                                                    local posB = targ.Character.HumanoidRootPart.Position
-                                                                    local dist = (posB - posV).Magnitude
-                                                                    local offsetDistance = 3
-                                                                    local pushDirection
-                                                                    if dist > 0.5 then
-                                                                        pushDirection = (posB - posV).Unit
-                                                                    else
-                                                                        pushDirection = v.Character.HumanoidRootPart.CFrame.LookVector
-                                                                    end
-                                                                    local safeTargetPos = posB + (pushDirection * offsetDistance)
-                                                                    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({posV, safeTargetPos}, "Raygun")
+                                                                    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.Character.HumanoidRootPart.Position, (targ.Character.LeftLeg.Position + Vector3.new(0, 1.75, 0))}, "Raygun")
                                                                     game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
                                                                 end)()
 															end
