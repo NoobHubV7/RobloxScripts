@@ -912,7 +912,8 @@ task.spawn(function()
 										        task.spawn(function()
 												    if gun.Parent == game.Players.LocalPlayer.Character then
 													    coroutine.wrap(function()
-														    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({players.Character.HumanoidRootPart.Position, players.Character.HumanoidRootPart.Position}, "Raygun")
+														    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({players.Character.HumanoidRootPart.Position, Vector3.new(0, 0, 0)}, "Raygun")
+														    game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(players.Character.HumanoidRootPart)
 															game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
 														end)()
 													end
@@ -999,7 +1000,7 @@ task.spawn(function()
                                                         task.spawn(function()
                                                             if gun.Parent == game.Players.LocalPlayer.Character then
                                                                 coroutine.wrap(function()
-                                                                    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.Character.HumanoidRootPart.Position, (targ.Character["Left Leg"].Position + Vector3.new(0, -1.25, 0))}, "Raygun")
+                                                                    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.Character.HumanoidRootPart.Position, targ.Character.HumanoidRootPart.Position}, "Raygun")
                                                                     game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
                                                                 end)()
 															end
