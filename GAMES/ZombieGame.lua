@@ -103,6 +103,7 @@ local Namebarriers, RemoveBarrier = {
 local SavedPositions = {
 	   InfectFunction = nil
 }
+local number = 1
 do
     for i,v in next, find do
         find[i] = function(bool)
@@ -457,6 +458,9 @@ function Infect(model)
 	end)
 end
 function Dupe(amount)
+	if not stop3 == false then return end
+	stop3 = true
+	SavedPositions.Dupe = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	for i = 1, tonumber(amount or 1) do
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1000000, 0)
 		task.wait(.15)
@@ -487,6 +491,8 @@ function Dupe(amount)
 		end
 		task.wait(.3)
 	end
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.Dupe
+	stop3 = false
 end
 function old()
 Section:AddBox({text = "Player Name", value = 'Name', callback = function(text)
@@ -822,14 +828,15 @@ do
 	end,})
 	local main13 = Client:DrawSection({Name = "Dupe"})
 	main13:AddTextBox({
-	    Name = "Dupe Rainbow Potion",
+	    Name = "Dupe Amount",
     	Default = "1",
     	PlaceholderText = "Amount",
     	ClearTextOnFocus = false,
     	Callback = function(Value)
-		    Dupe(Value)
+		    number = tonumber(Value)
 	    end
     })
+	main13:AddButton({Name = "Dupe Rainbow Potion", Callback = function() Dupe(number) end,})
 end
 	
 task.spawn(function()
