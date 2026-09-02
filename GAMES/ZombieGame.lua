@@ -473,7 +473,7 @@ function Dupe(amount)
 		elseif not part and not tool then
 		    return
 		end
-		task.wait(.15)
+		task.wait(.075)
 		game.Players.LocalPlayer.Character.Humanoid:UnequipTools()
 		for i,v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
 			if v:IsA("Tool") and v.Name == "Rainbow Potion" then
@@ -483,7 +483,7 @@ function Dupe(amount)
 		end
 		repeat game:GetService("RunService").PostSimulation:Wait() until workspace.Interaction.ToolGivers["Rainbow Potion"]:FindFirstChildOfClass("ClickDetector")
 		fireclickdetector(workspace.Interaction.ToolGivers["Rainbow Potion"]:FindFirstChildOfClass("ClickDetector"))
-		task.wait(.1)
+		task.wait()
 		for i,v in ipairs(workspace:GetChildren()) do
 			if v:IsA("Tool") and v.Name == "Rainbow Potion" then
 				v.Parent = game.Players.LocalPlayer.Backpack
@@ -491,7 +491,7 @@ function Dupe(amount)
 		end
 		game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
 		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedPositions.Dupe
-		task.wait(.3)
+		task.wait(.15)
 	end
 	stop3 = false
 end
