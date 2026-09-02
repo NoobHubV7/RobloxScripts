@@ -1000,9 +1000,10 @@ task.spawn(function()
                                                         task.spawn(function()
                                                             if gun.Parent == game.Players.LocalPlayer.Character then
                                                                 coroutine.wrap(function()
-                                                                    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({v.Character.HumanoidRootPart.Position, targ.Character.HumanoidRootPart.Position}, "Raygun")
-                                                                    game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
-                                                                end)()
+																    game.ReplicatedStorage.Remotes.Guns.ReplicateBullet:FireServer({Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)}, "Raygun")
+																	game.ReplicatedStorage.Remotes.Guns.Damage:FireServer(targ.Character.Head)
+																	game.ReplicatedStorage.Remotes.Guns.Reload:FireServer()
+																end)()
 															end
                                                         end)
                                                     end)
