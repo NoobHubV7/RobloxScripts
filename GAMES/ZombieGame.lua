@@ -985,7 +985,7 @@ task.spawn(function()
                                                         local gun = find.Raygun(false) or find.Raygun(true)
                                                         if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
                                                             if (tick() - startTime.Eight) >= 0.5 then
-                                                                startTime.Eight = tick(); game.ReplicatedStorage.Remotes.Shop.EquipWeapon:InvokeServer("Raygun")
+                                                                startTime.Eight = tick(); coroutine.wrap(game.ReplicatedStorage.Remotes.Shop.EquipWeapon.InvokeServer)(game.ReplicatedStorage.Remotes.Shop.EquipWeapon, "Raygun")
                                                             end
                                                             gun = find.Raygun(false) or find.Raygun(true)
                                                         elseif gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
@@ -1002,7 +1002,7 @@ task.spawn(function()
                                                                     local posV = v.Character.HumanoidRootPart.Position
                                                                     local posB = targ.Character.HumanoidRootPart.Position
                                                                     local dist = (posB - posV).Magnitude
-                                                                    local offsetDistance = 3.75
+                                                                    local offsetDistance = 3
                                                                     local pushDirection
                                                                     if dist > 0.5 then
                                                                         pushDirection = (posB - posV).Unit
