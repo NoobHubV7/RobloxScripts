@@ -242,20 +242,15 @@ function oldKillZombies()
 		if gun.Parent == game.Players.LocalPlayer.Backpack then
 			game.Players.LocalPlayer.Character.Humanoid:EquipTool(gun)
 		end
-	    task.spawn(function()
-	    	for i = 1, 6 do
-		    	game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
-		    end
-	    end)
-	    for i = 1, 6 do
-		    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunReplicateBullet:FireServer(BulletEvents)
-	        game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
-		    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
-	    end
+		task.spawn(function()
+	        for i = 1, 6 do
+	    		game:GetService("ReplicatedStorage").Remotes.Guns.Reload:FireServer()
+		        game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunReplicateBullet:FireServer(BulletEvents)
+	            game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunDamage:FireServer(ShootEvents)
+	    	    game:GetService("ReplicatedStorage").Remotes.Guns.ShotgunLoad:FireServer()
+	        end
+		end)
 	end)
-	if not success then
-		warn("error:", err)
-	end
 end
 function KillZombies()
 	local gun = game.Players.LocalPlayer.Backpack:FindFirstChild("Sniper") or game.Players.LocalPlayer.Character:FindFirstChild("Sniper")
