@@ -179,7 +179,22 @@ if not workspace:FindFirstChild("Teambarriers") then
 		end
 	end
 end
+if not workspace:FindFirstChild("Acids") then
+	local folder2 = Instance.new("Folder",workspace)
+	folder2.Name = "Acids"
+	for i,v in next, workspace:GetChildren() do
+		if v.Name == "Acid" then
+			v.Parent = folder2
+		end
+	end
+	workspace.ChildAdded:Connect(function(part)
+		if part.Name == "Acid" then
+			part.Parent = folder2
+		end
+	end)
+end
 local Barrier = workspace:FindFirstChild("Teambarriers")
+local acidSpit = workspace:FindFirstChild("Acids")
 
 function CheckFriends(player)
 	return not (player:IsFriendsWith(game.Players.LocalPlayer.UserId))
@@ -833,6 +848,13 @@ do
 	    end
     })
 	main13:AddButton({Name = "Dupe Rainbow Potion", Callback = function() Dupe(number) end,})
+	main7:AddToggle({Name = "Unload Acids", Default = false, Flag = "wofbdjwoffjru", Callback = function(state)
+		if not state == false then
+			acidSpit.Parent = nil
+		else
+			acidSpit.Parent = workspace
+		end
+	end,})
 end
 	
 task.spawn(function()
