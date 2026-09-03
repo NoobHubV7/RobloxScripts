@@ -844,7 +844,7 @@ do
 	    end
     })
 	main13:AddButton({Name = "Dupe Rainbow Potion", Callback = function() Dupe(number) end,})
-	main7:AddToggle({Name = "Unload Acids", Default = false, Flag = "wofbdjwoffjru", Callback = function(state)
+	main7:AddToggle({Name = "Unload Acid", Default = false, Flag = "wofbdjwoffjru", Callback = function(state)
 		if not state == false then
 			acidSpit.Parent = nil
 		else
@@ -884,7 +884,7 @@ task.spawn(function()
 								local players = game.Players[v.Name]
 								if (players and players.Character) then
 									if players.Character:GetAttribute("Team") == "Zombie" then
-										return task.spawn(function()
+										task.spawn(function()
 											local weapon = find.Weapons(true) or find.Weapons(false)
 							    	        if not weapon and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 								    	        if (tick() - startTime.Four) >= 0.75 then
@@ -904,9 +904,9 @@ task.spawn(function()
 							     		            coroutine.wrap(game.ReplicatedStorage.Remotes.Melee.Damage.InvokeServer)(game.ReplicatedStorage.Remotes.Melee.Damage, v.HumanoidRootPart)
 									            end
 								            end)
-										end)
+										end); break
 									elseif players.Character:GetAttribute("Team") ~= "Zombie" then
-										return task.spawn(function()
+										task.spawn(function()
 											local gun = find.Raygun(false) or find.Raygun(true)
 											if not gun and (game.Players.LocalPlayer.Character:GetAttribute("Team") == "Human") then
 												if (tick() - startTime.Six) >= 1 then
@@ -930,11 +930,11 @@ task.spawn(function()
 													end)()
 												end
 											end)
-										end)
+										end); break
 									end
 								end
 							end
-							if v.Name == "HumanNpc" then return end
+							if v.Name == "HumanNpc" then break end
 						end
 					end
 				end
@@ -970,14 +970,14 @@ task.spawn(function()
         if TargetAcid then
             for _,v in next, TargetAcid do
                 if v.Character and v.Character:FindFirstChild("Humanoid") then
-                    Acid((v.Character.Head.CFrame * CFrame.new(0, 5, 0)).Position, v.Character.Torso.Position)
+                    Acid((v.Character.Head.CFrame * CFrame.new(0, 2, 0)).Position, v.Character.Torso.Position)
                 end
             end
         end
         if SpreadAcid then
             for _,v in next, SpreadAcid do
                 if v.Character and v.Character:FindFirstChild("Humanoid") then
-                    local head = v.Character:FindFirstChild("Head"); local offset = def(RNG:NextNumber(-5, 5), RNG:NextNumber(0, 9), RNG:NextNumber(0, -13)); local targetPos = (head.CFrame * CFrame.new(offset)).Position
+                    local head = v.Character:FindFirstChild("Head"); local offset = def(RNG:NextNumber(-5, 5), 0, RNG:NextNumber(0, -10)); local targetPos = (head.CFrame * CFrame.new(offset)).Position
                     Acid(head.Position, targetPos)
                 end
             end
