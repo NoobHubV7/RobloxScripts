@@ -187,11 +187,6 @@ if not workspace:FindFirstChild("Acids") then
 			v.Parent = folder2
 		end
 	end
-	workspace.ChildAdded:Connect(function(part)
-		if part.Name == "Spit" or part.Name == "Acid" then
-			part.Parent = folder2
-		end
-	end)
 end
 local Barrier = workspace:FindFirstChild("Teambarriers")
 local acidSpit = workspace:FindFirstChild("Acids")
@@ -858,7 +853,7 @@ do
 end
 	
 task.spawn(function()
-    game:GetService('RunService').RenderStepped:Connect(function(dt)
+    game:GetService('RunService').PreSimulation:Connect(function(dt)
 	    if killAura.Me then
             for i,v in ipairs(living:GetChildren()) do
 				local success, err = pcall(function()
@@ -953,7 +948,7 @@ task.spawn(function()
         if LoopkillZombies then task.spawn(KillZombies, true) end
         if LoopsummonNecro then Summon("NpcZombie") end
     end)
-    game:GetService("RunService").PreSimulation:Connect(function(dt)
+    game:GetService("RunService").PreRender:Connect(function(dt)
         if InfectAura then
             for i,v in ipairs(living:GetChildren()) do
                 if v ~= game.Players.LocalPlayer.Character and v:FindFirstChild("HumanoidRootPart") then
@@ -983,7 +978,7 @@ task.spawn(function()
             end
         end
     end)
-    game:GetService("RunService").Heartbeat:Connect(function(dt)
+    game:GetService("RunService").PostSimulation:Connect(function(dt)
         if autoHeal and (tick() - startTime.Seven) >= 1 then startTime.Seven = tick(); Heal() end
         if killAura.Plr then
             for i,v in next, killAura.Plr do
@@ -1039,6 +1034,13 @@ task.spawn(function()
             end
         end
     end)
+end)
+task.spawn(function()
+	workspace.ChildAdded:Connect(function(part)
+		if part.Name == "Acid" or part.Name == "Spit" then
+			part.Parent = acidSpit
+		end
+	end)
 end)
 Notifier.new({
 	Title = "Loader Script!",
