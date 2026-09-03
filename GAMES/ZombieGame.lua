@@ -183,12 +183,12 @@ if not workspace:FindFirstChild("Acids") then
 	local folder2 = Instance.new("Folder",workspace)
 	folder2.Name = "Acids"
 	for i,v in next, workspace:GetChildren() do
-		if v.Name == "Acid" then
+		if v.Name == "Spit" then
 			v.Parent = folder2
 		end
 	end
 	workspace.ChildAdded:Connect(function(part)
-		if part.Name == "Acid" then
+		if part.Name == "Spit" then
 			part.Parent = folder2
 		end
 	end)
