@@ -51,7 +51,6 @@ function MvSLibrary.new()
         local played = table.find(self.PlayersTable, plr)
         if played then
             table.remove(self.PlayersTable, played)
-            break
         end
     end)
     
