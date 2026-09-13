@@ -204,7 +204,7 @@ function MvSLibrary:CreateKnife(knifeTool: Instance, appearanceInfo: AppearanceI
     projectileModel.Parent = projectileContainer
 end
 
-function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boolean): boolean
+function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boolean?): boolean
     if not targetPart or not targetPart:IsA("BasePart") then return false end
     
     local targetChar = CRS.getCharacterFromPart(targetPart) or targetPart.Parent
@@ -244,7 +244,7 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boole
     return true
 end
 
-function MvSLibrary:GetClosestTarget(isKnife: boolean): (Player?, BasePart?)
+function MvSLibrary:GetClosestTarget(isKnife: boolean?): (Player?, BasePart?)
     local myChar = self.LocalPlayer.Character
     if not myChar then return nil, nil end
     local myHead = myChar:FindFirstChild("Head") :: BasePart?
