@@ -44,6 +44,15 @@ function MvSLibrary.new()
         CachedRayParams = CRS.createRaycastParams(),
         Folder = workspace:FindFirstChild("Effects"),
     }, MvSLibrary)
+
+    Players.PlayerRemoving:Connect(function(plr)
+        self.ValidPlayersMap[plr] = nil
+        local played = table.find(self.PlayersTable, plr)
+        if played then
+            table.remove(self.PlayersTable, played)
+            break
+        end
+    end)
     
     return self
 end
@@ -82,12 +91,23 @@ function MvSLibrary:CheckTeam(): string
 end
 
 function MvSLibrary:UpdateList()
-    table.clear(self.PlayersTable)
     for _, plr in Players:GetPlayers() do
         if plr ~= self.LocalPlayer then
             local char = plr.Character
-            if char and CRS.canCharacterTakeDamage(char) then
+            local isValid = char and CRS.canCharacterTakeDamage(char)
+            local isInTable = self.ValidPlayersMap[plr] or false
+
+            if isValid and not isInTable then
+                -- Player hợp lệ nhưng chưa có trong danh sách -> Thêm vào
+                self.ValidPlayersMap[plr] = true
                 table.insert(self.PlayersTable, plr)
+            elseif not isValid and isInTable then
+                -- Player không còn hợp lệ nhưng đang có trong danh sách -> Xóa đi
+                self.ValidPlayersMap[plr] = nil
+                local index = table.find(self.PlayersTable, plr)
+                if index then
+                    table.remove(self.PlayersTable, index)
+                end
             end
         end
     end
