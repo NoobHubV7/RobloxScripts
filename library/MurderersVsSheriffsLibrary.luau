@@ -43,6 +43,7 @@ function MvSLibrary.new()
         PlayersTable = {} :: {Player},
         CachedRayParams = CRS.createRaycastParams(),
         Folder = workspace:FindFirstChild("Effects"),
+        ValidPlayersMap = {} :: {[Player]: boolean?},
     }, MvSLibrary)
 
     Players.PlayerRemoving:Connect(function(plr)
@@ -218,7 +219,7 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boole
             local tool = myChar:FindFirstChildOfClass("Tool")
             local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
             return if barrel then barrel.Position else nil
-        end)()
+        end)())
 
     if not origin then return false end
 
