@@ -383,7 +383,7 @@ function MvSLibrary:SetAutoWait(state: boolean) self.AutoWait = state end
 
 function MvSLibrary:ToggleEffects(state: boolean)
     if self.Folder then 
-        self.Folder.Parent = if state then nil else workspace 
+        self.Folder.Parent = if state then workspace else nil 
     end
 end
 
