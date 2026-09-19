@@ -6,7 +6,7 @@
 	Press Left Alt to open / close
 ]]
 
-local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))();
+local Compkiller = loadstring(game:HttpGet("https://raw.githubusercontent.com/NoobHubV7/RobloxScripts/refs/heads/main/library/Compkiller.luau"))();
 
 -- Create Notification --
 local Notifier = Compkiller.newNotify();
