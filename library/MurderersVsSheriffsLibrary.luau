@@ -1,3 +1,5 @@
+--script by me
+
 --!strict
 
 export type cloneref = (target: Instance) -> Instance;
@@ -39,16 +41,30 @@ local MvSLibrary = {}
 MvSLibrary.__index = MvSLibrary
 
 function MvSLibrary.new()
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+
+    local localPlayer = Players.LocalPlayer
+    local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid") :: Humanoid
+
     local self = setmetatable({
-        LocalPlayer = Players.LocalPlayer :: Player,
-        IsShoot = false,
-        IsThrow = false,
+        lp: Player = localPlayer :: Player,
+        RigType: EnumItem = hum.RigType :: EnumItem,
+        IsShoot = false :: boolean?,
+        IsThrow = false :: boolean?,
         AutoWait = true :: boolean?,
         PlayersTable = {} :: {Player},
-        CachedRayParams = CRS.createRaycastParams(),
-        Folder = workspace:FindFirstChild("Effects"),
+        CachedRayParams = CRS.createRaycastParams() :: RaycastParams,
+        Folder = workspace:FindFirstChild("Effects") :: Instance?,
         ValidPlayersMap = {} :: {[Player]: boolean?},
     }, MvSLibrary)
+
+    localPlayer.CharacterAdded:Connect(function(newChar)
+        local newHum = newChar:WaitForChild("Humanoid") :: Humanoid
+        self.RigType = newHum.RigType :: EnumItem
+    end)
 
     Players.PlayerRemoving:Connect(function(plr)
         self.ValidPlayersMap[plr] = nil
@@ -89,7 +105,7 @@ function MvSLibrary:CheckTeam(): string
         return "Sheriffs"
     elseif hasKnife then
         return "Murderers"
-    else
+    elseif not hasGun and not hasKnife
         return "Joining"
     end
 end
