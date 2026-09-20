@@ -45,20 +45,20 @@ function MvSLibrary.new()
         game.Loaded:Wait()
     end
 
-    local localPlayer = Players.LocalPlayer
-    local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+    local localPlayer: Player = Players.LocalPlayer :: Player
+    local char: Model = localPlayer.Character or localPlayer.CharacterAdded:Wait() :: Model
     local hum = char:WaitForChild("Humanoid") :: Humanoid
 
     local self = setmetatable({
         lp: Player = localPlayer :: Player,
         RigType: EnumItem = hum.RigType :: EnumItem,
-        IsShoot = false :: boolean?,
-        IsThrow = false :: boolean?,
-        AutoWait = true :: boolean?,
-        PlayersTable = {} :: {Player},
-        CachedRayParams = CRS.createRaycastParams() :: RaycastParams,
-        Folder = workspace:FindFirstChild("Effects") :: Instance?,
-        ValidPlayersMap = {} :: {[Player]: boolean?},
+        IsShoot: boolean? = false :: boolean?,
+        IsThrow: boolean? = false :: boolean?,
+        AutoWait: boolean? = true :: boolean?,
+        PlayersTable: {Player} = {} :: {Player},
+        CachedRayParams: RaycastParams = CRS.createRaycastParams() :: RaycastParams,
+        Folder: Instance? = workspace:FindFirstChild("Effects") :: Instance?,
+        ValidPlayersMap: {[Player]: boolean?} = {} :: {[Player]: boolean?},
     }, MvSLibrary)
 
     localPlayer.CharacterAdded:Connect(function(newChar)
@@ -118,11 +118,9 @@ function MvSLibrary:UpdateList()
             local isInTable = self.ValidPlayersMap[plr] or false
 
             if isValid and not isInTable then
-                -- Player hợp lệ nhưng chưa có trong danh sách -> Thêm vào
                 self.ValidPlayersMap[plr] = true
                 table.insert(self.PlayersTable, plr)
             elseif not isValid and isInTable then
-                -- Player không còn hợp lệ nhưng đang có trong danh sách -> Xóa đi
                 self.ValidPlayersMap[plr] = nil
                 local index = table.find(self.PlayersTable, plr)
                 if index then
@@ -135,8 +133,8 @@ end
 
 function MvSLibrary:PlayKnifeAnimation(char: Model?, waitToStop: boolean?)
     if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    local knife = char:FindFirstChild("Knife") or char:FindFirstChildOfClass("Tool")
+    local hum: Humanoid = char:FindFirstChildOfClass("Humanoid") :: Humanoid
+    local knife: Tool = char:FindFirstChild("Knife") or char:FindFirstChildOfClass("Tool") :: Tool
     if not hum or not knife then return end
 
     local animName = `Throw{if hum.RigType == Enum.HumanoidRigType.R15 then "" else "R6"}`
