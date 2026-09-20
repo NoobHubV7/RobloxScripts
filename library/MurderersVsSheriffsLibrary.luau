@@ -94,6 +94,10 @@ function MvSLibrary.new(): ComplexMap<string, any>
             CachedRayParams = CRS.createRaycastParams(),
             Folder = workspace:FindFirstChild("Effects"),
             ValidPlayersMap = {} :: ComplexMap<Player, boolean?>
+            __index = MvsSLibrary,
+            __tostring(): string
+                return "MvsSLibrary"
+            end
         }, MvSLibrary) :: any
         
         localPlayer.CharacterAdded:Connect(function<NC>(newChar: ObfuscatedType<Model>)
