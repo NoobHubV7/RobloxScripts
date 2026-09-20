@@ -1,3 +1,4 @@
+-- The original file by 4lpaca-pin has been deleted. This is a restored file.
 export type cloneref = (target: Instance) -> Instance;
 
 export type Window = {
