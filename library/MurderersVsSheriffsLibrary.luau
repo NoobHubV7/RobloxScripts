@@ -264,7 +264,7 @@ function MvSLibrary:CreateKnife(knifeTool: ObfuscatedType<Instance>, appearanceI
         end
         
         local initialCFrame: ObfuscatedType<CFrame> = CFrame.lookAt(sPos, ePos) :: any
-        projectileModel:PivotTo(initialCFrame)
+        projectileModel:PivotTo(initialCFrame);
         
         (function<VP, ICF, DV>(vp: any, icf: any, dv: any)
             local vecVel: ObfuscatedType<Instance> = vp:FindFirstChild("VectorVelocity") :: any
