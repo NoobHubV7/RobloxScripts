@@ -1,257 +1,236 @@
 --!strict
--- ==========================================
--- PHẦN 1: TYPES, SERVICES & INITIALIZATION
--- ==========================================
 
-export type cloneref = (target: Instance) -> Instance;
+export type Identity<T> = T
+export type Nullable<T> = T? | unknown
+export type ServiceProvider<T> = (string) -> (T & Instance)
+
 export type AppearanceInfo = {
-    TextureID: string,
-    Color: Color3,
-    Material: Enum.Material,
-    Transparency: number
+    TextureID: string | any,
+    Color: Color3 & any,
+    Material: Enum.Material | any,
+    Transparency: number & any
 }
+
 export type KnifePayload = {
-    Action: string,
-    KnifeAction: string?,
-    Handle: BasePart,
-    AppearanceInfo: AppearanceInfo?,
-    StartPosition: Vector3?,
-    EndPosition: Vector3?,
-    Attacker: Player?
+    Action: string & any,
+    KnifeAction: (string | any)?,
+    Handle: BasePart & Instance,
+    AppearanceInfo: (AppearanceInfo & any)?,
+    StartPosition: (Vector3 | any)?,
+    EndPosition: (Vector3 | any)?,
+    Attacker: (Player & Instance)?
 }
-export type BulletPayload = { [number]: any }
 
-local cloneref: cloneref & any = cloneref or (function(f: any & Instance): cloneref & any
-    return (function(target: Instance & any): Instance & any
-        return target :: Instance & any
-    end) :: cloneref & any
-end)(cloneref) :: cloneref & any;
+export type BulletPayload = Identity<{ [number]: any }>
 
-local Players: Players & Instance = (function(serviceName: string & any): Players & Instance
-    return cloneref(game:GetService(serviceName :: string)) :: Players & Instance
-end)("Players" :: string & any) :: Players & Instance
+local function Cast<T, U>(val: T): (U & T)
+    return (val :: unknown) :: (U & T)
+end
 
-local ReplicatedStorage: ReplicatedStorage & Instance = (function(serviceName: string & any): ReplicatedStorage & Instance
-    return cloneref(game:GetService(serviceName :: string)) :: ReplicatedStorage & Instance
-end)("ReplicatedStorage" :: string & any) :: ReplicatedStorage & Instance
+local cloneref = (cloneref or function<T>(f: T): T
+    return (function(target: Instance): Instance
+        return target
+    end) :: any
+end) :: any;
 
-local CollectionService: CollectionService & Instance = (function(serviceName: string & any): CollectionService & Instance
-    return cloneref(game:GetService(serviceName :: string)) :: CollectionService & Instance
-end)("CollectionService" :: string & any) :: CollectionService & Instance
+local GetService: ServiceProvider<any> = function(sName: string)
+    return cloneref(game:GetService(sName)) :: any
+end
 
-local Workspace: Workspace & Instance = (function(serviceName: string & any): Workspace & Instance
-    return cloneref(game:GetService(serviceName :: string)) :: Workspace & Instance
-end)("Workspace" :: string & any) :: Workspace & Instance
+local Players = GetService("Players") :: Players & Instance
+local ReplicatedStorage = GetService("ReplicatedStorage") :: ReplicatedStorage & Instance
+local CollectionService = GetService("CollectionService") :: CollectionService & Instance
+local Workspace = GetService("Workspace") :: Workspace & Instance
+local TweenService = GetService("TweenService") :: TweenService & Instance
+local Debris = GetService("Debris") :: Debris & Instance
 
-local TweenService: TweenService & Instance = (function(serviceName: string & any): TweenService & Instance
-    return cloneref(game:GetService(serviceName :: string)) :: TweenService & Instance
-end)("TweenService" :: string & any) :: TweenService & Instance
-
-local Debris: Debris & Instance = (function(serviceName: string & any): Debris & Instance
-    return cloneref(game:GetService(serviceName :: string)) :: Debris & Instance
-end)("Debris" :: string & any) :: Debris & Instance
-
-local VALID_GUNS: {[string]: boolean} & any = (function(g1: string & any, g2: string & any): {[string]: boolean} & any
+local VALID_GUNS = (function<T, U>(g1: T, g2: U): { [string]: boolean } & any
     return {
-        [g1] = true,
-        [g2] = true
-    } :: {[string]: boolean} & any
-end)("Gun" :: string & any, "Glockinator" :: string & any) :: {[string]: boolean} & any
+        [tostring(g1)] = true,
+        [tostring(g2)] = true
+    } :: any
+end)("Gun", "Glockinator")
 
-local CRS: any & ModuleScript = (function(folder: ReplicatedStorage & Instance): any & ModuleScript
-    return require(folder:WaitForChild("ClientResources" :: string & any) :: ModuleScript) :: any & ModuleScript
-end)(ReplicatedStorage :: ReplicatedStorage & Instance) :: any & ModuleScript
+local CRS = (function<M>(folder: Instance): M & ModuleScript
+    return require(folder:WaitForChild("ClientResources" :: any) :: ModuleScript) :: any
+end)(ReplicatedStorage)
 
-local MvSLibrary: table & any = {}
+local MvSLibrary = {}
 MvSLibrary.__index = MvSLibrary
 
-function MvSLibrary.new(): table & any
-    return (function(plrs: Players & Instance): table & any
+function MvSLibrary.new(): { [string]: any } & any
+    return (function(plrs: Players & Instance): any
         if not game:IsLoaded() then
             game.Loaded:Wait()
         end
         
-        local localPlayer: Player & Instance = (function(p: Players & Instance): Player & Instance
-            return p.LocalPlayer :: Player & Instance
-        end)(plrs :: Players & Instance) :: Player & Instance
+        local localPlayer = Cast<Player, Instance>(plrs.LocalPlayer)
+        local char = Cast<Model, Instance>(localPlayer.Character or localPlayer.CharacterAdded:Wait())
+        local hum = Cast<Humanoid, Instance>(char:WaitForChild("Humanoid" :: any))
         
-        local char: Model & Instance = (function(p: Player & Instance): Model & Instance
-            return (p.Character or p.CharacterAdded:Wait()) :: Model & Instance
-        end)(localPlayer :: Player & Instance) :: Model & Instance
-        
-        local hum: Humanoid & Instance = (function(c: Model & Instance): Humanoid & Instance
-            return c:WaitForChild("Humanoid" :: string & any) :: Humanoid & Instance
-        end)(char :: Model & Instance) :: Humanoid & Instance
-        
-        local self: table & any = setmetatable({
-            lp = localPlayer :: Player & Instance,
-            RigType = hum.RigType :: EnumItem & any,
-            IsShoot = false :: boolean & any,
-            IsThrow = false :: boolean & any,
-            AutoWait = true :: boolean & any,
-            PlayersTable = {} :: {Player} & any,
-            CachedRayParams = CRS.createRaycastParams() :: RaycastParams & any,
-            Folder = workspace:FindFirstChild("Effects" :: string & any) :: Instance & any,
-            ValidPlayersMap = {} :: {[Player]: boolean?} & any
-        }, MvSLibrary) :: table & any
+        local self = setmetatable({
+            lp = localPlayer,
+            RigType = Cast<EnumItem, any>(hum.RigType),
+            IsShoot = false :: boolean | any,
+            IsThrow = false :: boolean | any,
+            AutoWait = true :: boolean | any,
+            PlayersTable = {} :: { Player } | any,
+            CachedRayParams = Cast<RaycastParams, any>(CRS.createRaycastParams()),
+            Folder = Cast<Instance, any>(workspace:FindFirstChild("Effects" :: any)),
+            ValidPlayersMap = {} :: { [Player]: boolean? } | any
+        }, MvSLibrary) :: any
         
         localPlayer.CharacterAdded:Connect(function(newChar: Model & Instance)
             self.RigType = (function(nc: Model & Instance): EnumItem & any
-                local newHum: Humanoid & Instance = nc:WaitForChild("Humanoid" :: string & any) :: Humanoid & Instance
-                return newHum.RigType :: EnumItem & any
-            end)(newChar :: Model & Instance) :: EnumItem & any
+                local newHum = Cast<Humanoid, Instance>(nc:WaitForChild("Humanoid" :: any))
+                return Cast<EnumItem, any>(newHum.RigType)
+            end)(newChar)
         end)
         
         plrs.PlayerRemoving:Connect(function(plr: Player & Instance)
             (function(targetPlr: Player & Instance)
                 self.ValidPlayersMap[targetPlr] = nil
-                local played: number? & any = table.find(self.PlayersTable, targetPlr) :: number? & any
+                local played = Cast<number?, any>(table.find(self.PlayersTable, targetPlr))
                 if played then
                     table.remove(self.PlayersTable, played)
                 end
-            end)(plr :: Player & Instance)
+            end)(plr)
         end)
         
-        return self :: table & any
-    end)(Players :: Players & Instance) :: table & any
+        return self
+    end)(Players)
 end
 
 function MvSLibrary:GetShootingArm(): (BasePart? & Instance?)
     return (function(plr: Player & Instance): (BasePart? & Instance?)
-        local char: Model? & Instance? = plr.Character :: Model? & Instance?
+        local char = Cast<Model?, Instance?>(plr.Character)
         if not char then return nil end
         if self.RigType == Enum.HumanoidRigType.R6 then
-            return char:FindFirstChild("Right Arm" :: string & any) :: BasePart? & Instance?
+            return Cast<BasePart?, Instance?>(char:FindFirstChild("Right Arm" :: any))
         else
-            return (char:FindFirstChild("Right UpperArm" :: string & any) or char:FindFirstChild("RightHand" :: string & any)) :: BasePart? & Instance?
+            return Cast<BasePart?, Instance?>(char:FindFirstChild("Right UpperArm" :: any) or char:FindFirstChild("RightHand" :: any))
         end
-    end)(self.lp :: Player & Instance) :: (BasePart? & Instance?)
+    end)(self.lp)
 end
 
 function MvSLibrary:GetSafeOrigin(toolPart: BasePart & Instance): Vector3 & any
-    return (function(tp: BasePart & Instance): Vector3 & any
-        local char: Model? & Instance? = self.lp.Character :: Model? & Instance?
-        if not char then return tp.Position :: Vector3 & any end
+    return (function<T>(tp: T & BasePart & Instance): Vector3 & any
+        local char = Cast<Model?, Instance?>(self.lp.Character)
+        if not char then return Cast<Vector3, any>(tp.Position) end
         
-        local arm: BasePart? & Instance? = self:GetShootingArm() or char:FindFirstChild("UpperTorso" :: string & any) :: BasePart? & Instance?
-        if not arm then return tp.Position :: Vector3 & any end
+        local arm = Cast<BasePart?, Instance?>(self:GetShootingArm() or char:FindFirstChild("UpperTorso" :: any))
+        if not arm then return Cast<Vector3, any>(tp.Position) end
         
-        local armPos: Vector3 & any = arm.Position :: Vector3 & any
-        local toolPos: Vector3 & any = tp.Position :: Vector3 & any
-        local dir: Vector3 & any = toolPos - armPos
+        local armPos = Cast<Vector3, any>(arm.Position)
+        local toolPos = Cast<Vector3, any>(tp.Position)
+        local dir = Cast<Vector3, any>(toolPos - armPos)
         
-        self.CachedRayParams.FilterDescendantsInstances = {
-            char
-        }
-        local armToToolRay: RaycastResult? & any = Workspace:Raycast(armPos, dir, self.CachedRayParams) :: RaycastResult? & any
+        self.CachedRayParams.FilterDescendantsInstances = { char }
+        local armToToolRay = Cast<RaycastResult?, any>(Workspace:Raycast(armPos, dir, self.CachedRayParams))
         if armToToolRay then
-            return armToToolRay.Position :: Vector3 & any
+            return Cast<Vector3, any>(armToToolRay.Position)
         end
-        return toolPos :: Vector3 & any
-    end)(toolPart :: BasePart & Instance) :: Vector3 & any
+        return toolPos
+    end)(toolPart)
 end
 
-function MvSLibrary:CheckTeam(): string & any
+function MvSLibrary:CheckTeam(): string | any
     return (function(plr: Player & Instance): string & any
-        local char: Model? & Instance? = plr.Character :: Model? & Instance?
-        local backpack: Backpack? & Instance? = plr:FindFirstChildOfClass("Backpack" :: string & any) :: Backpack? & Instance?
+        local char = Cast<Model?, Instance?>(plr.Character)
+        local backpack = Cast<Backpack?, Instance?>(plr:FindFirstChildOfClass("Backpack" :: any))
         
-        local containers: {Instance} & any = (function(c: Model? & Instance?, b: Backpack? & Instance?): {Instance} & any
-            local res: {Instance} & any = {}
+        local containers = (function(c: Model?, b: Backpack?): { Instance } & any
+            local res = {}
             if c then table.insert(res, c) end
             if b then table.insert(res, b) end
-            return res :: {Instance} & any
-        end)(char :: Model? & Instance?, backpack :: Backpack? & Instance?) :: {Instance} & any
+            return res :: any
+        end)(char, backpack)
         
-        local hasGun: boolean & any = false
-        local hasKnife: boolean & any = false
+        local hasGun = false :: boolean | any
+        local hasKnife = false :: boolean | any
         
         for _, container in containers do
             for _, child in container:GetChildren() do
-                if child:IsA("Tool" :: string & any) then
-                    local toolName: string & any = child.Name :: string & any
+                if child:IsA("Tool" :: any) then
+                    local toolName = Cast<string, any>(child.Name)
                     if VALID_GUNS[toolName] then
                         hasGun = true
-                    elseif toolName:find("Knife" :: string & any) or child:FindFirstChild("Damage" :: string & any) then
+                    elseif toolName:find("Knife" :: any) or child:FindFirstChild("Damage" :: any) then
                         hasKnife = true
                     end
                 end
             end
         end
         
-        if hasGun then
-            return "Sheriffs" :: string & any
-        elseif hasKnife then
-            return "Murderers" :: string & any
-        else
-            return "Joining" :: string & any
-        end
-    end)(self.lp :: Player & Instance) :: string & any
+        if hasGun then return "Sheriffs" :: any
+        elseif hasKnife then return "Murderers" :: any
+        else return "Joining" :: any end
+    end)(self.lp)
 end
 
 function MvSLibrary:UpdateList()
     (function(plrs: Players & Instance)
         for _, plr in plrs:GetPlayers() do
             if plr ~= self.lp then
-                local char: Model? & Instance? = plr.Character :: Model? & Instance?
-                local isValid: boolean & any = (function(c: Model? & Instance?): boolean & any
-                    return ((c and CRS.canCharacterTakeDamage(c)) or false) :: boolean & any
-                end)(char :: Model? & Instance?) :: boolean & any
+                local char = Cast<Model?, Instance?>(plr.Character)
+                local isValid = (function(c: Model?): boolean & any
+                    return ((c and CRS.canCharacterTakeDamage(c)) or false) :: any
+                end)(char)
                 
-                local isInTable: boolean & any = (self.ValidPlayersMap[plr] or false) :: boolean & any
+                local isInTable = Cast<boolean, any>(self.ValidPlayersMap[plr] or false)
                 
                 if isValid and not isInTable then
                     self.ValidPlayersMap[plr] = true
                     table.insert(self.PlayersTable, plr)
                 elseif not isValid and isInTable then
                     self.ValidPlayersMap[plr] = nil
-                    local index: number? & any = table.find(self.PlayersTable, plr) :: number? & any
+                    local index = Cast<number?, any>(table.find(self.PlayersTable, plr))
                     if index then
                         table.remove(self.PlayersTable, index)
                     end
                 end
             end
         end
-    end)(Players :: Players & Instance)
+    end)(Players)
 end
 
 -- ==========================================
--- PHẦN 2: ACTION METHODS & RETURN MODULE
+-- PHẦN 2: ACTION METHODS & MODULE RETURN
 -- ==========================================
 
-function MvSLibrary:PlayKnifeAnimation(char: Model? & Instance?, waitToStop: boolean? & any)
-    (function(c: Model? & Instance?, waitStop: boolean? & any)
+function MvSLibrary:PlayKnifeAnimation(char: Model? & Instance?, waitToStop: (boolean | any)?)
+    (function(c: Model?, waitStop: boolean?)
         if not c then return end
-        local hum: Humanoid? & Instance? = c:FindFirstChildOfClass("Humanoid" :: string & any) :: Humanoid? & Instance?
-        local knife: Tool? & Instance? = (c:FindFirstChild("Knife" :: string & any) or c:FindFirstChildOfClass("Tool" :: string & any)) :: Tool? & Instance?
+        local hum = Cast<Humanoid?, Instance?>(c:FindFirstChildOfClass("Humanoid" :: any))
+        local knife = Cast<Tool?, Instance?>(c:FindFirstChild("Knife" :: any) or c:FindFirstChildOfClass("Tool" :: any))
         if not hum or not knife then return end
         
-        local animName: string & any = `Throw{(function(h: Humanoid & Instance): string & any
-            return (if h.RigType == Enum.HumanoidRigType.R15 then "" else "R6") :: string & any
-        end)(hum :: Humanoid & Instance)}` :: string & any
+        local animName = `Throw{(function(h: Humanoid & Instance): string & any
+            return (if h.RigType == Enum.HumanoidRigType.R15 then "" else "R6") :: any
+        end)(hum)}` :: any
         
-        local animObj: Animation? & Instance? = knife:FindFirstChild(animName :: string & any) :: Animation? & Instance?
+        local animObj = Cast<Animation?, Instance?>(knife:FindFirstChild(animName))
         if animObj then
-            local animTrack: AnimationTrack & any = hum:LoadAnimation(animObj :: Animation & Instance) :: AnimationTrack & any
+            local animTrack = Cast<AnimationTrack, any>(hum:LoadAnimation(animObj))
             animTrack:Play()
             if waitStop then
                 animTrack.Stopped:Wait()
             end
         end
-    end)(char :: Model? & Instance?, waitToStop :: boolean? & any)
+    end)(char, waitToStop)
 end
 
 function MvSLibrary:CreateKnife(knifeTool: Instance & any, appearanceInfo: AppearanceInfo & any, startPos: Vector3 & any, endPos: Vector3 & any, attacker: Player & Instance)
-    (function(kt: Instance & any, info: AppearanceInfo & any, sPos: Vector3 & any, ePos: Vector3 & any, atk: Player & Instance)
-        local projectileContainer: Instance & any = (function(ws: Workspace & Instance): Instance & any
-            return (ws:FindFirstChild("ProjectilesAndDebris" :: string & any) or ws) :: Instance & any
-        end)(Workspace :: Workspace & Instance) :: Instance & any
+    (function(kt: Instance, info: AppearanceInfo, sPos: Vector3, ePos: Vector3, atk: Player & Instance)
+        local projectileContainer = (function(ws: Workspace & Instance): Instance & any
+            return Cast<Instance, any>(ws:FindFirstChild("ProjectilesAndDebris" :: any) or ws)
+        end)(Workspace)
         
-        local projectileModel: Model & Instance = (function(rs: ReplicatedStorage & Instance): Model & Instance
-            return ((rs.ClientResources :: any):WaitForChild("KnifeProjectile" :: string & any) :: Model):Clone() :: Model & Instance
-        end)(ReplicatedStorage :: ReplicatedStorage & Instance) :: Model & Instance
+        local projectileModel = (function(rs: ReplicatedStorage & Instance): Model & Instance
+            return Cast<Model, Instance>(((rs.ClientResources :: any):WaitForChild("KnifeProjectile" :: any) :: Model):Clone())
+        end)(ReplicatedStorage)
         
-        local visualPart: BasePart & Instance = projectileModel:WaitForChild("Visual" :: string & any) :: BasePart & Instance
+        local visualPart = Cast<BasePart, Instance>(projectileModel:WaitForChild("Visual" :: any))
         
         pcall(function()
             visualPart.TextureID = info.TextureID
@@ -260,41 +239,39 @@ function MvSLibrary:CreateKnife(knifeTool: Instance & any, appearanceInfo: Appea
             visualPart.Transparency = info.Transparency
         end)
         
-        local dirVector: Vector3 & any = ePos - sPos
-        local distance: number & any = dirVector.Magnitude :: number & any
+        local dirVector = Cast<Vector3, any>(ePos - sPos)
+        local distance = Cast<number, any>(dirVector.Magnitude)
         if distance < 0.1 then
             projectileModel:Destroy()
             return
         end
         
-        local initialCFrame: CFrame & any = CFrame.lookAt(sPos, ePos) :: CFrame & any
-        projectileModel:PivotTo(initialCFrame :: CFrame)
+        local initialCFrame = Cast<CFrame, any>(CFrame.lookAt(sPos, ePos))
+        projectileModel:PivotTo(initialCFrame)
         
-        (function(vp: BasePart & Instance, icf: CFrame & any, dv: Vector3 & any)
-            local vecVel: Instance? & any = vp:FindFirstChild("VectorVelocity" :: string & any)
-            if vecVel and vecVel:IsA("LinearVelocity" :: string & any) then
-                vecVel.VectorVelocity = dv.Unit * 1500
+        (function(vp: BasePart & Instance, icf: CFrame, dv: Vector3)
+            local vecVel = vp:FindFirstChild("VectorVelocity" :: any)
+            if vecVel and vecVel:IsA("LinearVelocity" :: any) then
+                (vecVel :: any).VectorVelocity = dv.Unit * 1500
             end
-            local alignOrient: Instance? & any = vp:FindFirstChild("AlignOrientation" :: string & any)
-            if alignOrient and alignOrient:IsA("AlignOrientation" :: string & any) then
-                alignOrient.CFrame = icf
+            local alignOrient = vp:FindFirstChild("AlignOrientation" :: any)
+            if alignOrient and alignOrient:IsA("AlignOrientation" :: any) then
+                (alignOrient :: any).CFrame = icf
             end
-        end)(visualPart :: BasePart & Instance, initialCFrame :: CFrame & any, dirVector :: Vector3 & any)
+        end)(visualPart, initialCFrame, dirVector)
         
         if atk == self.lp then
             task.spawn(function()
-                self.CachedRayParams.FilterDescendantsInstances = (function(p: Player & Instance): {Instance} & any
-                    return (if p.Character then {
-                        p.Character
-                    } else {}) :: {Instance} & any
-                end)(self.lp :: Player & Instance) :: {Instance} & any
+                self.CachedRayParams.FilterDescendantsInstances = (function(p: Player & Instance): { Instance } & any
+                    return (if p.Character then { p.Character } else {}) :: any
+                end)(self.lp)
                 
-                local rayHit: RaycastResult? & any = Workspace:Raycast(sPos, dirVector, self.CachedRayParams) :: RaycastResult? & any
-                local actualEndPos: Vector3 & any = (if rayHit then rayHit.Position else ePos) :: Vector3 & any
-                local actualDistance: number & any = (actualEndPos - sPos).Magnitude :: number & any
+                local rayHit = Cast<RaycastResult?, any>(Workspace:Raycast(sPos, dirVector, self.CachedRayParams))
+                local actualEndPos = Cast<Vector3, any>(if rayHit then rayHit.Position else ePos)
+                local actualDistance = Cast<number, any>((actualEndPos - sPos).Magnitude)
                 
-                local tracer: Part & Instance = (function(sp: Vector3 & any, ep: Vector3 & any, ad: number & any): Part & Instance
-                    local p: Part & Instance = Instance.new("Part" :: string & any) :: Part & Instance
+                local tracer = (function(sp: Vector3, ep: Vector3, ad: number): Part & Instance
+                    local p = Cast<Part, Instance>(Instance.new("Part" :: any))
                     p.Anchored = true
                     p.CanCollide = false
                     p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
@@ -303,73 +280,68 @@ function MvSLibrary:CreateKnife(knifeTool: Instance & any, appearanceInfo: Appea
                     p.Color = Color3.fromRGB(255, 255, 255)
                     p.Size = Vector3.new(0.25, 0.25, ad)
                     p.CFrame = CFrame.new(sp, ep) * CFrame.new(0, 0, -ad / 2)
-                    return p :: Part & Instance
-                end)(sPos :: Vector3 & any, actualEndPos :: Vector3 & any, actualDistance :: number & any) :: Part & Instance
+                    return p
+                end)(sPos, actualEndPos, actualDistance)
                 
-                CollectionService:AddTag(tracer :: Instance, "IgnoreProjectiles" :: string & any);
+                CollectionService:AddTag(tracer, "IgnoreProjectiles" :: any);
                 
                 (function(tr: Part & Instance)
                     for face = 0, 5 do
-                        local light: SurfaceLight & Instance = Instance.new("SurfaceLight" :: string & any, tr :: Instance) :: SurfaceLight & Instance
+                        local light = Cast<SurfaceLight, Instance>(Instance.new("SurfaceLight" :: any, tr))
                         light.Range = 10
                         light.Brightness = 1.5
                         light.Color = Color3.fromRGB(255, 255, 255)
                         light.Face = Enum.NormalId:GetEnumItems()[face + 1]
-                        TweenService:Create(light :: Instance, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                        TweenService:Create(light, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
                             Brightness = 0
                         }):Play()
                     end
-                end)(tracer :: Part & Instance)
+                end)(tracer)
                 
-                Debris:AddItem(tracer :: Instance, 1)
-                tracer.Parent = projectileContainer :: Instance
-                TweenService:Create(tracer :: Instance, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                Debris:AddItem(tracer, 1)
+                tracer.Parent = projectileContainer
+                TweenService:Create(tracer, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
                     Transparency = 1,
                     Size = Vector3.new(0.01, 0.01, actualDistance)
                 }):Play()
             end)
         end
         
-        Debris:AddItem(projectileModel :: Instance, 3)
-        projectileModel.Parent = projectileContainer :: Instance
-    end)(knifeTool :: Instance & any, appearanceInfo :: AppearanceInfo & any, startPos :: Vector3 & any, endPos :: Vector3 & any, attacker :: Player & Instance)
+        Debris:AddItem(projectileModel, 3)
+        projectileModel.Parent = projectileContainer
+    end)(knifeTool, appearanceInfo, startPos, endPos, attacker)
 end
 
-function MvSLibrary:LineOfSightEstablished(targetPart: Instance? & any, isKnife: boolean & any): boolean & any
-    return (function(tp: Instance? & any, ik: boolean & any): boolean & any
-        if not tp or not tp:IsA("BasePart" :: string & any) then return false end
-        local targetChar: Instance? & any = (CRS.getCharacterFromPart(tp) or tp.Parent) :: Instance? & any
-        local myChar: Model? & Instance? = self.lp.Character :: Model? & Instance?
+function MvSLibrary:LineOfSightEstablished(targetPart: (Instance | any)?, isKnife: (boolean | any)?): boolean & any
+    return (function(tp: Instance?, ik: boolean?): boolean & any
+        if not tp or not tp:IsA("BasePart" :: any) then return false end
+        local targetChar = Cast<Instance?, any>(CRS.getCharacterFromPart(tp) or tp.Parent)
+        local myChar = Cast<Model?, Instance?>(self.lp.Character)
         if not targetChar or not myChar then return false end
         
-        local origin: Vector3? & any = (if ik then
-            (if myChar:FindFirstChild("Head" :: string & any) then (myChar:FindFirstChild("Head" :: string & any) :: BasePart).Position else nil)
+        local origin = (if ik then
+            (if myChar:FindFirstChild("Head" :: any) then (myChar:FindFirstChild("Head" :: any) :: BasePart).Position else nil)
         else
             (function(mc: Model & Instance): Vector3? & any
-                local tool: Tool? & Instance? = mc:FindFirstChildOfClass("Tool" :: string & any) :: Tool? & Instance?
-                local barrel: BasePart? & Instance? = tool and (tool:FindFirstChild("Barrel" :: string & any) or tool:FindFirstChild("Handle" :: string & any)) :: BasePart? & Instance?
-                return (if barrel then self:GetSafeOrigin(barrel :: BasePart & Instance) else nil) :: Vector3? & any
-            end)(myChar :: Model & Instance)) :: Vector3? & any
+                local tool = Cast<Tool?, Instance?>(mc:FindFirstChildOfClass("Tool" :: any))
+                local barrel = Cast<BasePart?, Instance?>(tool and (tool:FindFirstChild("Barrel" :: any) or tool:FindFirstChild("Handle" :: any)))
+                return (if barrel then self:GetSafeOrigin(barrel) else nil) :: any
+            end)(myChar)) :: any
             
         if not origin then return false end
         
-        self.CachedRayParams.FilterDescendantsInstances = {
-            myChar
-        }
-        local direction: Vector3 & any = tp.Position - origin
-        local raycastResult: RaycastResult? & any = Workspace:Raycast(origin, direction, self.CachedRayParams) :: RaycastResult? & any
+        self.CachedRayParams.FilterDescendantsInstances = { myChar }
+        local direction = Cast<Vector3, any>((tp :: BasePart).Position - origin)
+        local raycastResult = Cast<RaycastResult?, any>(Workspace:Raycast(origin, direction, self.CachedRayParams))
         
         if raycastResult then
             if CRS.getCharacterFromPart(raycastResult.Instance) == targetChar then
                 return true
             end
-            local checkOffsets: {Vector3} & any = {
-                Vector3.new(1.2, 0, 0),
-                Vector3.new(-1.2, 0, 0)
-            } :: {Vector3} & any
+            local checkOffsets = { Vector3.new(1.2, 0, 0), Vector3.new(-1.2, 0, 0) } :: any
             for _, offset in checkOffsets do
-                local edgePos: Vector3 & any = tp.Position + offset
-                local edgeResult: RaycastResult? & any = Workspace:Raycast(origin, edgePos - origin, self.CachedRayParams) :: RaycastResult? & any
+                local edgePos = Cast<Vector3, any>((tp :: BasePart).Position + offset)
+                local edgeResult = Cast<RaycastResult?, any>(Workspace:Raycast(origin, edgePos - origin, self.CachedRayParams))
                 if edgeResult and CRS.getCharacterFromPart(edgeResult.Instance) == targetChar then
                     return true
                 end
@@ -377,178 +349,156 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance? & any, isKnife:
             return false
         end
         return true
-    end)(targetPart :: Instance? & any, isKnife :: boolean & any) :: boolean & any
+    end)(targetPart, isKnife)
 end
 
-function MvSLibrary:GetClosestTarget(isKnife: boolean & any): (Player? & Instance?, BasePart? & Instance?)
-    return (function(ik: boolean & any): (Player? & Instance?, BasePart? & Instance?)
-        local myChar: Model? & Instance? = self.lp.Character :: Model? & Instance?
+function MvSLibrary:GetClosestTarget(isKnife: (boolean | any)?): (Player? & Instance?, BasePart? & Instance?)
+    return (function(ik: boolean?): (Player? & Instance?, BasePart? & Instance?)
+        local myChar = Cast<Model?, Instance?>(self.lp.Character)
         if not myChar then return nil, nil end
-        local myHead: BasePart? & Instance? = myChar:FindFirstChild("Head" :: string & any) :: BasePart? & Instance?
+        local myHead = Cast<BasePart?, Instance?>(myChar:FindFirstChild("Head" :: any))
         if not myHead then return nil, nil end
         
-        local myPos: Vector3 & any = myHead.Position :: Vector3 & any
+        local myPos = Cast<Vector3, any>(myHead.Position)
         local candidateTarget: Player? & Instance?, candidatePart: BasePart? & Instance? = nil, nil
-        local minDistanceSq: number & any = math.huge
+        local minDistanceSq = Cast<number, any>(math.huge)
         
         for _, player in self.PlayersTable do
-            local char: Model? & Instance? = player and player.Character :: Model? & Instance?
+            local char = Cast<Model?, Instance?>(player and player.Character)
             if char and CRS.canCharacterTakeDamage(char) then
-                local targetPart: BasePart? & Instance? = (char:FindFirstChild("CharacterCenter" :: string & any) or char:FindFirstChild("Head" :: string & any) or char:FindFirstChild("HumanoidRootPart" :: string & any)) :: BasePart? & Instance?
+                local targetPart = Cast<BasePart?, Instance?>(char:FindFirstChild("CharacterCenter" :: any) or char:FindFirstChild("Head" :: any) or char:FindFirstChild("HumanoidRootPart" :: any))
                 if targetPart then
-                    local offset: Vector3 & any = targetPart.Position - myPos
-                    local distSq: number & any = (offset.X * offset.X + offset.Y * offset.Y + offset.Z * offset.Z) :: number & any
-                    if distSq < minDistanceSq and self:LineOfSightEstablished(targetPart :: Instance & any, ik :: boolean & any) then
+                    local offset = Cast<Vector3, any>(targetPart.Position - myPos)
+                    local distSq = Cast<number, any>(offset.X * offset.X + offset.Y * offset.Y + offset.Z * offset.Z)
+                    if distSq < minDistanceSq and self:LineOfSightEstablished(targetPart, ik) then
                         minDistanceSq = distSq
-                        candidateTarget, candidatePart = player :: Player & Instance, targetPart :: BasePart & Instance
+                        candidateTarget, candidatePart = player, targetPart
                     end
                 end
             end
         end
-        return candidateTarget :: Player? & Instance?, candidatePart :: BasePart? & Instance?
-    end)(isKnife :: boolean & any) :: (Player? & Instance?, BasePart? & Instance?)
+        return candidateTarget, candidatePart
+    end)(isKnife)
 end
 
-function MvSLibrary:Shoot(targetPlayer: Player? & Instance?, targetPart: BasePart? & Instance?)
-    (function(tp: Player? & Instance?, tPart: BasePart? & Instance?)
+function MvSLibrary:Shoot(targetPlayer: (Player | any)?, targetPart: (BasePart | any)?)
+    (function(tp: Player?, tPart: BasePart?)
         if self.IsShoot or not tp or not tp.Character or not tPart then return end
-        local char: Model? & Instance? = self.lp.Character :: Model? & Instance?
+        local char = Cast<Model?, Instance?>(self.lp.Character)
         if not char then return end
         
-        local tool: Tool? & Instance? = char:FindFirstChildOfClass("Tool" :: string & any) :: Tool? & Instance?
+        local tool = Cast<Tool?, Instance?>(char:FindFirstChildOfClass("Tool" :: any))
         if not tool or not VALID_GUNS[tool.Name] then return end
         
-        local barrel: BasePart? & Instance? = (tool:FindFirstChild("Barrel" :: string & any) or tool:FindFirstChild("Handle" :: string & any)) :: BasePart? & Instance?
-        local damageRemote: RemoteEvent? & Instance? = tool:FindFirstChild("Damage" :: string & any) :: RemoteEvent? & Instance?
-        local remotes: Instance? & any = ReplicatedStorage:FindFirstChild("Remotes" :: string & any) :: Instance? & any
-        local replicateBullet: RemoteEvent? & Instance? = remotes and remotes:FindFirstChild("ReplicateBullet" :: string & any) :: RemoteEvent? & Instance?
+        local barrel = Cast<BasePart?, Instance?>(tool:FindFirstChild("Barrel" :: any) or tool:FindFirstChild("Handle" :: any))
+        local damageRemote = Cast<RemoteEvent?, Instance?>(tool:FindFirstChild("Damage" :: any))
+        local remotes = Cast<Instance?, any>(ReplicatedStorage:FindFirstChild("Remotes" :: any))
+        local replicateBullet = Cast<RemoteEvent?, Instance?>(remotes and remotes:FindFirstChild("ReplicateBullet" :: any))
         if not barrel or not damageRemote or not replicateBullet then return end
         
-        local safeOrigin: Vector3 & any = self:GetSafeOrigin(barrel :: BasePart & Instance) :: Vector3 & any
-        local hitPos: Vector3 & any = tPart.Position :: Vector3 & any
+        local safeOrigin = Cast<Vector3, any>(self:GetSafeOrigin(barrel))
+        local hitPos = Cast<Vector3, any>(tPart.Position)
         
-        self.CachedRayParams.FilterDescendantsInstances = {
-            char
-        }
-        local raycastResult: RaycastResult? & any = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: RaycastResult? & any
+        self.CachedRayParams.FilterDescendantsInstances = { char }
+        local raycastResult = Cast<RaycastResult?, any>(Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams))
         if raycastResult and CRS.getCharacterFromPart(raycastResult.Instance) ~= tp.Character then
             return
         end
         
         self.IsShoot = true
-        task.delay(2.5, function()
-            self.IsShoot = false
-        end)
+        task.delay(2.5, function() self.IsShoot = false end)
         
-        local hrp: BasePart? & Instance? = char:FindFirstChild("HumanoidRootPart" :: string & any) :: BasePart? & Instance?
+        local hrp = Cast<BasePart?, Instance?>(char:FindFirstChild("HumanoidRootPart" :: any))
         if not hrp then return end
         
-        local bulletData: BulletPayload & any = {
-            safeOrigin,
-            hitPos,
-            { PartType = "Character" },
-            tool
-        } :: BulletPayload & any
+        local bulletData = Cast<BulletPayload, any>({ safeOrigin, hitPos, { PartType = "Character" }, tool })
         CRS.createBullet(unpack(bulletData))
         replicateBullet:FireServer(bulletData)
         damageRemote:FireServer(tPart, hitPos, hrp.Position)
-    end)(targetPlayer :: Player? & Instance?, targetPart :: BasePart? & Instance?)
+    end)(targetPlayer, targetPart)
 end
 
-function MvSLibrary:Throw(targetPlayer: Player? & Instance?, targetPart: BasePart? & Instance?)
-    (function(tp: Player? & Instance?, tPart: BasePart? & Instance?)
+function MvSLibrary:Throw(targetPlayer: (Player | any)?, targetPart: (BasePart | any)?)
+    (function(tp: Player?, tPart: BasePart?)
         if self.IsThrow or not tp or not tp.Character or not tPart then return end
-        local char: Model? & Instance? = self.lp.Character :: Model? & Instance?
+        local char = Cast<Model?, Instance?>(self.lp.Character)
         if not char then return end
         
-        local knife: Tool? & Instance? = char:FindFirstChildOfClass("Tool" :: string & any) :: Tool? & Instance?
-        if not knife or not knife.Name:find("Knife" :: string & any) then return end
+        local knife = Cast<Tool?, Instance?>(char:FindFirstChildOfClass("Tool" :: any))
+        if not knife or not knife.Name:find("Knife" :: any) then return end
         
-        local handle: BasePart? & Instance? = knife:FindFirstChild("Handle" :: string & any) :: BasePart? & Instance?
-        local damageRemote: RemoteEvent? & Instance? = knife:FindFirstChild("Damage" :: string & any) :: RemoteEvent? & Instance?
-        local remotes: Instance? & any = ReplicatedStorage:FindFirstChild("Remotes" :: string & any) :: Instance? & any
-        local replicateKnife: RemoteEvent? & Instance? = remotes and remotes:FindFirstChild("ReplicateKnife" :: string & any) :: RemoteEvent? & Instance?
+        local handle = Cast<BasePart?, Instance?>(knife:FindFirstChild("Handle" :: any))
+        local damageRemote = Cast<RemoteEvent?, Instance?>(knife:FindFirstChild("Damage" :: any))
+        local remotes = Cast<Instance?, any>(ReplicatedStorage:FindFirstChild("Remotes" :: any))
+        local replicateKnife = Cast<RemoteEvent?, Instance?>(remotes and remotes:FindFirstChild("ReplicateKnife" :: any))
         if not handle or not damageRemote or not replicateKnife then return end
         
         self.IsThrow = true
-        task.delay(0.85, function()
-            self.IsThrow = false
-        end)
+        task.delay(0.85, function() self.IsThrow = false end)
         
-        self:PlayKnifeAnimation(char :: Model & Instance, self.AutoWait :: boolean & any)
+        self:PlayKnifeAnimation(char, self.AutoWait)
         if not tp or not tp.Character or not tPart or not tPart.Parent then return end
         
-        local startPos: Vector3 & any = self:GetSafeOrigin(handle :: BasePart & Instance) :: Vector3 & any
-        local endPos: Vector3 & any = tPart.Position :: Vector3 & any
-        local appearanceInfo: AppearanceInfo & any = {
+        local startPos = Cast<Vector3, any>(self:GetSafeOrigin(handle))
+        local endPos = Cast<Vector3, any>(tPart.Position)
+        local appearanceInfo = Cast<AppearanceInfo, any>({
             TextureID = (handle :: any).TextureID,
             Color = handle.Color,
             Material = handle.Material,
             Transparency = handle.Transparency
-        } :: AppearanceInfo & any
+        })
         
-        local rayParams: RaycastParams & any = (function(): RaycastParams & any
-            local rp: RaycastParams & any = RaycastParams.new() :: RaycastParams & any
+        local rayParams = (function(): RaycastParams & any
+            local rp = Cast<RaycastParams, any>(RaycastParams.new())
             rp.FilterType = Enum.RaycastFilterType.Exclude
-            rp.FilterDescendantsInstances = {
-                char
-            }
-            return rp :: RaycastParams & any
-        end)() :: RaycastParams & any
+            rp.FilterDescendantsInstances = { char }
+            return rp
+        end)()
         
-        local dirVector: Vector3 & any = endPos - startPos
-        local distance: number & any = dirVector.Magnitude :: number & any
-        local rayHit: RaycastResult? & any = Workspace:Raycast(startPos, dirVector.Unit * distance, rayParams) :: RaycastResult? & any
-        local actualHitPart: Instance & any = tPart :: Instance & any
-        local isWallBlocked: boolean & any = false
+        local dirVector = Cast<Vector3, any>(endPos - startPos)
+        local distance = Cast<number, any>(dirVector.Magnitude)
+        local rayHit = Cast<RaycastResult?, any>(Workspace:Raycast(startPos, dirVector.Unit * distance, rayParams))
+        local actualHitPart = Cast<Instance, any>(tPart)
+        local isWallBlocked = false :: boolean | any
         
         if rayHit then
-            local hitChar: Instance? & any = CRS.getCharacterFromPart(rayHit.Instance) :: Instance? & any
+            local hitChar = Cast<Instance?, any>(CRS.getCharacterFromPart(rayHit.Instance))
             if hitChar then
-                actualHitPart = rayHit.Instance :: Instance & any
+                actualHitPart = rayHit.Instance
             else
                 isWallBlocked = true
             end
         end
         
-        CRS.playKnifeSounds(handle, appearanceInfo, "Throw" :: string & any)
+        CRS.playKnifeSounds(handle, appearanceInfo, "Throw" :: any)
         replicateKnife:FireServer({
-            Action = "PlayKnifeSound",
-            KnifeAction = "Throw",
-            Handle = handle
-        } :: KnifePayload & any)
+            Action = "PlayKnifeSound", KnifeAction = "Throw", Handle = handle
+        } :: KnifePayload)
         replicateKnife:FireServer({
-            Action = "CreateKnife",
-            Handle = handle,
-            AppearanceInfo = appearanceInfo,
-            StartPosition = startPos,
-            EndPosition = endPos,
-            Attacker = self.lp
-        } :: KnifePayload & any)
-        self:CreateKnife(handle :: Instance & any, appearanceInfo :: AppearanceInfo & any, startPos :: Vector3 & any, endPos :: Vector3 & any, self.lp :: Player & Instance)
+            Action = "CreateKnife", Handle = handle, AppearanceInfo = appearanceInfo, StartPosition = startPos, EndPosition = endPos, Attacker = self.lp
+        } :: KnifePayload)
+        self:CreateKnife(handle, appearanceInfo, startPos, endPos, self.lp)
         
         if not isWallBlocked then
             task.delay(math.clamp(distance / 1500, 0.02, 0.12), function()
                 if actualHitPart and actualHitPart.Parent then
-                    damageRemote:FireServer(actualHitPart, "Throw" :: string & any)
+                    damageRemote:FireServer(actualHitPart, "Throw" :: any)
                 end
             end)
         end
-    end)(targetPlayer :: Player? & Instance?, targetPart :: BasePart? & Instance?)
+    end)(targetPlayer, targetPart)
 end
 
-function MvSLibrary:SetAutoWait(state: boolean & any)
-    (function(s: boolean & any)
-        self.AutoWait = s
-    end)(state :: boolean & any)
+function MvSLibrary:SetAutoWait(state: boolean | any)
+    (function(s: boolean?) self.AutoWait = s end)(state)
 end
 
-function MvSLibrary:ToggleEffects(state: boolean & any)
-    (function(s: boolean & any)
+function MvSLibrary:ToggleEffects(state: boolean | any)
+    (function(s: boolean?)
         if self.Folder then
-            self.Folder.Parent = (if s then nil else workspace) :: Instance?
+            self.Folder.Parent = (if s then nil else workspace) :: any
         end
-    end)(state :: boolean & any)
+    end)(state)
 end
 
 return MvSLibrary
