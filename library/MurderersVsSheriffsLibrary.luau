@@ -1,5 +1,7 @@
 --!strict
 
+export type cloneref = (target: Instance) -> Instance;
+
 export type AppearanceInfo = {
     TextureID: string,
     Color: Color3,
@@ -21,12 +23,14 @@ export type BulletPayload = {
     [number]: any
 }
 
-local Players = cloneref(game:GetService("Players")) :: Players
-local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage")) :: ReplicatedStorage
-local CollectionService = cloneref(game:GetService("CollectionService")) :: CollectionService
-local Workspace = cloneref(game:GetService("Workspace")) :: Workspace
-local TweenService = cloneref(game:GetService("TweenService")) :: TweenService
-local Debris = cloneref(game:GetService("Debris")) :: Debris
+local cloneref: cloneref = cloneref or function(f) return f end :: cloneref;
+
+local Players: Players = cloneref(game:GetService("Players")) :: Players
+local ReplicatedStorage: ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage")) :: ReplicatedStorage
+local CollectionService: CollectionService = cloneref(game:GetService("CollectionService")) :: CollectionService
+local Workspace: Workspace = cloneref(game:GetService("Workspace")) :: Workspace
+local TweenService: TweenService = cloneref(game:GetService("TweenService")) :: TweenService
+local Debris: Debris = cloneref(game:GetService("Debris")) :: Debris
 
 local VALID_GUNS = { Gun = true, Glockinator = true }
 local CRS: any = require(ReplicatedStorage:WaitForChild("ClientResources") :: ModuleScript)
@@ -204,7 +208,7 @@ function MvSLibrary:CreateKnife(knifeTool: Instance, appearanceInfo: AppearanceI
     projectileModel.Parent = projectileContainer
 end
 
-function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boolean?): boolean
+function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boolean): boolean
     if not targetPart or not targetPart:IsA("BasePart") then return false end
     
     local targetChar = CRS.getCharacterFromPart(targetPart) or targetPart.Parent
@@ -244,7 +248,7 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance?, isKnife: boole
     return true
 end
 
-function MvSLibrary:GetClosestTarget(isKnife: boolean?): (Player?, BasePart?)
+function MvSLibrary:GetClosestTarget(isKnife: boolean): (Player?, BasePart?)
     local myChar = self.LocalPlayer.Character
     if not myChar then return nil, nil end
     local myHead = myChar:FindFirstChild("Head") :: BasePart?
@@ -383,7 +387,7 @@ function MvSLibrary:SetAutoWait(state: boolean) self.AutoWait = state end
 
 function MvSLibrary:ToggleEffects(state: boolean)
     if self.Folder then 
-        self.Folder.Parent = if state then workspace else nil 
+        self.Folder.Parent = if state then nil else workspace 
     end
 end
 
