@@ -28,36 +28,36 @@ local cloneref: ObfuscatedType<cloneref> = cloneref or (function<T>(f: any): Obf
     end) :: any
 end)(cloneref) :: any;
 
-local Players: ObfuscatedType<Players> = (function<S>(serviceName: ObfuscatedType<string>): ObfuscatedType<Players>
+local Players: Players = (function<S>(serviceName: ObfuscatedType<string>): Players
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("Players") :: any
+end)("Players") :: Players
 
-local ReplicatedStorage: ObfuscatedType<ReplicatedStorage> = (function<S>(serviceName: ObfuscatedType<string>): ObfuscatedType<ReplicatedStorage>
+local ReplicatedStorage: ReplicatedStorage = (function<S>(serviceName: ObfuscatedType<string>): ReplicatedStorage
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("ReplicatedStorage") :: any
+end)("ReplicatedStorage") :: ReplicatedStorage
 
-local CollectionService: ObfuscatedType<CollectionService> = (function<S>(serviceName: ObfuscatedType<string>): ObfuscatedType<CollectionService>
+local CollectionService: CollectionService = (function<S>(serviceName: ObfuscatedType<string>): CollectionService
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("CollectionService") :: any
+end)("CollectionService") :: CollectionService
 
-local Workspace: ObfuscatedType<Workspace> = (function<S>(serviceName: ObfuscatedType<string>): ObfuscatedType<Workspace>
+local Workspace: Workspace = (function<S>(serviceName: ObfuscatedType<string>): Workspace
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("Workspace") :: any
+end)("Workspace") :: Workspace
 
-local TweenService: ObfuscatedType<TweenService> = (function<S>(serviceName: ObfuscatedType<string>): ObfuscatedType<TweenService>
+local TweenService: TweenService = (function<S>(serviceName: ObfuscatedType<string>): TweenService
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("TweenService") :: any
+end)("TweenService") :: TweenService
 
-local Debris: ObfuscatedType<Debris> = (function<S>(serviceName: ObfuscatedType<string>): ObfuscatedType<Debris>
+local Debris: Debris = (function<S>(serviceName: ObfuscatedType<string>): Debris
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("Debris") :: any
+end)("Debris") :: Debris
 
 local VALID_GUNS: ComplexMap<string, boolean> = (function<G1, G2>(g1: ObfuscatedType<string>, g2: ObfuscatedType<string>): ComplexMap<string, boolean>
     return {
         [g1 :: string] = true,
         [g2 :: string] = true
     } :: any
-end)("Gun", "Glockinator") :: any
+end)("Gun", "Glockinator") :: ComplexMap<string, boolean>
 
 local CRS: any = (function<F>(folder: ObfuscatedType<ReplicatedStorage>): any
     return require(folder:WaitForChild("ClientResources") :: ModuleScript) :: any
@@ -67,114 +67,112 @@ local MvSLibrary: ComplexMap<string, any> = {}
 MvSLibrary.__index = MvSLibrary
 
 function MvSLibrary.new(): ComplexMap<string, any>
-    return (function<P>(plrs: ObfuscatedType<Players>): ComplexMap<string, any>
+    return (function<P>(plrs: Players): ComplexMap<string, any>
         if not game:IsLoaded() then
             game.Loaded:Wait()
         end
         
-        local localPlayer: ObfuscatedType<Player> = (function<PL>(p: ObfuscatedType<Players>): ObfuscatedType<Player>
-            return p.LocalPlayer :: any
-        end)(plrs) :: any
+        local localPlayer: Player = (function<PL>(p: Players): Player
+            return p.LocalPlayer :: Player
+        end)(plrs) :: Player
         
-        local char: ObfuscatedType<Model> = (function<C>(p: ObfuscatedType<Player>): ObfuscatedType<Model>
-            return (p.Character or p.CharacterAdded:Wait()) :: any
-        end)(localPlayer) :: any
+        local char: Model = (function<C>(p: Player): Model
+            return (p.Character or p.CharacterAdded:Wait()) :: Model
+        end)(localPlayer) :: Model
         
-        local hum: ObfuscatedType<Humanoid> = (function<H>(c: ObfuscatedType<Model>): ObfuscatedType<Humanoid>
-            return c:WaitForChild("Humanoid") :: any
-        end)(char) :: any
+        local hum: Humanoid = (function<H>(c: Model): Humanoid
+            return c:WaitForChild("Humanoid") :: Humanoid
+        end)(char) :: Humanoid
         
         local self: ComplexMap<string, any> = setmetatable({
-            lp = localPlayer,
-            RigType = hum.RigType,
-            IsShoot = false,
-            IsThrow = false,
-            AutoWait = true,
+            lp = localPlayer :: Player,
+            RigType = hum.RigType :: Enum.HumanoidRigType,
+            IsShoot = false :: boolean,
+            IsThrow = false :: boolean,
+            AutoWait = true :: boolean,
             PlayersTable = {} :: {Player},
-            CachedRayParams = CRS.createRaycastParams(),
-            Folder = workspace:FindFirstChild("Effects"),
-            ValidPlayersMap = {} :: ComplexMap<Player, boolean?>
-            __index = MvsSLibrary,
-            __tostring(): string
+            CachedRayParams = CRS.createRaycastParams() :: RaycastParams,
+            Folder = workspace:FindFirstChild("Effects") :: Instance?,
+            ValidPlayersMap = {} :: ComplexMap<Player, boolean?>,
+            __index = MvSLibrary,
+            __tostring = function(): string
                 return "MvsSLibrary"
             end
-        }, MvSLibrary) :: any
+        }, MvSLibrary) :: ComplexMap<string, any>
         
-        localPlayer.CharacterAdded:Connect(function<NC>(newChar: ObfuscatedType<Model>)
-            self.RigType = (function<NH>(nc: ObfuscatedType<Model>): ObfuscatedType<EnumItem>
-                local newHum: ObfuscatedType<Humanoid> = nc:WaitForChild("Humanoid") :: any
-                return newHum.RigType :: any
-            end)(newChar) :: any
+        localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
+            self.RigType = (function<NH>(nc: Model): Enum.HumanoidRigType
+                local newHum: Humanoid = nc:WaitForChild("Humanoid") :: Humanoid
+                return newHum.RigType :: Enum.HumanoidRigType
+            end)(newChar) :: Enum.HumanoidRigType
         end)
         
-        plrs.PlayerRemoving:Connect(function<PR>(plr: ObfuscatedType<Player>)
-            (function<TP>(targetPlr: ObfuscatedType<Player>)
+        plrs.PlayerRemoving:Connect(function<PR>(plr: Player)
+            (function<TP>(targetPlr: Player)
                 self.ValidPlayersMap[targetPlr] = nil
-                local played: ObfuscatedType<number> = table.find(self.PlayersTable, targetPlr) :: any
+                local played: number? = table.find(self.PlayersTable, targetPlr) :: number?
                 if played then
                     table.remove(self.PlayersTable, played)
                 end
             end)(plr)
         end)
         
-        return self :: any
-    end)(Players) :: any
+        return self :: ComplexMap<string, any>
+    end)(Players) :: ComplexMap<string, any>
 end
 
-function MvSLibrary:GetShootingArm(): ObfuscatedType<BasePart>
-    return (function<PLR>(plr: ObfuscatedType<Player>): ObfuscatedType<BasePart>
-        local char: ObfuscatedType<Model> = plr.Character :: any
+function MvSLibrary:GetShootingArm(): BasePart?
+    return (function<PLR>(plr: Player): BasePart?
+        local char: Model? = plr.Character :: Model?
         if not char then return nil end
         if self.RigType == Enum.HumanoidRigType.R6 then
-            return char:FindFirstChild("Right Arm") :: any
+            return char:FindFirstChild("Right Arm") :: BasePart?
         else
-            return (char:FindFirstChild("Right UpperArm") or char:FindFirstChild("RightHand")) :: any
+            return (char:FindFirstChild("Right UpperArm") or char:FindFirstChild("RightHand")) :: BasePart?
         end
-    end)(self.lp) :: any
+    end)(self.lp :: Player) :: BasePart?
 end
 
-function MvSLibrary:GetSafeOrigin(toolPart: ObfuscatedType<BasePart>): ObfuscatedType<Vector3>
-    return (function<TP>(tp: ObfuscatedType<BasePart>): ObfuscatedType<Vector3>
-        local char: ObfuscatedType<Model> = self.lp.Character :: any
-        if not char then return tp.Position :: any end
+function MvSLibrary:GetSafeOrigin(toolPart: BasePart): Vector3
+    return (function<TP>(tp: BasePart): Vector3
+        local char: Model? = (self.lp :: Player).Character :: Model?
+        if not char then return tp.Position :: Vector3 end
         
-        local arm: ObfuscatedType<BasePart> = self:GetShootingArm() or char:FindFirstChild("UpperTorso") :: any
-        if not arm then return tp.Position :: any end
+        local arm: BasePart? = (self:GetShootingArm() or char:FindFirstChild("UpperTorso")) :: BasePart?
+        if not arm then return tp.Position :: Vector3 end
         
-        local armPos: ObfuscatedType<Vector3> = arm.Position :: any
-        local toolPos: ObfuscatedType<Vector3> = tp.Position :: any
-        local dir: ObfuscatedType<Vector3> = toolPos - armPos
+        local armPos: Vector3 = arm.Position :: Vector3
+        local toolPos: Vector3 = tp.Position :: Vector3
+        local dir: Vector3 = toolPos - armPos :: Vector3
         
-        self.CachedRayParams.FilterDescendantsInstances = {
-            char
-        }
-        local armToToolRay: ObfuscatedType<RaycastResult> = Workspace:Raycast(armPos, dir, self.CachedRayParams) :: any
+        self.CachedRayParams.FilterDescendantsInstances = { char }
+        local armToToolRay: RaycastResult? = Workspace:Raycast(armPos, dir, self.CachedRayParams) :: RaycastResult?
         if armToToolRay then
-            return armToToolRay.Position :: any
+            return armToToolRay.Position :: Vector3
         end
-        return toolPos :: any
-    end)(toolPart) :: any
+        return toolPos :: Vector3
+    end)(toolPart) :: Vector3
 end
 
-function MvSLibrary:CheckTeam(): ObfuscatedType<string>
-    return (function<PLR>(plr: ObfuscatedType<Player>): ObfuscatedType<string>
-        local char: ObfuscatedType<Model> = plr.Character :: any
-        local backpack: ObfuscatedType<Backpack> = plr:FindFirstChildOfClass("Backpack") :: any
+function MvSLibrary:CheckTeam(): string
+    return (function<PLR>(plr: Player): string
+        local char: Model? = plr.Character :: Model?
+        local backpack: Backpack? = plr:FindFirstChildOfClass("Backpack") :: Backpack?
         
-        local containers: {Instance} = (function<C, B>(c: ObfuscatedType<Model>, b: ObfuscatedType<Backpack>): {Instance}
+        local containers: {Instance} = (function<C, B>(c: Model?, b: Backpack?): {Instance}
             local res: {Instance} = {}
             if c then table.insert(res, c) end
             if b then table.insert(res, b) end
-            return res
-        end)(char, backpack)
+            return res :: {Instance}
+        end)(char, backpack) :: {Instance}
         
-        local hasGun: ObfuscatedType<boolean> = false
-        local hasKnife: ObfuscatedType<boolean> = false
+        local hasGun: boolean = false :: boolean
+        local hasKnife: boolean = false :: boolean
         
         for _, container in containers do
             for _, child in container:GetChildren() do
                 if child:IsA("Tool") then
-                    local toolName: ObfuscatedType<string> = child.Name :: any
+                    local toolName: string = child.Name :: string
                     if VALID_GUNS[toolName] then
                         hasGun = true
                     elseif toolName:find("Knife") or child:FindFirstChild("Damage") then
@@ -191,25 +189,26 @@ function MvSLibrary:CheckTeam(): ObfuscatedType<string>
         else
             return "Joining"
         end
-    end)(self.lp) :: any
+    end)(self.lp :: Player) :: string
 end
+
 function MvSLibrary:UpdateList()
-    (function<PLRS>(plrs: ObfuscatedType<Players>)
+    (function<PLRS>(plrs: Players)
         for _, plr in plrs:GetPlayers() do
-            if plr ~= self.lp then
-                local char: ObfuscatedType<Model> = plr.Character :: any
-                local isValid: ObfuscatedType<boolean> = (function<C>(c: ObfuscatedType<Model>): ObfuscatedType<boolean>
-                    return ((c and CRS.canCharacterTakeDamage(c)) or false) :: any
-                end)(char)
+            if plr ~= (self.lp :: Player) then
+                local char: Model? = plr.Character :: Model?
+                local isValid: boolean = (function<C>(c: Model?): boolean
+                    return ((c and CRS.canCharacterTakeDamage(c)) or false) :: boolean
+                end)(char) :: boolean
                 
-                local isInTable: ObfuscatedType<boolean> = (self.ValidPlayersMap[plr] or false) :: any
+                local isInTable: boolean = (self.ValidPlayersMap[plr] or false) :: boolean
                 
                 if isValid and not isInTable then
                     self.ValidPlayersMap[plr] = true
                     table.insert(self.PlayersTable, plr)
                 elseif not isValid and isInTable then
                     self.ValidPlayersMap[plr] = nil
-                    local index: ObfuscatedType<number> = table.find(self.PlayersTable, plr) :: any
+                    local index: number? = table.find(self.PlayersTable, plr) :: number?
                     if index then
                         table.remove(self.PlayersTable, index)
                     end
@@ -219,20 +218,20 @@ function MvSLibrary:UpdateList()
     end)(Players)
 end
 
-function MvSLibrary:PlayKnifeAnimation(char: ObfuscatedType<Model>, waitToStop: ObfuscatedType<boolean>)
-    (function<C, W>(c: ObfuscatedType<Model>, waitStop: ObfuscatedType<boolean>)
+function MvSLibrary:PlayKnifeAnimation(char: Model, waitToStop: boolean)
+    (function<C, W>(c: Model, waitStop: boolean)
         if not c then return end
-        local hum: ObfuscatedType<Humanoid> = c:FindFirstChildOfClass("Humanoid") :: any
-        local knife: ObfuscatedType<Tool> = (c:FindFirstChild("Knife") or c:FindFirstChildOfClass("Tool")) :: any
+        local hum: Humanoid? = c:FindFirstChildOfClass("Humanoid") :: Humanoid?
+        local knife: Tool? = (c:FindFirstChild("Knife") or c:FindFirstChildOfClass("Tool")) :: Tool?
         if not hum or not knife then return end
         
-        local animName: ObfuscatedType<string> = `Throw{(function<H>(h: ObfuscatedType<Humanoid>): ObfuscatedType<string>
+        local animName: string = `Throw{(function<H>(h: Humanoid): string
             return (if h.RigType == Enum.HumanoidRigType.R15 then "" else "R6")
-        end)(hum)}` :: any
+        end)(hum)}` :: string
         
-        local animObj: ObfuscatedType<Animation> = knife:FindFirstChild(animName) :: any
+        local animObj: Animation? = knife:FindFirstChild(animName) :: Animation?
         if animObj then
-            local animTrack: ObfuscatedType<AnimationTrack> = hum:LoadAnimation(animObj) :: any
+            local animTrack: AnimationTrack = hum:LoadAnimation(animObj) :: AnimationTrack
             animTrack:Play()
             if waitStop then
                 animTrack.Stopped:Wait()
@@ -241,60 +240,58 @@ function MvSLibrary:PlayKnifeAnimation(char: ObfuscatedType<Model>, waitToStop: 
     end)(char, waitToStop)
 end
 
-function MvSLibrary:CreateKnife(knifeTool: ObfuscatedType<Instance>, appearanceInfo: ObfuscatedType<AppearanceInfo>, startPos: ObfuscatedType<Vector3>, endPos: ObfuscatedType<Vector3>, attacker: ObfuscatedType<Player>)
-    (function<KT, INFO, SP, EP, ATK>(kt: any, info: any, sPos: any, ePos: any, atk: any)
-        local projectileContainer: ObfuscatedType<Instance> = (function<WS>(ws: ObfuscatedType<Workspace>): ObfuscatedType<Instance>
-            return (ws:FindFirstChild("ProjectilesAndDebris") or ws) :: any
-        end)(Workspace) :: any
+function MvSLibrary:CreateKnife(knifeTool: Instance, appearanceInfo: AppearanceInfo, startPos: Vector3, endPos: Vector3, attacker: Player)
+    (function<KT, INFO, SP, EP, ATK>(kt: Instance, info: AppearanceInfo, sPos: Vector3, ePos: Vector3, atk: Player)
+        local projectileContainer: Instance = (function<WS>(ws: Workspace): Instance
+            return (ws:FindFirstChild("ProjectilesAndDebris") or ws) :: Instance
+        end)(Workspace) :: Instance
         
-        local projectileModel: ObfuscatedType<Model> = (function<RS>(rs: ObfuscatedType<ReplicatedStorage>): ObfuscatedType<Model>
-            return ((rs.ClientResources :: any):WaitForChild("KnifeProjectile") :: Model):Clone() :: any
-        end)(ReplicatedStorage) :: any
+        local projectileModel: Model = (function<RS>(rs: ReplicatedStorage): Model
+            return ((rs.ClientResources :: any):WaitForChild("KnifeProjectile") :: Model):Clone() :: Model
+        end)(ReplicatedStorage) :: Model
         
-        local visualPart: ObfuscatedType<BasePart> = projectileModel:WaitForChild("Visual") :: any
+        local visualPart: BasePart = projectileModel:WaitForChild("Visual") :: BasePart
         
         pcall(function()
-            visualPart.TextureID = info.TextureID
-            visualPart.Color = info.Color
-            visualPart.Material = info.Material
-            visualPart.Transparency = info.Transparency
+            (visualPart :: any).TextureID = info.TextureID
+            visualPart.Color = info.Color :: Color3
+            visualPart.Material = info.Material :: Enum.Material
+            visualPart.Transparency = info.Transparency :: number
         end)
         
-        local dirVector: ObfuscatedType<Vector3> = ePos - sPos
-        local distance: ObfuscatedType<number> = dirVector.Magnitude :: any
+        local dirVector: Vector3 = ePos - sPos :: Vector3
+        local distance: number = dirVector.Magnitude :: number
         if distance < 0.1 then
             projectileModel:Destroy()
             return
         end
         
-        local initialCFrame: ObfuscatedType<CFrame> = CFrame.lookAt(sPos, ePos) :: any
+        local initialCFrame: CFrame = CFrame.lookAt(sPos, ePos) :: CFrame
         projectileModel:PivotTo(initialCFrame);
         
-        (function<VP, ICF, DV>(vp: any, icf: any, dv: any)
-            local vecVel: ObfuscatedType<Instance> = vp:FindFirstChild("VectorVelocity") :: any
+        (function<VP, ICF, DV>(vp: BasePart, icf: CFrame, dv: Vector3)
+            local vecVel: Instance? = vp:FindFirstChild("VectorVelocity") :: Instance?
             if vecVel and vecVel:IsA("LinearVelocity") then
-                (vecVel :: any).VectorVelocity = dv.Unit * 1500
+                (vecVel :: LinearVelocity).VectorVelocity = dv.Unit * 1500
             end
-            local alignOrient: ObfuscatedType<Instance> = vp:FindFirstChild("AlignOrientation") :: any
+            local alignOrient: Instance? = vp:FindFirstChild("AlignOrientation") :: Instance?
             if alignOrient and alignOrient:IsA("AlignOrientation") then
-                (alignOrient :: any).CFrame = icf
+                (alignOrient :: AlignOrientation).CFrame = icf
             end
         end)(visualPart, initialCFrame, dirVector)
         
-        if atk == self.lp then
+        if atk == (self.lp :: Player) then
             task.spawn(function()
-                self.CachedRayParams.FilterDescendantsInstances = (function<P>(p: ObfuscatedType<Player>): {Instance}
-                    return (if p.Character then {
-                        p.Character
-                    } else {})
-                end)(self.lp) :: any
+                self.CachedRayParams.FilterDescendantsInstances = (function<P>(p: Player): {Instance}
+                    return (if p.Character then { p.Character } else {}) :: {Instance}
+                end)(self.lp :: Player) :: {Instance}
                 
-                local rayHit: ObfuscatedType<RaycastResult> = Workspace:Raycast(sPos, dirVector, self.CachedRayParams) :: any
-                local actualEndPos: ObfuscatedType<Vector3> = (if rayHit then rayHit.Position else ePos) :: any
-                local actualDistance: ObfuscatedType<number> = (actualEndPos - sPos).Magnitude :: any
+                local rayHit: RaycastResult? = Workspace:Raycast(sPos, dirVector, self.CachedRayParams) :: RaycastResult?
+                local actualEndPos: Vector3 = (if rayHit then rayHit.Position else ePos) :: Vector3
+                local actualDistance: number = (actualEndPos - sPos).Magnitude :: number
                 
-                local tracer: ObfuscatedType<Part> = (function<SP2, EP2, AD>(sp: any, ep: any, ad: any): ObfuscatedType<Part>
-                    local p: ObfuscatedType<Part> = Instance.new("Part") :: any
+                local tracer: Part = (function<SP2, EP2, AD>(sp: Vector3, ep: Vector3, ad: number): Part
+                    local p: Part = Instance.new("Part") :: Part
                     p.Anchored = true
                     p.CanCollide = false
                     p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
@@ -303,14 +300,14 @@ function MvSLibrary:CreateKnife(knifeTool: ObfuscatedType<Instance>, appearanceI
                     p.Color = Color3.fromRGB(255, 255, 255)
                     p.Size = Vector3.new(0.25, 0.25, ad)
                     p.CFrame = CFrame.new(sp, ep) * CFrame.new(0, 0, -ad / 2)
-                    return p :: any
-                end)(sPos, actualEndPos, actualDistance) :: any
+                    return p :: Part
+                end)(sPos, actualEndPos, actualDistance) :: Part
                 
                 CollectionService:AddTag(tracer :: Instance, "IgnoreProjectiles");
                 
-                (function<TR>(tr: ObfuscatedType<Part>)
+                (function<TR>(tr: Part)
                     for face = 0, 5 do
-                        local light: ObfuscatedType<SurfaceLight> = Instance.new("SurfaceLight", tr) :: any
+                        local light: SurfaceLight = Instance.new("SurfaceLight", tr) :: SurfaceLight
                         light.Range = 10
                         light.Brightness = 1.5
                         light.Color = Color3.fromRGB(255, 255, 255)
@@ -335,29 +332,27 @@ function MvSLibrary:CreateKnife(knifeTool: ObfuscatedType<Instance>, appearanceI
     end)(knifeTool, appearanceInfo, startPos, endPos, attacker)
 end
 
-function MvSLibrary:LineOfSightEstablished(targetPart: ObfuscatedType<Instance>, isKnife: ObfuscatedType<boolean>): ObfuscatedType<boolean>
-    return (function<TP, IK>(tp: any, ik: any): ObfuscatedType<boolean>
+function MvSLibrary:LineOfSightEstablished(targetPart: Instance, isKnife: boolean): boolean
+    return (function<TP, IK>(tp: Instance, ik: boolean): boolean
         if not tp or not tp:IsA("BasePart") then return false end
-        local targetChar: ObfuscatedType<Instance> = (CRS.getCharacterFromPart(tp) or tp.Parent) :: any
-        local myChar: ObfuscatedType<Model> = self.lp.Character :: any
+        local targetChar: Instance? = (CRS.getCharacterFromPart(tp) or tp.Parent) :: Instance?
+        local myChar: Model? = (self.lp :: Player).Character :: Model?
         if not targetChar or not myChar then return false end
         
-        local origin: ObfuscatedType<Vector3> = (if ik then
+        local origin: Vector3? = (if ik then
             (if myChar:FindFirstChild("Head") then (myChar:FindFirstChild("Head") :: BasePart).Position else nil)
         else
-            (function<MC>(mc: ObfuscatedType<Model>): ObfuscatedType<Vector3>
-                local tool: ObfuscatedType<Tool> = mc:FindFirstChildOfClass("Tool") :: any
-                local barrel: ObfuscatedType<BasePart> = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: any
-                return (if barrel then self:GetSafeOrigin(barrel) else nil) :: any
-            end)(myChar)) :: any
+            (function<MC>(mc: Model): Vector3?
+                local tool: Tool? = mc:FindFirstChildOfClass("Tool") :: Tool?
+                local barrel: BasePart? = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
+                return (if barrel then self:GetSafeOrigin(barrel) else nil) :: Vector3?
+            end)(myChar)) :: Vector3?
             
         if not origin then return false end
         
-        self.CachedRayParams.FilterDescendantsInstances = {
-            myChar
-        }
-        local direction: ObfuscatedType<Vector3> = (tp :: BasePart).Position - origin
-        local raycastResult: ObfuscatedType<RaycastResult> = Workspace:Raycast(origin, direction, self.CachedRayParams) :: any
+        self.CachedRayParams.FilterDescendantsInstances = { myChar }
+        local direction: Vector3 = (tp :: BasePart).Position - origin :: Vector3
+        local raycastResult: RaycastResult? = Workspace:Raycast(origin, direction, self.CachedRayParams) :: RaycastResult?
         
         if raycastResult then
             if CRS.getCharacterFromPart(raycastResult.Instance) == targetChar then
@@ -368,8 +363,8 @@ function MvSLibrary:LineOfSightEstablished(targetPart: ObfuscatedType<Instance>,
                 Vector3.new(-1.2, 0, 0)
             }
             for _, offset in checkOffsets do
-                local edgePos: ObfuscatedType<Vector3> = (tp :: BasePart).Position + offset
-                local edgeResult: ObfuscatedType<RaycastResult> = Workspace:Raycast(origin, edgePos - origin, self.CachedRayParams) :: any
+                local edgePos: Vector3 = (tp :: BasePart).Position + offset :: Vector3
+                local edgeResult: RaycastResult? = Workspace:Raycast(origin, edgePos - origin, self.CachedRayParams) :: RaycastResult?
                 if edgeResult and CRS.getCharacterFromPart(edgeResult.Instance) == targetChar then
                     return true
                 end
@@ -377,27 +372,28 @@ function MvSLibrary:LineOfSightEstablished(targetPart: ObfuscatedType<Instance>,
             return false
         end
         return true
-    end)(targetPart, isKnife) :: any
+    end)(targetPart, isKnife) :: boolean
 end
 
-function MvSLibrary:GetClosestTarget(isKnife: ObfuscatedType<boolean>): (ObfuscatedType<Player>, ObfuscatedType<BasePart>)
-    return (function<IK>(ik: any): (ObfuscatedType<Player>, ObfuscatedType<BasePart>)
-        local myChar: ObfuscatedType<Model> = self.lp.Character :: any
+function MvSLibrary:GetClosestTarget(isKnife: boolean): (Player?, BasePart?)
+    return (function<IK>(ik: boolean): (Player?, BasePart?)
+        local myChar: Model? = (self.lp :: Player).Character :: Model?
         if not myChar then return nil, nil end
-        local myHead: ObfuscatedType<BasePart> = myChar:FindFirstChild("Head") :: any
+        local myHead: BasePart? = myChar:FindFirstChild("Head") :: BasePart?
         if not myHead then return nil, nil end
         
-        local myPos: ObfuscatedType<Vector3> = myHead.Position :: any
-        local candidateTarget: ObfuscatedType<Player>, candidatePart: ObfuscatedType<BasePart> = nil, nil
-        local minDistanceSq: ObfuscatedType<number> = math.huge
+        local myPos: Vector3 = myHead.Position :: Vector3
+        local candidateTarget: Player? = nil
+        local candidatePart: BasePart? = nil
+        local minDistanceSq: number = math.huge :: number
         
         for _, player in self.PlayersTable do
-            local char: ObfuscatedType<Model> = player and player.Character :: any
+            local char: Model? = player and player.Character :: Model?
             if char and CRS.canCharacterTakeDamage(char) then
-                local targetPart: ObfuscatedType<BasePart> = (char:FindFirstChild("CharacterCenter") or char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")) :: any
+                local targetPart: BasePart? = (char:FindFirstChild("CharacterCenter") or char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")) :: BasePart?
                 if targetPart then
-                    local offset: ObfuscatedType<Vector3> = targetPart.Position - myPos
-                    local distSq: ObfuscatedType<number> = (offset.X * offset.X + offset.Y * offset.Y + offset.Z * offset.Z) :: any
+                    local offset: Vector3 = targetPart.Position - myPos :: Vector3
+                    local distSq: number = (offset.X * offset.X + offset.Y * offset.Y + offset.Z * offset.Z) :: number
                     if distSq < minDistanceSq and self:LineOfSightEstablished(targetPart, ik) then
                         minDistanceSq = distSq
                         candidateTarget, candidatePart = player, targetPart
@@ -406,31 +402,29 @@ function MvSLibrary:GetClosestTarget(isKnife: ObfuscatedType<boolean>): (Obfusca
             end
         end
         return candidateTarget, candidatePart
-    end)(isKnife) :: any
+    end)(isKnife)
 end
 
-function MvSLibrary:Shoot(targetPlayer: ObfuscatedType<Player>, targetPart: ObfuscatedType<BasePart>)
-    (function<TP, TPART>(tp: any, tPart: any)
+function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
+    (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsShoot or not tp or not tp.Character or not tPart then return end
-        local char: ObfuscatedType<Model> = self.lp.Character :: any
+        local char: Model? = (self.lp :: Player).Character :: Model?
         if not char then return end
         
-        local tool: ObfuscatedType<Tool> = char:FindFirstChildOfClass("Tool") :: any
+        local tool: Tool? = char:FindFirstChildOfClass("Tool") :: Tool?
         if not tool or not VALID_GUNS[tool.Name] then return end
         
-        local barrel: ObfuscatedType<BasePart> = (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: any
-        local damageRemote: ObfuscatedType<RemoteEvent> = tool:FindFirstChild("Damage") :: any
-        local remotes: ObfuscatedType<Instance> = ReplicatedStorage:FindFirstChild("Remotes") :: any
-        local replicateBullet: ObfuscatedType<RemoteEvent> = remotes and remotes:FindFirstChild("ReplicateBullet") :: any
+        local barrel: BasePart? = (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
+        local damageRemote: RemoteEvent? = tool:FindFirstChild("Damage") :: RemoteEvent?
+        local remotes: Instance? = ReplicatedStorage:FindFirstChild("Remotes") :: Instance?
+        local replicateBullet: RemoteEvent? = remotes and remotes:FindFirstChild("ReplicateBullet") :: RemoteEvent?
         if not barrel or not damageRemote or not replicateBullet then return end
         
-        local safeOrigin: ObfuscatedType<Vector3> = self:GetSafeOrigin(barrel) :: any
-        local hitPos: ObfuscatedType<Vector3> = tPart.Position :: any
+        local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
+        local hitPos: Vector3 = tPart.Position :: Vector3
         
-        self.CachedRayParams.FilterDescendantsInstances = {
-            char
-        }
-        local raycastResult: ObfuscatedType<RaycastResult> = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: any
+        self.CachedRayParams.FilterDescendantsInstances = { char }
+        local raycastResult: RaycastResult? = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: RaycastResult?
         if raycastResult and CRS.getCharacterFromPart(raycastResult.Instance) ~= tp.Character then
             return
         end
@@ -440,7 +434,7 @@ function MvSLibrary:Shoot(targetPlayer: ObfuscatedType<Player>, targetPart: Obfu
             self.IsShoot = false
         end)
         
-        local hrp: ObfuscatedType<BasePart> = char:FindFirstChild("HumanoidRootPart") :: any
+        local hrp: BasePart? = char:FindFirstChild("HumanoidRootPart") :: BasePart?
         if not hrp then return end
         
         local bulletData: BulletPayload = {
@@ -448,26 +442,26 @@ function MvSLibrary:Shoot(targetPlayer: ObfuscatedType<Player>, targetPart: Obfu
             hitPos,
             { PartType = "Character" },
             tool
-        }
+        } :: BulletPayload
         CRS.createBullet(unpack(bulletData))
         replicateBullet:FireServer(bulletData)
         damageRemote:FireServer(tPart, hitPos, hrp.Position)
     end)(targetPlayer, targetPart)
 end
 
-function MvSLibrary:Throw(targetPlayer: ObfuscatedType<Player>, targetPart: ObfuscatedType<BasePart>)
-    (function<TP, TPART>(tp: any, tPart: any)
+function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
+    (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsThrow or not tp or not tp.Character or not tPart then return end
-        local char: ObfuscatedType<Model> = self.lp.Character :: any
+        local char: Model? = (self.lp :: Player).Character :: Model?
         if not char then return end
         
-        local knife: ObfuscatedType<Tool> = char:FindFirstChildOfClass("Tool") :: any
+        local knife: Tool? = char:FindFirstChildOfClass("Tool") :: Tool?
         if not knife or not knife.Name:find("Knife") then return end
         
-        local handle: ObfuscatedType<BasePart> = knife:FindFirstChild("Handle") :: any
-        local damageRemote: ObfuscatedType<RemoteEvent> = knife:FindFirstChild("Damage") :: any
-        local remotes: ObfuscatedType<Instance> = ReplicatedStorage:FindFirstChild("Remotes") :: any
-        local replicateKnife: ObfuscatedType<RemoteEvent> = remotes and remotes:FindFirstChild("ReplicateKnife") :: any
+        local handle: BasePart? = knife:FindFirstChild("Handle") :: BasePart?
+        local damageRemote: RemoteEvent? = knife:FindFirstChild("Damage") :: RemoteEvent?
+        local remotes: Instance? = ReplicatedStorage:FindFirstChild("Remotes") :: Instance?
+        local replicateKnife: RemoteEvent? = remotes and remotes:FindFirstChild("ReplicateKnife") :: RemoteEvent?
         if not handle or not damageRemote or not replicateKnife then return end
         
         self.IsThrow = true
@@ -478,34 +472,32 @@ function MvSLibrary:Throw(targetPlayer: ObfuscatedType<Player>, targetPart: Obfu
         self:PlayKnifeAnimation(char, self.AutoWait)
         if not tp or not tp.Character or not tPart or not tPart.Parent then return end
         
-        local startPos: ObfuscatedType<Vector3> = self:GetSafeOrigin(handle) :: any
-        local endPos: ObfuscatedType<Vector3> = tPart.Position :: any
+        local startPos: Vector3 = self:GetSafeOrigin(handle) :: Vector3
+        local endPos: Vector3 = tPart.Position :: Vector3
         local appearanceInfo: AppearanceInfo = {
             TextureID = (handle :: any).TextureID,
             Color = handle.Color,
             Material = handle.Material,
             Transparency = handle.Transparency
-        }
+        } :: AppearanceInfo
         
-        local rayParams: ObfuscatedType<RaycastParams> = (function<RP>(): ObfuscatedType<RaycastParams>
-            local rp: ObfuscatedType<RaycastParams> = RaycastParams.new() :: any
+        local rayParams: RaycastParams = (function<RP>(): RaycastParams
+            local rp: RaycastParams = RaycastParams.new() :: RaycastParams
             rp.FilterType = Enum.RaycastFilterType.Exclude
-            rp.FilterDescendantsInstances = {
-                char
-            }
-            return rp :: any
-        end)() :: any
+            rp.FilterDescendantsInstances = { char }
+            return rp :: RaycastParams
+        end)() :: RaycastParams
         
-        local dirVector: ObfuscatedType<Vector3> = endPos - startPos
-        local distance: ObfuscatedType<number> = dirVector.Magnitude :: any
-        local rayHit: ObfuscatedType<RaycastResult> = Workspace:Raycast(startPos, dirVector.Unit * distance, rayParams) :: any
-        local actualHitPart: ObfuscatedType<Instance> = tPart :: any
-        local isWallBlocked: ObfuscatedType<boolean> = false
+        local dirVector: Vector3 = endPos - startPos :: Vector3
+        local distance: number = dirVector.Magnitude :: number
+        local rayHit: RaycastResult? = Workspace:Raycast(startPos, dirVector.Unit * distance, rayParams) :: RaycastResult?
+        local actualHitPart: Instance = tPart :: Instance
+        local isWallBlocked: boolean = false :: boolean
         
         if rayHit then
-            local hitChar: ObfuscatedType<Instance> = CRS.getCharacterFromPart(rayHit.Instance) :: any
+            local hitChar: Instance? = CRS.getCharacterFromPart(rayHit.Instance) :: Instance?
             if hitChar then
-                actualHitPart = rayHit.Instance :: any
+                actualHitPart = rayHit.Instance :: Instance
             else
                 isWallBlocked = true
             end
@@ -523,9 +515,9 @@ function MvSLibrary:Throw(targetPlayer: ObfuscatedType<Player>, targetPart: Obfu
             AppearanceInfo = appearanceInfo,
             StartPosition = startPos,
             EndPosition = endPos,
-            Attacker = self.lp
+            Attacker = self.lp :: Player
         } :: KnifePayload)
-        self:CreateKnife(handle, appearanceInfo, startPos, endPos, self.lp)
+        self:CreateKnife(handle, appearanceInfo, startPos, endPos, self.lp :: Player)
         
         if not isWallBlocked then
             task.delay(math.clamp(distance / 1500, 0.02, 0.12), function()
@@ -537,16 +529,16 @@ function MvSLibrary:Throw(targetPlayer: ObfuscatedType<Player>, targetPart: Obfu
     end)(targetPlayer, targetPart)
 end
 
-function MvSLibrary:SetAutoWait(state: ObfuscatedType<boolean>)
-    (function<S>(s: ObfuscatedType<boolean>)
+function MvSLibrary:SetAutoWait(state: boolean)
+    (function<S>(s: boolean)
         self.AutoWait = s
     end)(state)
 end
 
-function MvSLibrary:ToggleEffects(state: ObfuscatedType<boolean>)
-    (function<S>(s: ObfuscatedType<boolean>)
+function MvSLibrary:ToggleEffects(state: boolean)
+    (function<S>(s: boolean)
         if self.Folder then
-            self.Folder.Parent = (if s then nil else workspace) :: any
+            self.Folder.Parent = (if s then nil else workspace) :: Instance?
         end
     end)(state)
 end
