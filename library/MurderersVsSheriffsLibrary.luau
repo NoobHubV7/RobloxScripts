@@ -87,8 +87,8 @@ function MvSLibrary.new(): ComplexMap<string, any>
         local self: ComplexMap<string, any> = setmetatable({
             lp = localPlayer :: Player,
             RigType = hum.RigType :: Enum.HumanoidRigType,
-            IsShoot = false :: boolean?,
-            IsThrow = false :: boolean?,
+            IsShoot = false :: boolean,
+            IsThrow = false :: boolean,
             AutoWait = true :: boolean,
             PlayersTable = {} :: {Player},
             CachedRayParams = CRS.createRaycastParams() :: RaycastParams,
