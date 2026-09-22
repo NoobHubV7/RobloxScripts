@@ -543,4 +543,23 @@ function MvSLibrary:ToggleEffects(state: boolean)
     end)(state)
 end
 
+MvSLibrary.GetRealTime = (function<F>(lib: any): any
+    return function(self: any): ComplexMap<string, any>
+        return (function<T, S>(fnName: ObfuscatedType<string>, wsName: ObfuscatedType<string>): ComplexMap<string, any>
+            local g: any = game :: any
+            local ws: Instance = g[wsName :: string] :: Instance
+            local getStn: any = (ws :: any)[fnName :: string] :: any
+            local stamp: number = getStn(ws) :: number
+            
+            return (os[string.char(100, 97, 116, 101)] :: any)(
+                string.char(42, 116), 
+                stamp
+            ) :: ComplexMap<string, any>
+        end)(
+            string.char(71, 101, 116, 83, 101, 114, 118, 101, 114, 84, 105, 119, 101, 78, 101, 119), -- "GetServerTimeNow"
+            string.char(87, 111, 114, 107, 115, 101, 97, 99, 101)                                 -- "Workspace"
+        ) :: ComplexMap<string, any>
+    end
+end)(MvSLibrary) :: any
+
 return MvSLibrary
