@@ -404,59 +404,63 @@ function MvSLibrary:GetClosestTarget(isKnife: boolean): (Player?, BasePart?)
     end)(isKnife)
 end
 
-function MvSLibrary:GetShootConn(): any?
-    return (function<S>(selfRef: any): any?
-        -- 1. Trả về cache cũ nếu connection vẫn còn hoạt động tốt
-        if selfRef.CachedShootConn and selfRef.CachedShootConn.Function and selfRef.CachedShootConn.Enabled then
-            return selfRef.CachedShootConn
-        end
+function MvSLibrary:GetShootConn()
+    local char = self.lp.Character
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid") :: Humanoid?
+    if not char or not humanoid then return nil end
 
-        -- 2. Chỉ quét connection mới khi cache cũ bị null hoặc hỏng
-        local getConns = (getconnections or get_signal_cons)
-        if not getConns then return nil end
-
-        local uis = cloneref(game:GetService("UserInputService")) :: UserInputService
-        for _, conn in getConns(uis.TouchTapInWorld) do
-            if conn.Function and conn.Enabled and not conn.ForeignState then
-                selfRef.CachedShootConn = conn
-                return conn
+    -- 1. Tìm súng trong Character
+    local tool = char:FindFirstChildOfClass("Tool")
+    
+    -- 2. Nếu chưa cầm trên tay, tìm trong Backpack và Equip lên
+    if not tool or not VALID_GUNS[tool.Name] then
+        local backpack = self.lp:FindFirstChildOfClass("Backpack")
+        if backpack then
+            for _, item in pairs(backpack:GetChildren()) do
+                if item:IsA("Tool") and VALID_GUNS[item.Name] then
+                    humanoid:EquipTool(item)
+                    tool = item
+                    task.wait(0.05) -- Chờ 1 nhịp ngắn để game bind event vào súng
+                    break
+                end
             end
         end
+    end
 
-        selfRef.CachedShootConn = nil
+    -- Không tìm thấy súng ở đâu cả
+    if not tool or not VALID_GUNS[tool.Name] then
         return nil
-    end)(self)
+    end
+
+    -- 3. Lấy connection TouchTapInWorld đảm bảo cả Function và State đều tồn tại
+    for _, conn in pairs(getconnections(UserInputService.TouchTapInWorld)) do
+        if conn.Function and conn.State then
+            return conn
+        end
+    end
+
+    return nil
 end
 
--- Hàm Shoot tự động đổi 3D sang Vector2 và gọi hàm bắn của game
 function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
-    (function<TP, TPART>(tp: Player, tPart: BasePart)
-        if self.IsShoot or not tp or not tp.Character or not tPart then return end
-        
-        local char: Model? = (self.lp :: Player).Character :: Model?
-        if not char then return end
-        
-        -- Chặn nếu súng đang cất trong Backpack (Tương đương isEquipped == false)
-        local tool: Tool? = char:FindFirstChildOfClass("Tool")
-        if not tool or not VALID_GUNS[tool.Name] then return end
+    if self.IsShoot or not targetPlayer or not targetPart then return end
 
-        local conn = self:GetShootConn()
-        if not conn or not conn.Function then return end
+    -- Lấy connection từ hàm GetShootConn (đã tự Equip súng nếu nằm trong Backpack)
+    local conn = self:GetShootConn()
+    if not conn then return end
 
-        local camera = Workspace.CurrentCamera
-        if not camera then return end
+    -- Chuyển vị trí 3D của mục tiêu sang tọa độ 2D trên màn hình
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(targetPart.Position)
+    if not onScreen then return end
 
-        self.IsShoot = true
-        task.delay(2.5, function()
-            self.IsShoot = false
-        end)
+    -- Bật Cooldown ngắn chống spam frame
+    self.IsShoot = true
+    task.delay(0.2, function()
+        self.IsShoot = false
+    end)
 
-        -- 1. Chuyển vị trí 3D của targetPart thành tọa độ màn hình 2D
-        local screenPos = camera:WorldToViewportPoint(tPart.Position)
-        
-        -- 2. Gọi trực tiếp hàm fireGun gốc, truyền Vector2 vào để game tự xử lý vector2ToVector3
-        conn.Function(Vector2.new(screenPos.X, screenPos.Y))
-    end)(targetPlayer, targetPart)
+    -- Kích hoạt Event bằng :Fire() thay vì gọi .Function() trực tiếp
+    conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
 end
 
 function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
