@@ -404,7 +404,62 @@ function MvSLibrary:GetClosestTarget(isKnife: boolean): (Player?, BasePart?)
     end)(isKnife)
 end
 
+function MvSLibrary:GetShootConn(): any?
+    return (function<S>(selfRef: any): any?
+        -- 1. Trả về cache cũ nếu connection vẫn còn hoạt động tốt
+        if selfRef.CachedShootConn and selfRef.CachedShootConn.Function and selfRef.CachedShootConn.Enabled then
+            return selfRef.CachedShootConn
+        end
+
+        -- 2. Chỉ quét connection mới khi cache cũ bị null hoặc hỏng
+        local getConns = (getconnections or get_signal_cons)
+        if not getConns then return nil end
+
+        local uis = cloneref(game:GetService("UserInputService")) :: UserInputService
+        for _, conn in getConns(uis.TouchTapInWorld) do
+            if conn.Function and conn.Enabled and not conn.ForeignState then
+                selfRef.CachedShootConn = conn
+                return conn
+            end
+        end
+
+        selfRef.CachedShootConn = nil
+        return nil
+    end)(self)
+end
+
+-- Hàm Shoot tự động đổi 3D sang Vector2 và gọi hàm bắn của game
 function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
+    (function<TP, TPART>(tp: Player, tPart: BasePart)
+        if self.IsShoot or not tp or not tp.Character or not tPart then return end
+        
+        local char: Model? = (self.lp :: Player).Character :: Model?
+        if not char then return end
+        
+        -- Chặn nếu súng đang cất trong Backpack (Tương đương isEquipped == false)
+        local tool: Tool? = char:FindFirstChildOfClass("Tool")
+        if not tool or not VALID_GUNS[tool.Name] then return end
+
+        local conn = self:GetShootConn()
+        if not conn or not conn.Function then return end
+
+        local camera = Workspace.CurrentCamera
+        if not camera then return end
+
+        self.IsShoot = true
+        task.delay(2.5, function()
+            self.IsShoot = false
+        end)
+
+        -- 1. Chuyển vị trí 3D của targetPart thành tọa độ màn hình 2D
+        local screenPos = camera:WorldToViewportPoint(tPart.Position)
+        
+        -- 2. Gọi trực tiếp hàm fireGun gốc, truyền Vector2 vào để game tự xử lý vector2ToVector3
+        conn.Function(Vector2.new(screenPos.X, screenPos.Y))
+    end)(targetPlayer, targetPart)
+end
+
+function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsShoot or not tp or not tp.Character or not tPart then return end
         local char: Model? = (self.lp :: Player).Character :: Model?
