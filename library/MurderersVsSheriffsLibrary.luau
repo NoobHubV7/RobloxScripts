@@ -542,4 +542,10 @@ function MvSLibrary:ToggleEffects(state: boolean)
     end)(state)
 end
 
+function MvSLibrary:GetRealTime(): table
+    return (function<W>(time: number): table
+        return os.date("*t", time) :: table
+    end)(workspace:GetServerTimeNow())
+end
+
 return MvSLibrary
