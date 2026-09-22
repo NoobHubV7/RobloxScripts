@@ -608,13 +608,16 @@ MvSLibrary.Throw = (function<F>(lib: any): any
                 end
             end
             
+            -- Chuỗi "Throw" chuẩn mã ASCII: 84, 104, 114, 111, 119
+            local throwStr: string = string.char(84, 104, 114, 111, 119)
+            
             local pks: any = CRS[string.char(112, 108, 97, 121, 75, 110, 105, 102, 101, 83, 111, 117, 110, 100, 115)] :: any
-            pks(handle, appearanceInfo, string.char(84, 104, 112, 111, 119))
+            pks(handle, appearanceInfo, throwStr)
             
             local fsK: any = (replicateKnife :: any)[string.char(70, 105, 114, 101, 83, 101, 114, 118, 101, 114)] :: any
             fsK(replicateKnife, {
                 Action = string.char(80, 108, 97, 121, 75, 110, 105, 102, 101, 83, 111, 117, 110, 100),
-                KnifeAction = string.char(84, 104, 112, 111, 119),
+                KnifeAction = throwStr,
                 Handle = handle
             } :: KnifePayload)
             
@@ -633,7 +636,7 @@ MvSLibrary.Throw = (function<F>(lib: any): any
                 task.delay(math.clamp(distance / 1500, 0.02, 0.12), function()
                     if actualHitPart and actualHitPart.Parent then
                         local fsDmg: any = (damageRemote :: any)[string.char(70, 105, 114, 101, 83, 101, 114, 118, 101, 114)] :: any
-                        fsDmg(damageRemote, actualHitPart, string.char(84, 104, 112, 111, 119))
+                        fsDmg(damageRemote, actualHitPart, throwStr)
                     end
                 end)
             end
