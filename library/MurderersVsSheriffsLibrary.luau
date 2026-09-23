@@ -466,7 +466,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
         
         -- Lấy hướng di chuyển và cộng cố định 0.35 offset
         local moveDir = flatVel.Unit
-        local predOffset = moveDir * 0.25
+        local predOffset = moveDir * 0.15
         
         local isAir = true
         local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
