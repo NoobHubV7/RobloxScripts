@@ -466,7 +466,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
         
         -- Lấy hướng di chuyển và cộng cố định 0.35 offset
         local moveDir = flatVel.Unit
-        local predOffset = moveDir * 0.125
+        local predOffset = moveDir * 0.1375
         
         local isAir = true
         local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
@@ -493,12 +493,33 @@ end
 function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     if self.IsShoot or not targetPlayer or not targetPart then return end
 
-    -- Lấy connection từ hàm GetShootConn (đã tự Equip súng nếu nằm trong Backpack)
-    local conn = self:GetShootConn()
-    if not conn then return print("Error") end
+    local char = (self.lp :: Player).Character
+    if not char then return end
 
-    -- Chuyển vị trí 3D của mục tiêu sang tọa độ 2D trên màn hình
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart))
+    -- 1. Lấy vị trí bắn tính toán
+    local targetPos = self:GetPosition(targetPart)
+
+    -- 2. KIỂM TRA TƯỜNG (Raycast Validation)
+    -- Lấy vị trí súng hoặc Mắt/Đầu của mình làm điểm phát tia
+    local tool = char:FindFirstChildOfClass("Tool")
+    local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle"))
+    local originPos = barrel and barrel.Position or (char:FindFirstChild("Head") and char.Head.Position)
+    
+    if originPos then
+        self.CachedRayParams.FilterDescendantsInstances = { char }
+        local rayResult = Workspace:Raycast(originPos, targetPos - originPos, self.CachedRayParams)
+        
+        -- Nếu tia ray đập vào vật thể nào đó không thuộc Character của đối thủ -> Dính tường -> Hủy bắn
+        if rayResult and not rayResult.Instance:IsDescendantOf(targetPlayer.Character) then
+            return 
+        end
+    end
+
+    -- 3. Lấy connection bắn
+    local conn = self:GetShootConn()
+    if not conn then return end
+
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(targetPos)
     if not onScreen then return end
 
     self.IsShoot = true
@@ -506,11 +527,8 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
         self.IsShoot = false
     end)
 
-    -- Kích hoạt Event bằng :Fire() thay vì gọi .Function() trực tiếp
     conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
-    print("Vẫn được!")
 end
-
 function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsShoot or not tp or not tp.Character or not tPart then return end
