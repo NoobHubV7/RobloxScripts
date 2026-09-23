@@ -447,6 +447,51 @@ function MvSLibrary:GetShootConn()
     return nil
 end
 
+function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
+    return (function<TP>(tp: BasePart?): Vector3
+        if not tp or not tp:IsA("BasePart") then return Vector3.zero end
+        
+        local currentPos: Vector3 = tp.Position
+        local velocity: Vector3 = tp.AssemblyLinearVelocity
+        
+        -- Kiểm tra xem mục tiêu có đang ở trên không hay không thông qua Humanoid
+        local isAir = true
+        local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
+        if char and char:IsA("Model") then
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                -- Nếu FloorMaterial khác Air nghĩa là đang đứng trên mặt đất
+                if humanoid.FloorMaterial ~= Enum.Material.Air then
+                    isAir = false
+                end
+            end
+        end
+        
+        -- Lấy độ trễ mạng (Ping)
+        local latency: number = 0.08
+        pcall(function()
+            local pingStat = stats().Network.ServerStatsItem:FindFirstChild("Data Ping")
+            if pingStat then
+                latency = (pingStat :: any):GetValue() / 1000
+            end
+        end)
+        
+        local adjustedLatency = math.clamp(latency, 0.005, 0.75)
+        
+        -- Nếu ở trên không: Tính đủ 3 trục X, Y, Z
+        -- Nếu ở mặt đất: Chỉ tính 2 trục X, Z (giữ nguyên trục Y hiện tại)
+        if isAir then
+            return currentPos + (velocity * adjustedLatency)
+        else
+            return Vector3.new(
+                currentPos.X + (velocity.X * adjustedLatency),
+                currentPos.Y,
+                currentPos.Z + (velocity.Z * adjustedLatency)
+            )
+        end
+    end)(targetPart)
+end
+
 function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     if self.IsShoot or not targetPlayer or not targetPart then return end
 
@@ -455,12 +500,12 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     if not conn then return print("Error") end
 
     -- Chuyển vị trí 3D của mục tiêu sang tọa độ 2D trên màn hình
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(targetPart.Position)
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart))
     if not onScreen then return end
 
     -- Bật Cooldown ngắn chống spam frame
     self.IsShoot = true
-    task.delay(0.2, function()
+    task.delay(2.5, function()
         self.IsShoot = false
     end)
 
