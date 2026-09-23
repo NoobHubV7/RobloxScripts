@@ -447,23 +447,36 @@ function MvSLibrary:GetShootConn()
     return nil
 end
 
-function MvSLibrary:GetPosition(targetPart: BasePart?, fpsCount: number?): Vector3
+function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
     return (function<TP>(tp: BasePart?): Vector3
         if not tp or not tp:IsA("BasePart") then return Vector3.zero end
         
         local currentPos: Vector3 = tp.Position
         local velocity: Vector3 = tp.AssemblyLinearVelocity
+        local flatVel = Vector3.new(velocity.X, 0, velocity.Z)
+        local speed = flatVel.Magnitude
         
-        -- Nếu đối thủ đứng yên thì trả về vị trí gốc luôn
-        if velocity.Magnitude < 0.1 then
+        if speed < 0.1 then
             return currentPos
         end
         
-        -- Tính delta time dựa trên tham số fpsCount truyền vào (mặc định 60 FPS nếu không truyền)
-        local fps = (fpsCount and fpsCount > 0) and fpsCount or 60
-        local deltaTime = 1 / fps
+        -- Dải tốc độ tự động co giãn offsetMagnitude
+        local offsetMagnitude = 0.5
+        if speed < 10 then
+            offsetMagnitude = 0.3
+        elseif speed <= 18 then
+            local alpha = (speed - 10) / (18 - 10)
+            offsetMagnitude = 0.3 + (0.5 - 0.3) * alpha
+        elseif speed <= 27.0 then
+            local alpha = (speed - 18) / (27.0 - 18)
+            offsetMagnitude = 0.5 + (0.85 - 0.5) * alpha
+        else
+            offsetMagnitude = 0.85
+        end
         
-        -- Kiểm tra trạng thái đứng trên mặt đất hay đang ở trên không
+        local moveDir = flatVel.Unit
+        local predOffset = moveDir * offsetMagnitude
+        
         local isAir = true
         local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
         if char and char:IsA("Model") then
@@ -473,22 +486,20 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, fpsCount: number?): Vecto
             end
         end
         
-        -- Tính toán vị trí dự đoán:
+        -- Trả về vị trí cộng trực tiếp offset động mà không nhân với dt
         if isAir then
-            -- Khi ở trên không, tính cả 3 trục (X, Y, Z)
-            return currentPos + (velocity * deltaTime)
+            return currentPos + predOffset
         else
-            -- Khi ở mặt đất, chỉ tính 2 trục (X, Z), giữ nguyên độ cao Y
             return Vector3.new(
-                currentPos.X + (velocity.X * deltaTime),
+                currentPos.X + predOffset.X,
                 currentPos.Y,
-                currentPos.Z + (velocity.Z * deltaTime)
+                currentPos.Z + predOffset.Z
             )
         end
     end)(targetPart)
 end
 
-function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart, fps: number?)
+function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     if self.IsShoot or not targetPlayer or not targetPart then return end
 
     -- Lấy connection từ hàm GetShootConn (đã tự Equip súng nếu nằm trong Backpack)
@@ -496,10 +507,9 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart, fps: numbe
     if not conn then return print("Error") end
 
     -- Chuyển vị trí 3D của mục tiêu sang tọa độ 2D trên màn hình
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart, fps))
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart))
     if not onScreen then return end
 
-    -- Bật Cooldown ngắn chống spam frame
     self.IsShoot = true
     task.delay(2.5, function()
         self.IsShoot = false
