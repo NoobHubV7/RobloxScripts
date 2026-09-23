@@ -361,9 +361,12 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance, isKnife: boolea
             if CRS.getCharacterFromPart(raycastResult.Instance) == targetChar then
                 return true
             end
-            local checkOffsets: {Vector3} = {
+            local checkOffsets: {Vector3} = if isKnife then {
                 Vector3.new(1, 0, 0),
                 Vector3.new(-1, 0, 0)
+            } else {
+                Vector3.new(0.4, 0, 0),
+                Vector3.new(-0.4, 0, 0)
             }
             for _, offset in checkOffsets do
                 local edgePos: Vector3 = (tp :: BasePart).Position + offset :: Vector3
