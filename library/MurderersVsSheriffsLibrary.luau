@@ -362,8 +362,8 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance, isKnife: boolea
                 return true
             end
             local checkOffsets: {Vector3} = if isKnife then {
-                Vector3.new(1, 0, 0),
-                Vector3.new(-1, 0, 0)
+                Vector3.new(0.8, 0, 0),
+                Vector3.new(-0.8, 0, 0)
             } else {
                 Vector3.new(0.4, 0, 0),
                 Vector3.new(-0.4, 0, 0)
