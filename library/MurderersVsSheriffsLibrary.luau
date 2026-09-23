@@ -499,8 +499,6 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     -- 1. Lấy vị trí bắn tính toán
     local targetPos = self:GetPosition(targetPart)
 
-    -- 2. KIỂM TRA TƯỜNG (Raycast Validation)
-    -- Lấy vị trí súng hoặc Mắt/Đầu của mình làm điểm phát tia
     local tool = char:FindFirstChildOfClass("Tool")
     local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle"))
     local originPos = barrel and barrel.Position or (char:FindFirstChild("Head") and char.Head.Position)
@@ -519,6 +517,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     local conn = self:GetShootConn()
     if not conn then return end
 
+    -- 4. Chuyển vị trí 3D sang màn hình 2D
     local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(targetPos)
     if not onScreen then return end
 
@@ -527,8 +526,10 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
         self.IsShoot = false
     end)
 
+    -- Kích hoạt sự kiện bắn
     conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
 end
+
 function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsShoot or not tp or not tp.Character or not tPart then return end
@@ -662,7 +663,7 @@ end
 function MvSLibrary:ToggleEffects(state: boolean)
     (function<S>(s: boolean)
         if self.Folder then
-            self.Folder.Parent = (if s then nil else workspace) :: Instance?
+            self.Folder.Parent = (if s then workspace else nil) :: Instance?
         end
     end)(state)
 end
@@ -671,6 +672,33 @@ function MvSLibrary:GetRealTime(): table
     return (function<W>(time: number): table
         return os.date("*t", time) :: table
     end)(workspace:GetServerTimeNow())
+end
+
+function MvSLibrary:UpdateEffects(): boolean
+    -- Check xem self.Folder có tồn tại và Parent của nó có thuộc Workspace không
+    local isFolderAlive = (self.Folder and self.Folder.Parent == workspace) :: boolean
+
+    if isFolderAlive then
+        print("Folder status: TRUE (Vẫn còn trên Workspace!)")
+        return true
+    else
+        print("Folder status: FALSE (Còn cái nịt!)")
+        
+        -- Nếu bị ngắt Parent (nil) hoặc chưa gán, thử tìm/đợi lại Folder Effects trên Workspace
+        if not self.Folder or self.Folder.Parent == nil then
+            self.Folder = workspace:WaitForChild("Effects", 0.5) :: Instance?
+            
+            if self.Folder then
+                print("UpdateEffects: Đã gán lại self.Folder thành công!")
+                return true
+            else
+                print("UpdateEffects: Vẫn không tìm thấy Effects trên Workspace.")
+                return false
+            end
+        end
+        
+        return false
+    end
 end
 
 return MvSLibrary
