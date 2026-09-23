@@ -52,7 +52,7 @@ local Debris: Debris = (function<S>(serviceName: ObfuscatedType<string>): Debris
     return cloneref(game:GetService(serviceName :: string)) :: any
 end)("Debris") :: Debris
 
-local UIS: UserInputService = (function<S>(serviceName: ObfuscatedType<string>): UserInputService
+local UserInputService: UserInputService = (function<S>(serviceName: ObfuscatedType<string>): UserInputService
     return cloneref(game:GetService(serviceName :: string)) :: any
 end)("UserInputService") :: UserInputService
 
