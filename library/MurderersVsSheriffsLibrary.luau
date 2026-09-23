@@ -365,11 +365,11 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance, isKnife: boolea
                 return true
             end
             local checkOffsets: {Vector3} = if isKnife then {
-                Vector3.new(0.8, 0, 0),
-                Vector3.new(-0.8, 0, 0)
+                Vector3.new(0.7, 0, 0),
+                Vector3.new(-0.7, 0, 0)
             } else {
-                Vector3.new(0.4, 0, 0),
-                Vector3.new(-0.4, 0, 0)
+                Vector3.new(0.2, 0, 0),
+                Vector3.new(-0.2, 0, 0)
             }
             for _, offset in checkOffsets do
                 local edgePos: Vector3 = (tp :: BasePart).Position + offset :: Vector3
@@ -466,7 +466,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
         
         -- Lấy hướng di chuyển và cộng cố định 0.35 offset
         local moveDir = flatVel.Unit
-        local predOffset = moveDir * 0.3
+        local predOffset = moveDir * 0.25
         
         local isAir = true
         local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
