@@ -436,7 +436,7 @@ function MvSLibrary:GetShootConn()
 
     -- 2. Đã xác nhận sở hữu Súng -> Trả về connection
     for _, conn in getconnections(UserInputService.TouchTapInWorld) do
-        if conn.Function and conn.State then
+        if conn.Function and conn.Enabled and not conn.ForeignState then
             return conn
         end
     end
