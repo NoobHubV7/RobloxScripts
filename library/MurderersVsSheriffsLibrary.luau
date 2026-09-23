@@ -488,7 +488,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, fpsCount: number?): Vecto
     end)(targetPart)
 end
 
-function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
+function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart, fps: number?)
     if self.IsShoot or not targetPlayer or not targetPart then return end
 
     -- Lấy connection từ hàm GetShootConn (đã tự Equip súng nếu nằm trong Backpack)
@@ -496,7 +496,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     if not conn then return print("Error") end
 
     -- Chuyển vị trí 3D của mục tiêu sang tọa độ 2D trên màn hình
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart))
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart, fps))
     if not onScreen then return end
 
     -- Bật Cooldown ngắn chống spam frame
