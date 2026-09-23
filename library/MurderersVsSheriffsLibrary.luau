@@ -120,6 +120,9 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 end
             end)(plr)
         end)
+        CRS.spreadVector2 = function(pos)
+            return pos
+        end
         
         return self :: ComplexMap<string, any>
     end)(Players) :: ComplexMap<string, any>
@@ -456,26 +459,14 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
         local flatVel = Vector3.new(velocity.X, 0, velocity.Z)
         local speed = flatVel.Magnitude
         
+        -- Nếu đứng yên thì trả về vị trí gốc luôn
         if speed < 0.1 then
             return currentPos
         end
         
-        -- Dải tốc độ tự động co giãn offsetMagnitude
-        local offsetMagnitude = 0.5
-        if speed < 10 then
-            offsetMagnitude = 0.3
-        elseif speed <= 18 then
-            local alpha = (speed - 10) / (18 - 10)
-            offsetMagnitude = 0.3 + (0.5 - 0.3) * alpha
-        elseif speed <= 27.0 then
-            local alpha = (speed - 18) / (27.0 - 18)
-            offsetMagnitude = 0.5 + (0.85 - 0.5) * alpha
-        else
-            offsetMagnitude = 0.85
-        end
-        
+        -- Lấy hướng di chuyển và cộng cố định 0.35 offset
         local moveDir = flatVel.Unit
-        local predOffset = moveDir * offsetMagnitude
+        local predOffset = moveDir * 0.3
         
         local isAir = true
         local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
@@ -486,7 +477,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
             end
         end
         
-        -- Trả về vị trí cộng trực tiếp offset động mà không nhân với dt
+        -- Trả về vị trí cộng offset 0.35 theo hướng di chuyển
         if isAir then
             return currentPos + predOffset
         else
