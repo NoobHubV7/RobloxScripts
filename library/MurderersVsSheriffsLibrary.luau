@@ -447,7 +447,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
 
     -- Lấy connection từ hàm GetShootConn (đã tự Equip súng nếu nằm trong Backpack)
     local conn = self:GetShootConn()
-    if not conn then return end
+    if not conn then return print("Error") end
 
     -- Chuyển vị trí 3D của mục tiêu sang tọa độ 2D trên màn hình
     local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(targetPart.Position)
@@ -461,6 +461,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
 
     -- Kích hoạt Event bằng :Fire() thay vì gọi .Function() trực tiếp
     conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
+    print("Vẫn được!")
 end
 
 function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
