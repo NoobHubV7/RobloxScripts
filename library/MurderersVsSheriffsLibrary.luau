@@ -409,35 +409,33 @@ function MvSLibrary:GetClosestTarget(isKnife: boolean): (Player?, BasePart?)
 end
 
 function MvSLibrary:GetShootConn()
-    local char = self.lp.Character
-    local humanoid = char and char:FindFirstChildOfClass("Humanoid") :: Humanoid?
-    if not char or not humanoid then return nil end
+    local char = (self.lp :: Player).Character
+    if not char then return nil end
 
-    -- 1. Tìm súng trong Character
-    local tool = char:FindFirstChildOfClass("Tool")
-    
-    -- 2. Nếu chưa cầm trên tay, tìm trong Backpack và Equip lên
-    if not tool or not VALID_GUNS[tool.Name] then
-        local backpack = self.lp:FindFirstChildOfClass("Backpack")
+    -- 1. Check xem Tool đang cầm trên tay (Character) hoặc trong Backpack có phải là Súng hợp lệ không
+    local toolOnChar = char:FindFirstChildOfClass("Tool")
+    local hasGunOnChar = toolOnChar and VALID_GUNS[toolOnChar.Name]
+
+    local hasGunInBackpack = false
+    if not hasGunOnChar then
+        local backpack = (self.lp :: Player):FindFirstChildOfClass("Backpack")
         if backpack then
-            for _, item in pairs(backpack:GetChildren()) do
+            for _, item in backpack:GetChildren() do
                 if item:IsA("Tool") and VALID_GUNS[item.Name] then
-                    humanoid:EquipTool(item)
-                    tool = item
-                    task.wait(0.05) -- Chờ 1 nhịp ngắn để game bind event vào súng
+                    hasGunInBackpack = true
                     break
                 end
             end
         end
     end
 
-    -- Không tìm thấy súng ở đâu cả
-    if not tool or not VALID_GUNS[tool.Name] then
+    -- Nếu cả tay lẫn balo đều không có súng -> Cancel luôn
+    if not hasGunOnChar and not hasGunInBackpack then
         return nil
     end
 
-    -- 3. Lấy connection TouchTapInWorld đảm bảo cả Function và State đều tồn tại
-    for _, conn in pairs(getconnections(UserInputService.TouchTapInWorld)) do
+    -- 2. Đã xác nhận sở hữu Súng -> Trả về connection
+    for _, conn in getconnections(UIS.TouchTapInWorld) do
         if conn.Function and conn.State then
             return conn
         end
