@@ -52,6 +52,10 @@ local Debris: Debris = (function<S>(serviceName: ObfuscatedType<string>): Debris
     return cloneref(game:GetService(serviceName :: string)) :: any
 end)("Debris") :: Debris
 
+local UIS: UserInputService = (function<S>(serviceName: ObfuscatedType<string>): UserInputService
+    return cloneref(game:GetService(serviceName :: string)) :: any
+end)("UserInputService") :: UserInputService
+
 local VALID_GUNS: ComplexMap<string, boolean> = (function<G1, G2>(g1: ObfuscatedType<string>, g2: ObfuscatedType<string>): ComplexMap<string, boolean>
     return {
         [g1 :: string] = true,
