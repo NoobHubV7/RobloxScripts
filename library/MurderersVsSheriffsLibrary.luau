@@ -447,46 +447,42 @@ function MvSLibrary:GetShootConn()
     return nil
 end
 
-function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
+function MvSLibrary:GetPosition(targetPart: BasePart?, fpsCount: number?): Vector3
     return (function<TP>(tp: BasePart?): Vector3
         if not tp or not tp:IsA("BasePart") then return Vector3.zero end
         
         local currentPos: Vector3 = tp.Position
         local velocity: Vector3 = tp.AssemblyLinearVelocity
         
-        -- Kiểm tra xem mục tiêu có đang ở trên không hay không thông qua Humanoid
+        -- Nếu đối thủ đứng yên thì trả về vị trí gốc luôn
+        if velocity.Magnitude < 0.1 then
+            return currentPos
+        end
+        
+        -- Tính delta time dựa trên tham số fpsCount truyền vào (mặc định 60 FPS nếu không truyền)
+        local fps = (fpsCount and fpsCount > 0) and fpsCount or 60
+        local deltaTime = 1 / fps
+        
+        -- Kiểm tra trạng thái đứng trên mặt đất hay đang ở trên không
         local isAir = true
         local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
         if char and char:IsA("Model") then
             local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                -- Nếu FloorMaterial khác Air nghĩa là đang đứng trên mặt đất
-                if humanoid.FloorMaterial ~= Enum.Material.Air then
-                    isAir = false
-                end
+            if humanoid and humanoid.FloorMaterial ~= Enum.Material.Air then
+                isAir = false
             end
         end
         
-        -- Lấy độ trễ mạng (Ping)
-        local latency: number = 0.08
-        pcall(function()
-            local pingStat = stats().Network.ServerStatsItem:FindFirstChild("Data Ping")
-            if pingStat then
-                latency = (pingStat :: any):GetValue() / 1000
-            end
-        end)
-        
-        local adjustedLatency = math.clamp(latency, 0.005, 0.75)
-        
-        -- Nếu ở trên không: Tính đủ 3 trục X, Y, Z
-        -- Nếu ở mặt đất: Chỉ tính 2 trục X, Z (giữ nguyên trục Y hiện tại)
+        -- Tính toán vị trí dự đoán:
         if isAir then
-            return currentPos + (velocity * adjustedLatency)
+            -- Khi ở trên không, tính cả 3 trục (X, Y, Z)
+            return currentPos + (velocity * deltaTime)
         else
+            -- Khi ở mặt đất, chỉ tính 2 trục (X, Z), giữ nguyên độ cao Y
             return Vector3.new(
-                currentPos.X + (velocity.X * adjustedLatency),
+                currentPos.X + (velocity.X * deltaTime),
                 currentPos.Y,
-                currentPos.Z + (velocity.Z * adjustedLatency)
+                currentPos.Z + (velocity.Z * deltaTime)
             )
         end
     end)(targetPart)
