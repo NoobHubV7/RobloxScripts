@@ -525,86 +525,6 @@ function MvSLibrary:FireGun(position: Vector3)
     end
 end
 
-function MvSLibrary:ThrowKnife(position: Vector3)
-    if self.IsThrow or not position then return end
-
-    local character = self.lp.Character
-    if not character then return end
-
-    local knife = character:FindFirstChildOfClass("Tool")
-    if not knife or not knife.Name:find("Knife") then return end
-
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-    local handle = knife:FindFirstChild("Handle") :: BasePart?
-    local damageRemote = knife:FindFirstChild("Damage") :: RemoteEvent?
-
-    if not humanoid or not rootPart or not handle or not damageRemote then return end
-    if humanoid.Health <= 0 then return end
-
-    -- 1. Cooldown ném dao gốc của game (0.85 giây)
-    self.IsThrow = true
-    task.delay(0.85, function()
-        self.IsThrow = false
-    end)
-
-    -- 2. Chạy Animation ném dao (tương đương v_u_28)
-    self:PlayKnifeAnimation(character, self.AutoWait)
-
-    -- 3. Đóng gói dữ liệu ngoại quan của Dao (tương đương v42)
-    local appearanceInfo = {
-        ["TextureID"] = (handle :: any).TextureID,
-        ["Color"] = handle.Color,
-        ["Material"] = handle.Material,
-        ["Transparency"] = handle.Transparency
-    }
-
-    local ClientResources = require(game:GetService("ReplicatedStorage"):WaitForChild("ClientResources"))
-    local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
-    local replicateKnifeRemote = remotes:WaitForChild("ReplicateKnife") :: RemoteEvent
-
-    -- 4. Phát âm thanh ném dao
-    ClientResources.playKnifeSounds(handle, appearanceInfo, "Throw")
-    replicateKnifeRemote:FireServer({
-        ["Action"] = "PlayKnifeSound",
-        ["Handle"] = handle,
-        ["KnifeAction"] = "Throw"
-    })
-
-    -- 5. Đóng gói thông tin ném dao (tương đương v43 - Nhận thẳng position Vector3!)
-    local knifePayload = {
-        ["Action"] = "CreateKnife",
-        ["Handle"] = handle,
-        ["AppearanceInfo"] = appearanceInfo,
-        ["StartPosition"] = handle.Position,
-        ["EndPosition"] = position, -- <--- BỎ QUA MÀN HÌNH 2D, TRUYỀN VECTOR3 TRỰC TIẾP
-        ["Attacker"] = self.lp
-    }
-
-    -- 6. Đồng bộ hiệu ứng ném dao lên Server cho mọi người cùng thấy
-    replicateKnifeRemote:FireServer(knifePayload)
-
-    -- 7. Hiển thị dao bay ở máy mình (Local Render)
-    local createdKnife = ClientResources.createKnife(
-        knifePayload.Handle,
-        knifePayload.AppearanceInfo,
-        knifePayload.StartPosition,
-        knifePayload.EndPosition,
-        knifePayload.Attacker
-    )
-
-    -- 8. Giả lập hàm damage (v_u_37): Gửi Remote gây sát thương nếu trúng
-    if createdKnife then
-        local hitCharacter = ClientResources.getCharacterFromPart(createdKnife)
-        if hitCharacter and ClientResources.canCharacterTakeDamage(hitCharacter) then
-            local charCenter = hitCharacter:FindFirstChild("CharacterCenter")
-            if charCenter then
-                damageRemote:FireServer(createdKnife, "Throw")
-            end
-        end
-    end
-end
-
 function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
     return (function<TP>(tp: BasePart?): Vector3
         if not tp or not tp:IsA("BasePart") then return Vector3.zero end
@@ -666,34 +586,6 @@ function MvSLibrary:IsOriginInsideWall(originPos: Vector3): boolean
 end
 
 function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
-    if self.IsShoot or not targetPlayer or not targetPart then return end
-
-    local char = (self.lp :: Player).Character
-    if not char then return end
-
-    -- 1. Lấy vị trí nòng súng (hoặc tay cầm súng)
-    local tool = char:FindFirstChildOfClass("Tool")
-    local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
-    if not barrel then return end
-
-    local originPos = self:GetSafeOrigin(barrel) :: Vector3
-
-    -- 2. ĐÂY NÈ: Gọi hàm check xem nòng súng có đang thò vào trong tường không
-    if self:IsOriginInsideWall(originPos) then
-        -- Nòng súng bị dính trong khối 3D -> Hủy bắn để né xuyên tường
-        return
-    end
-
-    self.IsShoot = true
-    task.delay(2.5, function()
-        self.IsShoot = false
-    end)
-
-    -- 5. Bật sự kiện bắn legit
-    self:FireGun(self:GetPosition(targetPart))
-end
-
-function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsShoot or not tp or not tp.Character or not tPart then return end
         local char: Model? = (self.lp :: Player).Character :: Model?
@@ -707,126 +599,52 @@ function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
         local remotes: Instance? = ReplicatedStorage:FindFirstChild("Remotes") :: Instance?
         local replicateBullet: RemoteEvent? = remotes and remotes:FindFirstChild("ReplicateBullet") :: RemoteEvent?
         if not barrel or not damageRemote or not replicateBullet then return end
-        
-        local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
-        local hitPos: Vector3 = tPart.Position :: Vector3
-        
-        self.CachedRayParams.FilterDescendantsInstances = { char }
-        local raycastResult: RaycastResult? = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: RaycastResult?
-        if raycastResult and CRS.getCharacterFromPart(raycastResult.Instance) ~= tp.Character then
-            return
+
+        if self.Mode == "Legit" then
+            local originPos = self:GetSafeOrigin(barrel) :: Vector3
+            if self:IsOriginInsideWall(originPos) then
+                return
+            end
+            self.IsShoot = true
+            task.delay(2.5, function()
+                self.IsShoot = false
+            end)
+            self:FireGun(self:GetPosition(tPart))
+        else
+            local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
+            local hitPos: Vector3 = tPart.Position :: Vector3
+            
+            self.CachedRayParams.FilterDescendantsInstances = { char }
+            local raycastResult: RaycastResult? = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: RaycastResult?
+            if raycastResult and CRS.getCharacterFromPart(raycastResult.Instance) ~= tp.Character then
+                return
+            end
+            if self:IsOriginInsideWall(safeOrigin) then
+                return
+            end
+            
+            self.IsShoot = true
+            task.delay(2.5, function()
+                self.IsShoot = false
+            end)
+            
+            local hrp: BasePart? = char:FindFirstChild("HumanoidRootPart") :: BasePart?
+            if not hrp then return end
+            
+            local bulletData: BulletPayload = {
+                safeOrigin,
+                hitPos,
+                { PartType = "Character" },
+                tool
+            } :: BulletPayload
+            CRS.createBullet(unpack(bulletData))
+            replicateBullet:FireServer(bulletData)
+            damageRemote:FireServer(tPart, hitPos)
         end
-        if self:IsOriginInsideWall(safeOrigin) then
-            return
-        end
-        
-        self.IsShoot = true
-        task.delay(2.5, function()
-            self.IsShoot = false
-        end)
-        
-        local hrp: BasePart? = char:FindFirstChild("HumanoidRootPart") :: BasePart?
-        if not hrp then return end
-        
-        local bulletData: BulletPayload = {
-            safeOrigin,
-            hitPos,
-            { PartType = "Character" },
-            tool
-        } :: BulletPayload
-        CRS.createBullet(unpack(bulletData))
-        replicateBullet:FireServer(bulletData)
-        damageRemote:FireServer(tPart, hitPos)
     end)(targetPlayer, targetPart)
 end
 
-MvSLibrary.GetPredictedPosition = function(self: any, targetPart: BasePart, projSpeed: number): Vector3
-    return (function(speed: number): Vector3
-        if not (targetPart :: BasePart) or not targetPart:IsA("BasePart") then 
-            return Vector3.zero 
-        end
-
-        local char = (self.lp :: Player).Character
-        if not (char :: Model) then 
-            return (targetPart :: BasePart).Position 
-        end
-
-        local head = char:FindFirstChild("Head") :: BasePart?
-        if not (head :: BasePart) then 
-            return (targetPart :: BasePart).Position 
-        end
-
-        -- 1. Tọa độ tĩnh & vận tốc
-        local staticPos = (targetPart :: BasePart).Position
-        local velocity = (targetPart :: BasePart).AssemblyLinearVelocity
-
-        local distance = ((staticPos :: Vector3) - (head :: BasePart).Position).Magnitude
-
-        -- Cự ly ngắn (< 15 studs) hoặc đứng yên -> Vị trí tĩnh
-        if (distance :: number) < 15 or (velocity :: Vector3).Magnitude < 0.1 then
-            return staticPos :: Vector3
-        end
-
-        -- 2. Hàm vô danh tính Anim Delay theo self.AutoWait
-        local animDelay = (function(): number
-            return (self.AutoWait :: boolean) and 0.2666666805744171 or 0
-        end)();
-
-        -- 3. Tổng thời gian bay
-        local timeToReach = ((distance :: number) / (speed :: number)) + (animDelay :: number)
-        local predictedPos = (staticPos :: Vector3) + ((velocity :: Vector3) * (timeToReach :: number))
-
-        -- 4. Hàm vô danh kiểm tra trạng thái trên không với tham số targetPart
-        local isAir = (function(part: BasePart): boolean
-            local targetChar = (CRS.getCharacterFromPart(part) or (part :: BasePart).Parent) :: Instance?
-            if (targetChar :: Instance) and (targetChar :: Instance):IsA("Model") then
-                local humanoid = (targetChar :: Model):FindFirstChildOfClass("Humanoid") :: Humanoid?
-                if (humanoid :: Humanoid) and (humanoid :: Humanoid).FloorMaterial ~= Enum.Material.Air then
-                    return false
-                end
-            end
-            return true
-        end)(targetPart :: BasePart);
-
-        if (isAir :: boolean) then
-            return predictedPos :: Vector3
-        else
-            return Vector3.new(
-                (predictedPos :: Vector3).X, 
-                (staticPos :: Vector3).Y, 
-                (predictedPos :: Vector3).Z
-            ) :: Vector3
-        end
-    end)(projSpeed :: number);
-end;
-
 function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
-    if self.IsThrow or not targetPlayer or not targetPart then return end
-
-    local character = self.lp.Character
-    if not character then return end
-
-    local head = character:FindFirstChild("Head") :: BasePart?
-    if not head then return end
-
-    -- 1. Kiểm tra tường xuất phát
-    if self:IsOriginInsideWall(head.Position) then return end
-
-    -- 2. Tính tọa độ dự đoán đón đầu 3D (Tốc độ dao = 300 studs/s)
-    local predictedPos = self:GetPredictedPosition(targetPart, 300)
-
-    -- 3. Kiểm tra Line of Sight (LoS)
-    self.CachedRayParams.FilterDescendantsInstances = { character }
-    local rayResult = workspace:Raycast(head.Position, predictedPos - head.Position, self.CachedRayParams)
-    if rayResult and not rayResult.Instance:IsDescendantOf(targetPlayer.Character) then
-        return -- Bị vách/tường chắn tầm nhìn
-    end
-
-    -- 4. Bắn thẳng tọa độ 3D vào hàm ném dao giả lập
-    self:ThrowKnife(predictedPos)
-end
-
-function MvSLibrary:ThrowOld(targetPlayer: Player, targetPart: BasePart)
     (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsThrow or not tp or not tp.Character or not tPart then return end
         local char: Model? = (self.lp :: Player).Character :: Model?
