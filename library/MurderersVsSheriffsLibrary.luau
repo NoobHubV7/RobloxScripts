@@ -737,7 +737,7 @@ function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     end)(targetPlayer, targetPart)
 end
 
-MvSLibrary:GetPredictedPosition = function(targetPart: BasePart, projSpeed: number): Vector3
+MvSLibrary.GetPredictedPosition = function(self: any, targetPart: BasePart, projSpeed: number): Vector3
     return (function(speed: number): Vector3
         if not (targetPart :: BasePart) or not targetPart:IsA("BasePart") then 
             return Vector3.zero 
