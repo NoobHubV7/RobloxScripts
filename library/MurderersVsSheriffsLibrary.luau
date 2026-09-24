@@ -94,6 +94,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             IsShoot = false :: boolean,
             IsThrow = false :: boolean,
             AutoWait = true :: boolean,
+            Mode = "Rage" :: string,
             PlayersTable = {} :: {Player},
             CachedRayParams = CRS.createRaycastParams() :: RaycastParams,
             Folder = workspace:FindFirstChild("Effects") :: Instance?,
@@ -744,31 +745,10 @@ function MvSLibrary:GetRealTime(): table
     end)(workspace:GetServerTimeNow())
 end
 
-function MvSLibrary:UpdateEffects(): boolean
-    -- Check xem self.Folder có tồn tại và Parent của nó có thuộc Workspace không
-    local isFolderAlive = (self.Folder and self.Folder.Parent == workspace) :: boolean
-
-    if isFolderAlive then
-        print("Folder status: TRUE (Vẫn còn trên Workspace!)")
-        return true
-    else
-        print("Folder status: FALSE (Còn cái nịt!)")
-        
-        -- Nếu bị ngắt Parent (nil) hoặc chưa gán, thử tìm/đợi lại Folder Effects trên Workspace
-        if not self.Folder or self.Folder.Parent == nil then
-            self.Folder = workspace:WaitForChild("Effects", 0.5) :: Instance?
-            
-            if self.Folder then
-                print("UpdateEffects: Đã gán lại self.Folder thành công!")
-                return true
-            else
-                print("UpdateEffects: Vẫn không tìm thấy Effects trên Workspace.")
-                return false
-            end
-        end
-        
-        return false
-    end
+function MvSLibrary:SetMode(mode: string)
+    (function<S>(s: string)
+        self.Mode = string
+    end)(mode)
 end
 
 return MvSLibrary
