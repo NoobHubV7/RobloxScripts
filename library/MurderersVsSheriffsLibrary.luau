@@ -521,7 +521,7 @@ function MvSLibrary:FireGun(position: Vector3)
     replicateBulletRemote:FireServer(bulletData)
 
     if isValidHit and hitPart then
-        damageRemote:FireServer(hitPart, impactPosition, rootPosition)
+        damageRemote:FireServer(hitPart, impactPosition)
     end
 end
 
@@ -676,7 +676,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
     if not barrel then return end
 
-    local originPos = self:GetSafeOrigin(barrel)
+    local originPos = self:GetSafeOrigin(barrel) :: Vector3
 
     -- 2. ĐÂY NÈ: Gọi hàm check xem nòng súng có đang thò vào trong tường không
     if self:IsOriginInsideWall(originPos) then
@@ -716,6 +716,9 @@ function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
         if raycastResult and CRS.getCharacterFromPart(raycastResult.Instance) ~= tp.Character then
             return
         end
+        if self:IsOriginInsideWall(safeOrigin) then
+            return
+        end
         
         self.IsShoot = true
         task.delay(2.5, function()
@@ -733,7 +736,7 @@ function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
         } :: BulletPayload
         CRS.createBullet(unpack(bulletData))
         replicateBullet:FireServer(bulletData)
-        damageRemote:FireServer(tPart, hitPos, hrp.Position)
+        damageRemote:FireServer(tPart, hitPos)
     end)(targetPlayer, targetPart)
 end
 
