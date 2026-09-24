@@ -535,6 +535,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
         local flatVel = Vector3.new(velocity.X, 0, velocity.Z)
         local speed = flatVel.Magnitude
         
+        -- Nếu đứng yên hoàn toàn, trả về vị trí gốc ngay lập tức
         if speed < 0.1 then
             return currentPos
         end
@@ -543,22 +544,32 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
         local predOffset: Vector3
         
         if knifeFlag then
-            -- TÍNH CHO KNIFE: (Thời gian bay * Vận tốc) + Offset cố định 0.1375
-            local char = (self.lp :: Player).Character
-            local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
-                then (char:FindFirstChild("HumanoidRootPart") :: BasePart).Position 
-                else currentPos
+            -- TÍNH CHO KNIFE (DAO)
+            -- Mốc 3.5 studs/s áp dụng tốt cho cả người bth (18), Vua (22.5) lẫn Boost (27) khi nhấp nhổm thò đầu
+            if speed < 3.5 then
+                -- Trường hợp thò đầu / nhấp nhổm nhịp ngắn:
+                -- Chỉ bù lag compensation 0.1375 studs, tránh ném dao chệch vào tường
+                predOffset = moveDir * 0.1375
+            else
+                -- Trường hợp mục tiêu di chuyển thực sự (18 -> 27 studs/s):
+                -- flatVel đã bao hàm vận tốc thực tế (22.5 hay 27), nhân trực tiếp với thời gian bay (300 studs/s)
+                local char = (self.lp :: Player).Character
+                local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
+                    then (char:FindFirstChild("HumanoidRootPart") :: BasePart).Position 
+                    else currentPos
+                    
+                local distance = (currentPos - myPos).Magnitude
+                local timeToReach = distance / 300 -- Tốc độ dao gốc của game là 300 unit/s
                 
-            local distance = (currentPos - myPos).Magnitude
-            local timeToReach = distance / 300 -- Tốc độ dao gốc của game là 300 unit/s
-            
-            -- Quãng đường đối phương đi được khi dao bay + bù offset 0.1375
-            predOffset = (flatVel * timeToReach) + (moveDir * 0.1375)
+                -- (Vận tốc thực tế * Thời gian bay) + Bù lag fixed 0.1375
+                predOffset = (flatVel * timeToReach) + (moveDir * 0.1375)
+            end
         else
-            -- TÍNH CHO GUN: Chỉ cộng cố định offset 0.1375
+            -- TÍNH CHO GUN (SÚNG): Cố định bù lag 0.1375 studs
             predOffset = moveDir * 0.1375
         end
         
+        -- Xử lý độ cao Y dựa trên trạng thái trên không / mặt đất
         local isAir = true
         local targetChar = (CRS.getCharacterFromPart(tp) or tp.Parent)
         if targetChar and targetChar:IsA("Model") then
