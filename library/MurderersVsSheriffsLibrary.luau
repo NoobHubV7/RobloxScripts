@@ -739,21 +739,27 @@ end
 
 MvSLibrary:GetPredictedPosition = function(targetPart: BasePart, projSpeed: number): Vector3
     return (function(speed: number): Vector3
-        if not (targetPart :: BasePart) or not targetPart:IsA("BasePart") then return Vector3.zero end
+        if not (targetPart :: BasePart) or not targetPart:IsA("BasePart") then 
+            return Vector3.zero 
+        end
 
         local char = (self.lp :: Player).Character
-        if not (char :: Model) then return (targetPart :: BasePart).Position end
+        if not (char :: Model) then 
+            return (targetPart :: BasePart).Position 
+        end
 
         local head = char:FindFirstChild("Head") :: BasePart?
-        if not (head :: BasePart) then return (targetPart :: BasePart).Position end
+        if not (head :: BasePart) then 
+            return (targetPart :: BasePart).Position 
+        end
 
-        -- 1. Lấy vị trí tĩnh thực tế
+        -- 1. Tọa độ tĩnh & vận tốc
         local staticPos = (targetPart :: BasePart).Position
         local velocity = (targetPart :: BasePart).AssemblyLinearVelocity
 
         local distance = ((staticPos :: Vector3) - (head :: BasePart).Position).Magnitude
 
-        -- Dưới 15 studs hoặc đứng yên -> Vị trí tĩnh
+        -- Cự ly ngắn (< 15 studs) hoặc đứng yên -> Vị trí tĩnh
         if (distance :: number) < 15 or (velocity :: Vector3).Magnitude < 0.1 then
             return staticPos :: Vector3
         end
@@ -761,9 +767,9 @@ MvSLibrary:GetPredictedPosition = function(targetPart: BasePart, projSpeed: numb
         -- 2. Hàm vô danh tính Anim Delay theo self.AutoWait
         local animDelay = (function(): number
             return (self.AutoWait :: boolean) and 0.2666666805744171 or 0
-        end)()
+        end)();
 
-        -- 3. Tính thời gian đón dựa trên tham số speed được truyền vào
+        -- 3. Tổng thời gian bay
         local timeToReach = ((distance :: number) / (speed :: number)) + (animDelay :: number)
         local predictedPos = (staticPos :: Vector3) + ((velocity :: Vector3) * (timeToReach :: number))
 
@@ -777,7 +783,7 @@ MvSLibrary:GetPredictedPosition = function(targetPart: BasePart, projSpeed: numb
                 end
             end
             return true
-        end)(targetPart :: BasePart)
+        end)(targetPart :: BasePart);
 
         if (isAir :: boolean) then
             return predictedPos :: Vector3
@@ -788,8 +794,8 @@ MvSLibrary:GetPredictedPosition = function(targetPart: BasePart, projSpeed: numb
                 (predictedPos :: Vector3).Z
             ) :: Vector3
         end
-    end)(projSpeed :: number)
-end
+    end)(projSpeed :: number);
+end;
 
 function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
     if self.IsThrow or not targetPlayer or not targetPart then return end
