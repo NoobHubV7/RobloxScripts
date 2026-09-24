@@ -590,7 +590,79 @@ function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     end)(targetPlayer, targetPart)
 end
 
+function MvSLibrary:GetPredictedPosition(targetPart: BasePart, projSpeed: number): Vector3
+    local targetPos = self:GetPosition(targetPart)
+    local char = (self.lp :: Player).Character
+    if not char then return targetPos end
+
+    local head = char:FindFirstChild("Head") :: BasePart?
+    if not head then return targetPos end
+
+    -- 1. Đo khoảng cách D thực tế
+    local distance = (targetPos - head.Position).Magnitude
+
+    -- 2. Tính thời gian dao bay (t = D / V)
+    local timeToReach = distance / projSpeed
+
+    -- 3. Lấy Vector vận tốc di chuyển của đối thủ
+    local targetVelocity = targetPart.AssemblyLinearVelocity
+
+    -- Nếu đứng yên -> Trả về vị trí gốc
+    if targetVelocity.Magnitude < 0.1 then
+        return targetPos
+    end
+
+    -- 4. Bù thời gian bay + Bù thêm Offset 0.1375 studs theo hướng di chuyển
+    local moveDirection = targetVelocity.Unit
+    local leadOffset = moveDirection * 0.1375
+
+    return targetPos + (targetVelocity * timeToReach) + leadOffset
+end
+
 function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
+    if self.IsThrow or not targetPlayer or not targetPart then return end
+
+    local char = (self.lp :: Player).Character
+    if not char then return end
+
+    -- 1. Lấy Head để check tường và CharacterCenter làm gốc tọa độ chuẩn
+    local head = char:FindFirstChild("Head") :: BasePart?
+    local charCenter = char:FindFirstChild("CharacterCenter") or char:FindFirstChild("HumanoidRootPart") :: BasePart?
+    if not head or not charCenter then return end
+
+    -- 2. Dùng Head để check xem vị trí người mình có bị kẹt/thò vào tường không
+    if self:IsOriginInsideWall(head.Position) then return end
+
+    -- 3. Tính điểm dự đoán (Prediction) từ CharacterCenter đến Target (Knife Speed = 300)
+    local predictedPos = self:GetPredictedPosition(targetPart, 300)
+
+    -- 4. Check Line of Sight (LoS) từ Head tới điểm dự đoán của đối thủ
+    self.CachedRayParams.FilterDescendantsInstances = { char }
+    local rayResult = Workspace:Raycast(head.Position, predictedPos - head.Position, self.CachedRayParams)
+
+    if rayResult and not rayResult.Instance:IsDescendantOf(targetPlayer.Character) then
+        return -- Tầm nhìn từ Đầu bị tường chắn -> Hủy ném
+    end
+
+    -- 5. Lấy Connection TouchTapInWorld
+    local conn = self:GetShootConn()
+    if not conn then return end
+
+    -- 6. Chiếu vị trí DỰ ĐOÁN (3D) sang màn hình (2D)
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(predictedPos)
+    if not onScreen then return end
+
+    -- Set Cooldown ném dao gốc của game (0.875s)
+    self.IsThrow = true
+    task.delay(0.85, function()
+        self.IsThrow = false
+    end)
+
+    -- 7. Kích hoạt ném dao Legit
+    conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
+end
+
+function MvSLibrary:ThrowOld(targetPlayer: Player, targetPart: BasePart)
     (function<TP, TPART>(tp: Player, tPart: BasePart)
         if self.IsThrow or not tp or not tp.Character or not tPart then return end
         local char: Model? = (self.lp :: Player).Character :: Model?
