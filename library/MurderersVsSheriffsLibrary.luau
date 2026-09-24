@@ -450,6 +450,81 @@ function MvSLibrary:GetShootConn()
     return nil
 end
 
+function MvSLibrary:FireGun(position: Vector3)
+    if self.IsShooting or not position then return end
+
+    local character = self.lp.Character
+    if not character then return end
+
+    local gun = character:FindFirstChild("Gun") or character:FindFirstChildOfClass("Tool")
+    if not gun then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+    local barrel = gun:FindFirstChild("Barrel") :: BasePart?
+    local damageRemote = gun:FindFirstChild("Damage")
+
+    if not humanoid or not rootPart or not barrel or not damageRemote then return end
+    if humanoid.Health <= 0 then return end
+
+    -- 1. Bật Cooldown gốc 2.5s
+    self.IsShooting = true
+    task.delay(2.5, function()
+        self.IsShooting = false
+    end)
+
+    -- 2. Khởi tạo các mốc tọa độ
+    local impactPosition = position -- Thay v16 trực tiếp bằng tham số Vector3 truyền vào
+    local rootPosition = rootPart.Position -- Thay v17 (HumanoidRootPart Position)
+    local ClientResources = require(game:GetService("ReplicatedStorage"):WaitForChild("ClientResources"))
+
+    -- 3. Bỏ qua workspace:Raycast! Tìm trực tiếp Part va chạm tại vị trí impactPosition
+    local hitPart = nil
+    for _, part in pairs(workspace:GetPartBoundsInRadius(impactPosition, 0.5)) do
+        if not part:IsDescendantOf(character) and ClientResources.isPartCollidable(part, self.lp) then
+            hitPart = part
+            break
+        end
+    end
+
+    -- 4. Giả lập logic kiểm tra Hit/Damage gốc của game (v20, v21, v22)
+    local hitCharacter = ClientResources.getCharacterFromPart(hitPart) -- Thay v20
+    local characterCenter = hitCharacter and hitCharacter:FindFirstChild("CharacterCenter") -- Thay v21
+    
+    local lineOfSightEstablished = false -- Thay v22
+    if characterCenter then
+        lineOfSightEstablished = ClientResources.lineOfSightEstablished(impactPosition, characterCenter)
+    end
+
+    local isValidHit = false
+    if hitCharacter and characterCenter and lineOfSightEstablished then
+        -- Game check khoảng cách giữa vị trí va chạm đạn và Part bị bắn <= 4 studs
+        if hitPart then
+            isValidHit = (hitPart.Position - impactPosition).Magnitude <= 4
+        end
+    end
+
+    -- 5. Đóng gói dữ liệu đạn v23 gửi Replicate
+    local bulletData = {
+        barrel.Position,
+        impactPosition,
+        hitPart and {
+            ["PartType"] = isValidHit and "Character" or "Default"
+        } or nil,
+        gun
+    }
+
+    -- 6. Tạo hiệu ứng Local Client & Gửi Replicate lên Server
+    ClientResources.createBullet(unpack(bulletData))
+
+    local replicateBulletRemote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ReplicateBullet")
+    replicateBulletRemote:FireServer(bulletData)
+
+    if isValidHit and hitPart then
+        damageRemote:FireServer(hitPart, impactPosition, rootPosition)
+    end
+end
+
 function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
     return (function<TP>(tp: BasePart?): Vector3
         if not tp or not tp:IsA("BasePart") then return Vector3.zero end
@@ -529,21 +604,13 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
         return
     end
 
-    -- 3. Lấy connection sự kiện TouchTapInWorld
-    local conn = self:GetShootConn()
-    if not conn then return end
-
-    -- 4. Chuyển vị trí 3D mục tiêu sang tọa độ 2D màn hình
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart))
-    if not onScreen then return end
-
     self.IsShoot = true
     task.delay(2.5, function()
         self.IsShoot = false
     end)
 
     -- 5. Bật sự kiện bắn legit
-    conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
+    self:FireGun(self:GetPosition(targetPart))
 end
 
 function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
