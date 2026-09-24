@@ -737,33 +737,58 @@ function MvSLibrary:ShootOld(targetPlayer: Player, targetPart: BasePart)
     end)(targetPlayer, targetPart)
 end
 
-function MvSLibrary:GetPredictedPosition(targetPart: BasePart, projSpeed: number): Vector3
-    local targetPos = self:GetPosition(targetPart)
-    local char = (self.lp :: Player).Character
-    if not char then return targetPos end
+MvSLibrary:GetPredictedPosition = function(targetPart: BasePart, projSpeed: number): Vector3
+    return (function(speed: number): Vector3
+        if not (targetPart :: BasePart) or not targetPart:IsA("BasePart") then return Vector3.zero end
 
-    local head = char:FindFirstChild("Head") :: BasePart?
-    if not head then return targetPos end
+        local char = (self.lp :: Player).Character
+        if not (char :: Model) then return (targetPart :: BasePart).Position end
 
-    -- 1. Đo khoảng cách D thực tế
-    local distance = (targetPos - head.Position).Magnitude
+        local head = char:FindFirstChild("Head") :: BasePart?
+        if not (head :: BasePart) then return (targetPart :: BasePart).Position end
 
-    -- 2. Tính thời gian dao bay (t = D / V)
-    local timeToReach = distance / projSpeed
+        -- 1. Lấy vị trí tĩnh thực tế
+        local staticPos = (targetPart :: BasePart).Position
+        local velocity = (targetPart :: BasePart).AssemblyLinearVelocity
 
-    -- 3. Lấy Vector vận tốc di chuyển của đối thủ
-    local targetVelocity = targetPart.AssemblyLinearVelocity
+        local distance = ((staticPos :: Vector3) - (head :: BasePart).Position).Magnitude
 
-    -- Nếu đứng yên -> Trả về vị trí gốc
-    if targetVelocity.Magnitude < 0.1 then
-        return targetPos
-    end
+        -- Dưới 15 studs hoặc đứng yên -> Vị trí tĩnh
+        if (distance :: number) < 15 or (velocity :: Vector3).Magnitude < 0.1 then
+            return staticPos :: Vector3
+        end
 
-    -- 4. Bù thời gian bay + Bù thêm Offset 0.1375 studs theo hướng di chuyển
-    local moveDirection = targetVelocity.Unit
-    local leadOffset = moveDirection * 0.1375
+        -- 2. Hàm vô danh tính Anim Delay theo self.AutoWait
+        local animDelay = (function(): number
+            return (self.AutoWait :: boolean) and 0.2666666805744171 or 0
+        end)()
 
-    return targetPos + (targetVelocity * timeToReach) + leadOffset
+        -- 3. Tính thời gian đón dựa trên tham số speed được truyền vào
+        local timeToReach = ((distance :: number) / (speed :: number)) + (animDelay :: number)
+        local predictedPos = (staticPos :: Vector3) + ((velocity :: Vector3) * (timeToReach :: number))
+
+        -- 4. Hàm vô danh kiểm tra trạng thái trên không với tham số targetPart
+        local isAir = (function(part: BasePart): boolean
+            local targetChar = (CRS.getCharacterFromPart(part) or (part :: BasePart).Parent) :: Instance?
+            if (targetChar :: Instance) and (targetChar :: Instance):IsA("Model") then
+                local humanoid = (targetChar :: Model):FindFirstChildOfClass("Humanoid") :: Humanoid?
+                if (humanoid :: Humanoid) and (humanoid :: Humanoid).FloorMaterial ~= Enum.Material.Air then
+                    return false
+                end
+            end
+            return true
+        end)(targetPart :: BasePart)
+
+        if (isAir :: boolean) then
+            return predictedPos :: Vector3
+        else
+            return Vector3.new(
+                (predictedPos :: Vector3).X, 
+                (staticPos :: Vector3).Y, 
+                (predictedPos :: Vector3).Z
+            ) :: Vector3
+        end
+    end)(projSpeed :: number)
 end
 
 function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
