@@ -809,8 +809,8 @@ function MvSLibrary:GetRealTime(): table
 end
 
 function MvSLibrary:SetMode(mode: string)
-    (function<S>(s: string)
-        self.Mode = s
+    (function<STR>(val: string)
+        self.Mode = val
     end)(mode)
 end
 
