@@ -673,68 +673,117 @@ function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
         local remotes: Instance? = ReplicatedStorage:FindFirstChild("Remotes") :: Instance?
         local replicateKnife: RemoteEvent? = remotes and remotes:FindFirstChild("ReplicateKnife") :: RemoteEvent?
         if not handle or not damageRemote or not replicateKnife then return end
-        
+
         self.IsThrow = true
         task.delay(0.85, function()
             self.IsThrow = false
         end)
-        
+
+        -- 1. Chạy Animation và BẮT BUỘC CHỜ stopped nếu AutoWait = true (Y hệt v_u_28.Stopped:Wait())
         self:PlayKnifeAnimation(char, self.AutoWait)
-        if not tp or not tp.Character or not tPart or not tPart.Parent then return end
         
-        local startPos: Vector3 = self:GetSafeOrigin(handle) :: Vector3
-        local endPos: Vector3 = tPart.Position :: Vector3
+        if not tp or not tp.Character or not tPart or not tPart.Parent then return end
+
         local appearanceInfo: AppearanceInfo = {
             TextureID = (handle :: any).TextureID,
             Color = handle.Color,
             Material = handle.Material,
             Transparency = handle.Transparency
         } :: AppearanceInfo
-        
-        local rayParams: RaycastParams = (function<RP>(): RaycastParams
-            local rp: RaycastParams = RaycastParams.new() :: RaycastParams
-            rp.FilterType = Enum.RaycastFilterType.Exclude
-            rp.FilterDescendantsInstances = { char }
-            return rp :: RaycastParams
-        end)() :: RaycastParams
-        
-        local dirVector: Vector3 = endPos - startPos :: Vector3
-        local distance: number = dirVector.Magnitude :: number
-        local rayHit: RaycastResult? = Workspace:Raycast(startPos, dirVector.Unit * distance, rayParams) :: RaycastResult?
-        local actualHitPart: Instance = tPart :: Instance
-        local isWallBlocked: boolean = false :: boolean
-        
-        if rayHit then
-            local hitChar: Instance? = CRS.getCharacterFromPart(rayHit.Instance) :: Instance?
-            if hitChar then
-                actualHitPart = rayHit.Instance :: Instance
-            else
-                isWallBlocked = true
-            end
-        end
-        
-        CRS.playKnifeSounds(handle, appearanceInfo, "Throw")
-        replicateKnife:FireServer({
-            Action = "PlayKnifeSound",
-            KnifeAction = "Throw",
-            Handle = handle
-        } :: KnifePayload)
-        replicateKnife:FireServer({
-            Action = "CreateKnife",
-            Handle = handle,
-            AppearanceInfo = appearanceInfo,
-            StartPosition = startPos,
-            EndPosition = endPos,
-            Attacker = self.lp :: Player
-        } :: KnifePayload)
-        self:CreateKnife(handle, appearanceInfo, startPos, endPos, self.lp :: Player)
-        
-        if not isWallBlocked then
-            task.delay(math.clamp(distance / 1500, 0.02, 0.12), function()
-                if actualHitPart and actualHitPart.Parent then
-                    damageRemote:FireServer(actualHitPart, "Throw")
+
+        if self.Mode == "Legit" then
+            -- LEGIT MODE: Bám sát 100% decompiled KnifeClient
+            
+            -- Lấy StartPosition chuẩn từ Handle.Position theo đúng v43 gốc
+            local startPos: Vector3 = handle.Position
+            
+            -- Lấy vị trí dự đoán di chuyển (vẫn áp dụng prediction knife chuẩn)
+            local targetPos: Vector3 = self:GetPosition(tPart, true) :: Vector3
+            
+            -- Giả lập logic Raycast kiểm tra chướng ngại vật gốc của game (v40 -> v41)
+            local collarAttachment = char:FindFirstChild("RightCollarAttachment", true) :: Attachment?
+            local rayOrigin: Vector3 = if collarAttachment 
+                then (collarAttachment.WorldCFrame * CFrame.new(0.5, 0.5, 0.25)).Position 
+                else startPos
+                
+            self.CachedRayParams.FilterDescendantsInstances = { char }
+            local rayHit: RaycastResult? = Workspace:Raycast(rayOrigin, (targetPos - rayOrigin).Unit * 500, self.CachedRayParams) :: RaycastResult?
+            
+            local endPos: Vector3 = if rayHit then rayHit.Position else targetPos
+            
+            -- Phát âm thanh & Replicate theo đúng v43
+            CRS.playKnifeSounds(handle, appearanceInfo, "Throw")
+            replicateKnife:FireServer({
+                Action = "PlayKnifeSound",
+                KnifeAction = "Throw",
+                Handle = handle
+            } :: KnifePayload)
+
+            local payload: KnifePayload = {
+                Action = "CreateKnife",
+                Handle = handle,
+                AppearanceInfo = appearanceInfo,
+                StartPosition = startPos,
+                EndPosition = endPos,
+                Attacker = self.lp :: Player
+            } :: KnifePayload
+            replicateKnife:FireServer(payload)
+
+            -- Gọi CRS.createKnife thật để chạy va chạm Client-side (v44)
+            task.spawn(function()
+                local hitPart = CRS.createKnife(payload.Handle, payload.AppearanceInfo, payload.StartPosition, payload.EndPosition, payload.Attacker)
+                if hitPart then
+                    -- v_u_37(v44, "Throw") gốc của game
+                    damageRemote:FireServer(hitPart, "Throw")
                 end
             end)
+        else
+            -- RAGE MODE: Giữ nguyên logic ném thẳng siêu tốc bypass physics
+            local startPos: Vector3 = self:GetSafeOrigin(handle) :: Vector3
+            local endPos: Vector3 = tPart.Position :: Vector3
+            
+            local rayParams: RaycastParams = RaycastParams.new()
+            rayParams.FilterType = Enum.RaycastFilterType.Exclude
+            rayParams.FilterDescendantsInstances = { char }
+            
+            local dirVector: Vector3 = endPos - startPos
+            local distance: number = dirVector.Magnitude
+            local rayHit: RaycastResult? = Workspace:Raycast(startPos, dirVector.Unit * distance, rayParams)
+            local actualHitPart: Instance = tPart
+            local isWallBlocked: boolean = false
+            
+            if rayHit then
+                local hitChar: Instance? = CRS.getCharacterFromPart(rayHit.Instance)
+                if hitChar then
+                    actualHitPart = rayHit.Instance
+                else
+                    isWallBlocked = true
+                end
+            end
+            
+            CRS.playKnifeSounds(handle, appearanceInfo, "Throw")
+            replicateKnife:FireServer({
+                Action = "PlayKnifeSound",
+                KnifeAction = "Throw",
+                Handle = handle
+            } :: KnifePayload)
+            replicateKnife:FireServer({
+                Action = "CreateKnife",
+                Handle = handle,
+                AppearanceInfo = appearanceInfo,
+                StartPosition = startPos,
+                EndPosition = endPos,
+                Attacker = self.lp :: Player
+            } :: KnifePayload)
+            self:CreateKnife(handle, appearanceInfo, startPos, endPos, self.lp :: Player)
+            
+            if not isWallBlocked then
+                task.delay(math.clamp(distance / 1500, 0.02, 0.12), function()
+                    if actualHitPart and actualHitPart.Parent then
+                        damageRemote:FireServer(actualHitPart, "Throw")
+                    end
+                end)
+            end
         end
     end)(targetPlayer, targetPart)
 end
