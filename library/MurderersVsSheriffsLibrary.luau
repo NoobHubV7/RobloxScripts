@@ -810,7 +810,7 @@ end
 
 function MvSLibrary:SetMode(mode: string)
     (function<S>(s: string)
-        self.Mode = string
+        self.Mode = s
     end)(mode)
 end
 
