@@ -526,8 +526,8 @@ function MvSLibrary:FireGun(position: Vector3)
     end
 end
 
-function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
-    return (function<TP>(tp: BasePart?): Vector3
+function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vector3
+    return (function<TP, IK>(tp: BasePart?, knifeFlag: boolean?): Vector3
         if not tp or not tp:IsA("BasePart") then return Vector3.zero end
         
         local currentPos: Vector3 = tp.Position
@@ -535,25 +535,39 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
         local flatVel = Vector3.new(velocity.X, 0, velocity.Z)
         local speed = flatVel.Magnitude
         
-        -- Nếu đứng yên thì trả về vị trí gốc luôn
         if speed < 0.1 then
             return currentPos
         end
         
-        -- Lấy hướng di chuyển và cộng cố định 0.35 offset
         local moveDir = flatVel.Unit
-        local predOffset = moveDir * 0.1375
+        local predOffset: Vector3
+        
+        if knifeFlag then
+            -- TÍNH CHO KNIFE: (Thời gian bay * Vận tốc) + Offset cố định 0.1375
+            local char = (self.lp :: Player).Character
+            local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
+                then (char:FindFirstChild("HumanoidRootPart") :: BasePart).Position 
+                else currentPos
+                
+            local distance = (currentPos - myPos).Magnitude
+            local timeToReach = distance / 300 -- Tốc độ dao gốc của game là 300 unit/s
+            
+            -- Quãng đường đối phương đi được khi dao bay + bù offset 0.1375
+            predOffset = (flatVel * timeToReach) + (moveDir * 0.1375)
+        else
+            -- TÍNH CHO GUN: Chỉ cộng cố định offset 0.1375
+            predOffset = moveDir * 0.1375
+        end
         
         local isAir = true
-        local char = (CRS.getCharacterFromPart(tp) or tp.Parent)
-        if char and char:IsA("Model") then
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
+        local targetChar = (CRS.getCharacterFromPart(tp) or tp.Parent)
+        if targetChar and targetChar:IsA("Model") then
+            local humanoid = targetChar:FindFirstChildOfClass("Humanoid")
             if humanoid and humanoid.FloorMaterial ~= Enum.Material.Air then
                 isAir = false
             end
         end
         
-        -- Trả về vị trí cộng offset 0.35 theo hướng di chuyển
         if isAir then
             return currentPos + predOffset
         else
@@ -563,7 +577,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
                 currentPos.Z + predOffset.Z
             )
         end
-    end)(targetPart)
+    end)(targetPart, isKnife)
 end
 
 -- Kiểm tra xem điểm xuất phát bắn có bị kẹt bên trong tường hay không
@@ -610,7 +624,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
             task.delay(2.5, function()
                 self.IsShoot = false
             end)
-            self:FireGun(self:GetPosition(tPart))
+            self:FireGun(self:GetPosition(tPart, false))
         else
             local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
             local hitPos: Vector3 = tPart.Position :: Vector3
