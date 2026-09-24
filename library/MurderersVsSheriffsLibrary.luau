@@ -490,35 +490,51 @@ function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
     end)(targetPart)
 end
 
+-- Kiểm tra xem điểm xuất phát bắn có bị kẹt bên trong tường hay không
+function MvSLibrary:IsOriginInsideWall(originPos: Vector3): boolean
+    local char = (self.lp :: Player).Character
+    if not char then return true end
+
+    -- Bắn một tia ngắn từ Đầu (Head) ra Nòng súng (Barrel)
+    local head = char:FindFirstChild("Head") :: BasePart?
+    if not head then return false end
+
+    self.CachedRayParams.FilterDescendantsInstances = { char }
+    local wallCheck = Workspace:Raycast(head.Position, originPos - head.Position, self.CachedRayParams)
+
+    -- Nếu từ Đầu ra Nòng súng mà đã đụng tường -> Nòng súng đang kẹt trong tường -> Không cho bắn!
+    if wallCheck then
+        return true
+    end
+
+    return false
+end
+
 function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
     if self.IsShoot or not targetPlayer or not targetPart then return end
 
     local char = (self.lp :: Player).Character
     if not char then return end
 
-    -- 1. Lấy vị trí bắn tính toán
-    local targetPos = self:GetPosition(targetPart)
-
+    -- 1. Lấy vị trí nòng súng (hoặc tay cầm súng)
     local tool = char:FindFirstChildOfClass("Tool")
-    local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle"))
-    local originPos = barrel and barrel.Position or (char:FindFirstChild("Head") and char.Head.Position)
-    
-    if originPos then
-        self.CachedRayParams.FilterDescendantsInstances = { char }
-        local rayResult = Workspace:Raycast(originPos, targetPos - originPos, self.CachedRayParams)
-        
-        -- Nếu tia ray đập vào vật thể nào đó không thuộc Character của đối thủ -> Dính tường -> Hủy bắn
-        if rayResult and not rayResult.Instance:IsDescendantOf(targetPlayer.Character) then
-            return 
-        end
+    local barrel = tool and (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
+    if not barrel then return end
+
+    local originPos = self:GetSafeOrigin(barrel)
+
+    -- 2. ĐÂY NÈ: Gọi hàm check xem nòng súng có đang thò vào trong tường không
+    if self:IsOriginInsideWall(originPos) then
+        -- Nòng súng bị dính trong khối 3D -> Hủy bắn để né xuyên tường
+        return
     end
 
-    -- 3. Lấy connection bắn
+    -- 3. Lấy connection sự kiện TouchTapInWorld
     local conn = self:GetShootConn()
     if not conn then return end
 
-    -- 4. Chuyển vị trí 3D sang màn hình 2D
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(targetPos)
+    -- 4. Chuyển vị trí 3D mục tiêu sang tọa độ 2D màn hình
+    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(self:GetPosition(targetPart))
     if not onScreen then return end
 
     self.IsShoot = true
@@ -526,7 +542,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
         self.IsShoot = false
     end)
 
-    -- Kích hoạt sự kiện bắn
+    -- 5. Bật sự kiện bắn legit
     conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
 end
 
