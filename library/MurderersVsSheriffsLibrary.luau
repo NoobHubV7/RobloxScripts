@@ -525,6 +525,86 @@ function MvSLibrary:FireGun(position: Vector3)
     end
 end
 
+function MvSLibrary:ThrowKnife(position: Vector3)
+    if self.IsThrow or not position then return end
+
+    local character = self.lp.Character
+    if not character then return end
+
+    local knife = character:FindFirstChildOfClass("Tool")
+    if not knife or not knife.Name:find("Knife") then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+    local handle = knife:FindFirstChild("Handle") :: BasePart?
+    local damageRemote = knife:FindFirstChild("Damage") :: RemoteEvent?
+
+    if not humanoid or not rootPart or not handle or not damageRemote then return end
+    if humanoid.Health <= 0 then return end
+
+    -- 1. Cooldown ném dao gốc của game (0.85 giây)
+    self.IsThrow = true
+    task.delay(0.85, function()
+        self.IsThrow = false
+    end)
+
+    -- 2. Chạy Animation ném dao (tương đương v_u_28)
+    self:PlayKnifeAnimation(character, self.AutoWait)
+
+    -- 3. Đóng gói dữ liệu ngoại quan của Dao (tương đương v42)
+    local appearanceInfo = {
+        ["TextureID"] = (handle :: any).TextureID,
+        ["Color"] = handle.Color,
+        ["Material"] = handle.Material,
+        ["Transparency"] = handle.Transparency
+    }
+
+    local ClientResources = require(game:GetService("ReplicatedStorage"):WaitForChild("ClientResources"))
+    local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
+    local replicateKnifeRemote = remotes:WaitForChild("ReplicateKnife") :: RemoteEvent
+
+    -- 4. Phát âm thanh ném dao
+    ClientResources.playKnifeSounds(handle, appearanceInfo, "Throw")
+    replicateKnifeRemote:FireServer({
+        ["Action"] = "PlayKnifeSound",
+        ["Handle"] = handle,
+        ["KnifeAction"] = "Throw"
+    })
+
+    -- 5. Đóng gói thông tin ném dao (tương đương v43 - Nhận thẳng position Vector3!)
+    local knifePayload = {
+        ["Action"] = "CreateKnife",
+        ["Handle"] = handle,
+        ["AppearanceInfo"] = appearanceInfo,
+        ["StartPosition"] = handle.Position,
+        ["EndPosition"] = position, -- <--- BỎ QUA MÀN HÌNH 2D, TRUYỀN VECTOR3 TRỰC TIẾP
+        ["Attacker"] = self.lp
+    }
+
+    -- 6. Đồng bộ hiệu ứng ném dao lên Server cho mọi người cùng thấy
+    replicateKnifeRemote:FireServer(knifePayload)
+
+    -- 7. Hiển thị dao bay ở máy mình (Local Render)
+    local createdKnife = ClientResources.createKnife(
+        knifePayload.Handle,
+        knifePayload.AppearanceInfo,
+        knifePayload.StartPosition,
+        knifePayload.EndPosition,
+        knifePayload.Attacker
+    )
+
+    -- 8. Giả lập hàm damage (v_u_37): Gửi Remote gây sát thương nếu trúng
+    if createdKnife then
+        local hitCharacter = ClientResources.getCharacterFromPart(createdKnife)
+        if hitCharacter and ClientResources.canCharacterTakeDamage(hitCharacter) then
+            local charCenter = hitCharacter:FindFirstChild("CharacterCenter")
+            if charCenter then
+                damageRemote:FireServer(createdKnife, "Throw")
+            end
+        end
+    end
+end
+
 function MvSLibrary:GetPosition(targetPart: BasePart?): Vector3
     return (function<TP>(tp: BasePart?): Vector3
         if not tp or not tp:IsA("BasePart") then return Vector3.zero end
@@ -689,44 +769,27 @@ end
 function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
     if self.IsThrow or not targetPlayer or not targetPart then return end
 
-    local char = (self.lp :: Player).Character
-    if not char then return end
+    local character = self.lp.Character
+    if not character then return end
 
-    -- 1. Lấy Head để check tường và CharacterCenter làm gốc tọa độ chuẩn
-    local head = char:FindFirstChild("Head") :: BasePart?
-    local charCenter = char:FindFirstChild("CharacterCenter") or char:FindFirstChild("HumanoidRootPart") :: BasePart?
-    if not head or not charCenter then return end
+    local head = character:FindFirstChild("Head") :: BasePart?
+    if not head then return end
 
-    -- 2. Dùng Head để check xem vị trí người mình có bị kẹt/thò vào tường không
+    -- 1. Kiểm tra tường xuất phát
     if self:IsOriginInsideWall(head.Position) then return end
 
-    -- 3. Tính điểm dự đoán (Prediction) từ CharacterCenter đến Target (Knife Speed = 300)
+    -- 2. Tính tọa độ dự đoán đón đầu 3D (Tốc độ dao = 300 studs/s)
     local predictedPos = self:GetPredictedPosition(targetPart, 300)
 
-    -- 4. Check Line of Sight (LoS) từ Head tới điểm dự đoán của đối thủ
-    self.CachedRayParams.FilterDescendantsInstances = { char }
-    local rayResult = Workspace:Raycast(head.Position, predictedPos - head.Position, self.CachedRayParams)
-
+    -- 3. Kiểm tra Line of Sight (LoS)
+    self.CachedRayParams.FilterDescendantsInstances = { character }
+    local rayResult = workspace:Raycast(head.Position, predictedPos - head.Position, self.CachedRayParams)
     if rayResult and not rayResult.Instance:IsDescendantOf(targetPlayer.Character) then
-        return -- Tầm nhìn từ Đầu bị tường chắn -> Hủy ném
+        return -- Bị vách/tường chắn tầm nhìn
     end
 
-    -- 5. Lấy Connection TouchTapInWorld
-    local conn = self:GetShootConn()
-    if not conn then return end
-
-    -- 6. Chiếu vị trí DỰ ĐOÁN (3D) sang màn hình (2D)
-    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(predictedPos)
-    if not onScreen then return end
-
-    -- Set Cooldown ném dao gốc của game (0.875s)
-    self.IsThrow = true
-    task.delay(0.85, function()
-        self.IsThrow = false
-    end)
-
-    -- 7. Kích hoạt ném dao Legit
-    conn:Fire(Vector2.new(screenPos.X, screenPos.Y), false)
+    -- 4. Bắn thẳng tọa độ 3D vào hàm ném dao giả lập
+    self:ThrowKnife(predictedPos)
 end
 
 function MvSLibrary:ThrowOld(targetPlayer: Player, targetPart: BasePart)
