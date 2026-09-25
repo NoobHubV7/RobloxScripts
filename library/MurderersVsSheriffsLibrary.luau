@@ -888,7 +888,8 @@ function MvSLibrary:ToggleESP(state: boolean)
     -- Quét qua folder CoreGui để bật/tắt toàn bộ Highlight
     for _, item in folder:GetChildren() do
         if item:IsA("Highlight") then
-            item.Enabled = state
+            local targetPlayer = Players:FindFirstChild(string.gsub(item.Name, "^ESP_", ""))
+            item.Enabled = state and (targetPlayer.Team ~= self.lp.Team)
         end
     end
 end
