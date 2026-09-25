@@ -156,7 +156,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 if played then
                     table.remove(self.PlayersTable, played)
                 end
-            end)(plr)
+            end)(plr);
             (function<PLR>(target: Player)
                 self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
                 CoreGui:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
