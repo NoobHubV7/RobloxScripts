@@ -541,15 +541,9 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
         local predOffset: Vector3
         
         if knifeFlag then
-            -- TÍNH CHO KNIFE (DAO)
-            -- Mốc 3.5 studs/s áp dụng tốt cho cả người bth (18), Vua (22.5) lẫn Boost (27) khi nhấp nhổm thò đầu
             if speed < 3.5 then
-                -- Trường hợp thò đầu / nhấp nhổm nhịp ngắn:
-                -- Chỉ bù lag compensation 0.1375 studs, tránh ném dao chệch vào tường
                 predOffset = moveDir * 0.1375
             else
-                -- Trường hợp mục tiêu di chuyển thực sự (18 -> 27 studs/s):
-                -- flatVel đã bao hàm vận tốc thực tế (22.5 hay 27), nhân trực tiếp với thời gian bay (300 studs/s)
                 local char = (self.lp :: Player).Character
                 local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
                     then (char:FindFirstChild("HumanoidRootPart") :: BasePart).Position 
@@ -588,36 +582,18 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
     end)(targetPart, isKnife)
 end
 
--- Kiểm tra xem điểm xuất phát bắn có bị kẹt bên trong tường hay không
 function MvSLibrary:IsOriginInsideWall(originPos: Vector3): boolean
     local char = (self.lp :: Player).Character
     if not char then return true end
-
-    local head = char:FindFirstChild("Head") :: BasePart?
-    if not head then return false end
-
-    local overlapParams = OverlapParams.new()
-    overlapParams.FilterType = Enum.RaycastFilterType.Exclude
-    overlapParams.FilterDescendantsInstances = { char }
-    
-    local partsAtBarrel = Workspace:GetPartBoundsInRadius(originPos, 0.2, overlapParams)
+    local partsAtBarrel = Workspace:GetPartBoundsInRadius(originPos, 0.2)
     for _, part in partsAtBarrel do
-        if part.CanCollide then
-            -- Barrel đang chui bên trong 1 Part vật lý của Map -> CHẶN NGAY!
-            return true
+        if CRS.isPartCollidable(part, self.lp) then
+            local hitChar = CRS.getCharacterFromPart(part)
+            if (hitChar == nil) and (hitChar ~= char) then
+                return true
+            end
         end
     end
-
-    -- 2. BẮT TRƯỜNG HỢP BARREL THÒ SANG BÊN KÌA TƯỜNG (Raycast từ Head -> Barrel)
-    self.CachedRayParams.FilterDescendantsInstances = { char }
-    local headPos = head.Position
-    local dir = originPos - headPos
-    
-    local wallCheck = Workspace:Raycast(headPos, dir, self.CachedRayParams)
-    if wallCheck then
-        return true
-    end
-
     return false
 end
 
