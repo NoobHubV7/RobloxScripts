@@ -134,8 +134,8 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
             hl.DepthMode = "AlwaysOnTop"
-            hl.FillColor = color
-            hl.FillTransparency = .7
+            hl.OutlineColor = color
+            hl.FillTransparency = 1
             hl.Adornee = player.Character
             hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
@@ -144,7 +144,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 if rootPart then
                     task.defer(function()
                         hl.Adornee = newChar
-                        hl.FillColor = self.CheckTeamToColor(player)
+                        hl.OutlineColor = self.CheckTeamToColor(player)
                         hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
                     end)
                 end
