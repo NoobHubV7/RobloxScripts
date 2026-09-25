@@ -127,7 +127,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.FillColor = color
             hl.FillTransparency = .2
             hl.Adornee = player.Character
-            hl.Enabled = self.ESPEnabled
+            hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
              self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
                 hl.Adornee = newChar
             end)
