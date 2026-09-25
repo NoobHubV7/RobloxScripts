@@ -119,20 +119,6 @@ function MvSLibrary.new(): ComplexMap<string, any>
             ESPConnection = {} :: {number},
             ESPEnabled = false :: boolean
         }, MvSLibrary) :: ComplexMap<string, any>
-        self.CreateHighlight = function(player: Player, color: Color3)
-            local hl = highlightTemplate:Clone()
-            hl.Name = "ESP_"..player.Name
-            hl.Parent = folder
-            hl.DepthMode = "AlwaysOnTop"
-            hl.FillColor = color
-            hl.FillTransparency = .2
-            hl.Adornee = player.Character
-            hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
-             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
-                task.wait(.25)
-                hl.Adornee = newChar
-            end)
-        end
         self.CheckTeamToColor = function(target: Player)
             local teamName = target.Team.Name
             if teamName == "Murderers" then
@@ -142,6 +128,27 @@ function MvSLibrary.new(): ComplexMap<string, any>
             else
                 return Color3.fromRGB(153, 153, 153)
             end
+        end
+        self.CreateHighlight = function(player: Player, color: Color3)
+            local hl = highlightTemplate:Clone()
+            hl.Name = "ESP_"..player.Name
+            hl.Parent = folder
+            hl.DepthMode = "AlwaysOnTop"
+            hl.FillColor = color
+            hl.FillTransparency = .7
+            hl.Adornee = player.Character
+            hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+            self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
+                hl.Enabled = false
+                local rootPart = newChar:WaitForChild("HumanoidRootPart",2.5)
+                if rootPart then
+                    task.defer(function()
+                        hl.Adornee = newChar
+                        hl.FillColor = self.CheckTeamToColor(player)
+                        hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+                    end)
+                end
+            end)
         end
          localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
             self.RigType = (function<NH>(nc: Model): Enum.HumanoidRigType
