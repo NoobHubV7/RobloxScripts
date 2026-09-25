@@ -589,7 +589,7 @@ function MvSLibrary:IsOriginInsideWall(originPos: Vector3): boolean
     for _, part in partsAtBarrel do
         if CRS.isPartCollidable(part, self.lp) then
             local hitChar = CRS.getCharacterFromPart(part)
-            if (hitChar == nil) and (hitChar ~= char) then
+            if (hitChar == nil) then
                 return true
             end
         end
@@ -630,7 +630,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
             if rayToTarget and CRS.isPartCollidable(rayToTarget.Instance, self.lp) then
                 local hitChar = CRS.getCharacterFromPart(rayToTarget.Instance)
                 -- Đâm trúng Tường Map -> RETURN!
-                if (hitChar == nil) and (hitChar ~= char) then
+                if (hitChar == nil) then
                     return
                 end
             end
@@ -652,7 +652,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
             if raycastResult and CRS.isPartCollidable(raycastResult.Instance, self.lp) then
                 local hitChar = CRS.getCharacterFromPart(raycastResult.Instance)
                 -- Đâm trúng Tường Map -> RETURN!
-                if (hitChar == nil) and (hitChar ~= char) then
+                if (hitChar == nil) then
                     return
                 end
             end
