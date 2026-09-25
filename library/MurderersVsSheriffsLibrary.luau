@@ -585,7 +585,7 @@ end
 function MvSLibrary:IsOriginInsideWall(originPos: Vector3): boolean
     local char = (self.lp :: Player).Character
     if not char then return true end
-    local partsAtBarrel = Workspace:GetPartBoundsInRadius(originPos, 0.2)
+    local partsAtBarrel = Workspace:GetPartBoundsInRadius(originPos, 0.4)
     for _, part in partsAtBarrel do
         if CRS.isPartCollidable(part, self.lp) then
             local hitChar = CRS.getCharacterFromPart(part)
