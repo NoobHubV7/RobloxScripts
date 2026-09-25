@@ -461,11 +461,13 @@ function MvSLibrary:FireGun(position: Vector3)
     if not gun then return end
 
     local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-    local barrel = gun:FindFirstChild("Barrel") :: BasePart?
+    local barrel = (gun:FindFirstChild("Barrel") or gun:FindFirstChild("Handle")) :: BasePart?
     local damageRemote = gun:FindFirstChild("Damage")
+    
+    -- Lấy CharacterCenter làm gốc Raycast chính xác thay cho HumanoidRootPart[span_1](start_span)[span_1](end_span)
+    local centerPart = (character:FindFirstChild("CharacterCenter") or character:FindFirstChild("HumanoidRootPart")) :: BasePart?
 
-    if not humanoid or not rootPart or not barrel or not damageRemote then return end
+    if not humanoid or not centerPart or not barrel or not damageRemote then return end
     if humanoid.Health <= 0 then return end
 
     -- 1. Cooldown 2.5s
@@ -475,19 +477,19 @@ function MvSLibrary:FireGun(position: Vector3)
     end)
 
     local impactPosition = position
-    local rootPosition = rootPart.Position
+    local centerPosition = centerPart.Position
 
-    -- 2. TẬN DỤNG CachedRayParams CÓ SẴN ĐỂ CHECK TƯỜNG (Chống bắn xuyên tường)
+    -- 2. Raycast chuẩn game gốc xuất phát từ CharacterCenter[span_2](start_span)[span_2](end_span)
     self.CachedRayParams.FilterDescendantsInstances = { character }
-    local rayResult = Workspace:Raycast(rootPosition, (impactPosition - rootPosition).Unit * 300, self.CachedRayParams)
+    local rayResult = Workspace:Raycast(centerPosition, (impactPosition - centerPosition).Unit * 300, self.CachedRayParams)
     local hitPart = nil
     
     if rayResult then
         hitPart = rayResult.Instance
-        impactPosition = rayResult.Position -- Nếu đụng tường, đạn dừng ngay tại mặt tường
+        impactPosition = rayResult.Position -- Nếu đụng tường, đạn dừng tại mặt tường[span_3](start_span)[span_3](end_span)
     end
 
-    -- 3. Logic check Hit/Damage gốc
+    -- 3. Logic check Hit/Damage chuẩn Client[span_4](start_span)[span_4](end_span)
     local hitCharacter = CRS.getCharacterFromPart(hitPart)
     local characterCenter = hitCharacter and hitCharacter:FindFirstChild("CharacterCenter")
     
@@ -503,7 +505,7 @@ function MvSLibrary:FireGun(position: Vector3)
         end
     end
 
-    -- 4. Đóng gói & Replicate
+    -- 4. Đóng gói Payload & Replicate[span_5](start_span)[span_5](end_span)
     local bulletData = {
         barrel.Position,
         impactPosition,
@@ -519,7 +521,7 @@ function MvSLibrary:FireGun(position: Vector3)
     replicateBulletRemote:FireServer(bulletData)
 
     if isValidHit and hitPart then
-        damageRemote:FireServer(hitPart, impactPosition, rootPosition)
+        damageRemote:FireServer(hitPart, impactPosition, centerPosition)
     end
 end
 
@@ -606,21 +608,23 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
         local tool: Tool? = char:FindFirstChildOfClass("Tool") :: Tool?
         if not tool or not VALID_GUNS[tool.Name] then return end
         
-        local barrel: BasePart? = (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
         local damageRemote: RemoteEvent? = tool:FindFirstChild("Damage") :: RemoteEvent?
         local remotes: Instance? = ReplicatedStorage:FindFirstChild("Remotes") :: Instance?
         local replicateBullet: RemoteEvent? = remotes and remotes:FindFirstChild("ReplicateBullet") :: RemoteEvent?
-        if not barrel or not damageRemote or not replicateBullet then return end
+        if not damageRemote or not replicateBullet then return end
 
-        local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
-        
-        -- 1. Kiểm tra kẹt nòng súng vật lý
+        -- Lấy CharacterCenter làm gốc ngắm chuẩn thay cho Barrel[span_0](start_span)[span_0](end_span)
+        local centerPart: BasePart? = (char:FindFirstChild("CharacterCenter") or char:FindFirstChild("HumanoidRootPart")) :: BasePart?
+        if not centerPart then return end
+        local safeOrigin: Vector3 = centerPart.Position
+
+        -- 1. Kiểm tra kẹt vật lý
         if self:IsOriginInsideWall(safeOrigin) then
             return
         end
 
         if self.Mode == "Legit" then
-            -- LEGIT MODE: Dùng Spherecast (Radius 0.125 = Đường kính đạn 0.25 studs)
+            -- LEGIT MODE: Spherecast từ CharacterCenter (Radius 0.125)[span_1](start_span)[span_1](end_span)
             local targetPos: Vector3 = self:GetPosition(tPart, false)
             local direction: Vector3 = targetPos - safeOrigin
 
@@ -629,9 +633,8 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
 
             if sphereResult and CRS.isPartCollidable(sphereResult.Instance, self.lp) then
                 local hitChar = CRS.getCharacterFromPart(sphereResult.Instance)
-                -- Đâm trúng Tường Map (hitChar == nil) -> RETURN NGAY!
                 if hitChar == nil then
-                    return
+                    return -- Bị tường cản -> Bỏ qua không tốn 2.5s cooldown
                 end
             end
 
@@ -642,7 +645,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
             
             self:FireGun(targetPos)
         else
-            -- RAGE MODE: Giữ nguyên Raycast tĩnh
+            -- RAGE MODE: Raycast tĩnh từ CharacterCenter[span_2](start_span)[span_2](end_span)
             local hitPos: Vector3 = tPart.Position :: Vector3
             
             self.CachedRayParams.FilterDescendantsInstances = { char }
@@ -660,11 +663,14 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
                 self.IsShoot = false
             end)
             
-            local hrp: BasePart? = char:FindFirstChild("HumanoidRootPart") :: BasePart?
-            if not hrp then return end
+            local rootPart: BasePart? = char:FindFirstChild("HumanoidRootPart") :: BasePart?
+            if not rootPart then return end
+            
+            local barrel: BasePart? = (tool:FindFirstChild("Barrel") or tool:FindFirstChild("Handle")) :: BasePart?
+            local bulletOrigin: Vector3 = if barrel then barrel.Position else safeOrigin
             
             local bulletData: BulletPayload = {
-                safeOrigin,
+                bulletOrigin,
                 hitPos,
                 { PartType = "Character" },
                 tool
@@ -672,7 +678,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
             
             CRS.createBullet(unpack(bulletData))
             replicateBullet:FireServer(bulletData)
-            damageRemote:FireServer(tPart, hitPos)
+            damageRemote:FireServer(tPart, hitPos, rootPart.Position)
         end
     end)(targetPlayer, targetPart)
 end
