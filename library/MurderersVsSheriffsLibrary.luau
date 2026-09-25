@@ -612,27 +612,49 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
         local replicateBullet: RemoteEvent? = remotes and remotes:FindFirstChild("ReplicateBullet") :: RemoteEvent?
         if not barrel or not damageRemote or not replicateBullet then return end
 
+        local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
+        
+        -- 1. Kiểm tra chung: Nòng súng có đang bị kẹt vật lý trong tường không
+        if self:IsOriginInsideWall(safeOrigin) then
+            return
+        end
+
         if self.Mode == "Legit" then
-            local originPos = self:GetSafeOrigin(barrel) :: Vector3
-            if self:IsOriginInsideWall(originPos) then
-                return
+            -- LEGIT: Lấy vị trí DỰ ĐOÁN ĐỘNG (Bù Lag)
+            local targetPos: Vector3 = self:GetPosition(tPart, false)
+
+            -- Raycast từ Nòng súng -> Vị trí động
+            self.CachedRayParams.FilterDescendantsInstances = { char }
+            local rayToTarget = Workspace:Raycast(safeOrigin, targetPos - safeOrigin, self.CachedRayParams)
+            
+            if rayToTarget and CRS.isPartCollidable(rayToTarget.Instance, self.lp) then
+                local hitChar = CRS.getCharacterFromPart(rayToTarget.Instance)
+                -- Đâm trúng Tường Map -> RETURN!
+                if (hitChar == nil) and (hitChar ~= char) then
+                    return
+                end
             end
+
             self.IsShoot = true
             task.delay(2.5, function()
                 self.IsShoot = false
             end)
-            self:FireGun(self:GetPosition(tPart, false))
+            
+            self:FireGun(targetPos)
         else
-            local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
+            -- RAGE: Lấy vị trí TĨNH TRỰC TIẾP của Target
             local hitPos: Vector3 = tPart.Position :: Vector3
             
+            -- Raycast từ Nòng súng -> Vị trí tĩnh
             self.CachedRayParams.FilterDescendantsInstances = { char }
             local raycastResult: RaycastResult? = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: RaycastResult?
-            if raycastResult and CRS.getCharacterFromPart(raycastResult.Instance) ~= tp.Character then
-                return
-            end
-            if self:IsOriginInsideWall(safeOrigin) then
-                return
+            
+            if raycastResult and CRS.isPartCollidable(raycastResult.Instance, self.lp) then
+                local hitChar = CRS.getCharacterFromPart(raycastResult.Instance)
+                -- Đâm trúng Tường Map -> RETURN!
+                if (hitChar == nil) and (hitChar ~= char) then
+                    return
+                end
             end
             
             self.IsShoot = true
@@ -649,6 +671,7 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
                 { PartType = "Character" },
                 tool
             } :: BulletPayload
+            
             CRS.createBullet(unpack(bulletData))
             replicateBullet:FireServer(bulletData)
             damageRemote:FireServer(tPart, hitPos)
@@ -689,9 +712,6 @@ function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
         } :: AppearanceInfo
 
         if self.Mode == "Legit" then
-            -- LEGIT MODE: Bám sát 100% decompiled KnifeClient
-            
-            -- Lấy StartPosition chuẩn từ Handle.Position theo đúng v43 gốc
             local startPos: Vector3 = handle.Position
             
             -- Lấy vị trí dự đoán di chuyển (vẫn áp dụng prediction knife chuẩn)
