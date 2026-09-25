@@ -468,44 +468,42 @@ function MvSLibrary:FireGun(position: Vector3)
     if not humanoid or not rootPart or not barrel or not damageRemote then return end
     if humanoid.Health <= 0 then return end
 
-    -- 1. Bật Cooldown gốc 2.5s
+    -- 1. Cooldown 2.5s
     self.IsShooting = true
     task.delay(2.5, function()
         self.IsShooting = false
     end)
 
-    -- 2. Khởi tạo các mốc tọa độ
-    local impactPosition = position -- Thay v16 trực tiếp bằng tham số Vector3 truyền vào
-    local rootPosition = rootPart.Position -- Thay v17 (HumanoidRootPart Position)
-    local ClientResources = require(game:GetService("ReplicatedStorage"):WaitForChild("ClientResources"))
+    local impactPosition = position
+    local rootPosition = rootPart.Position
 
-    -- 3. Bỏ qua workspace:Raycast! Tìm trực tiếp Part va chạm tại vị trí impactPosition
+    -- 2. TẬN DỤNG CachedRayParams CÓ SẴN ĐỂ CHECK TƯỜNG (Chống bắn xuyên tường)
+    self.CachedRayParams.FilterDescendantsInstances = { character }
+    local rayResult = Workspace:Raycast(rootPosition, (impactPosition - rootPosition).Unit * 300, self.CachedRayParams)
     local hitPart = nil
-    for _, part in pairs(workspace:GetPartBoundsInRadius(impactPosition, 0.5)) do
-        if not part:IsDescendantOf(character) and ClientResources.isPartCollidable(part, self.lp) then
-            hitPart = part
-            break
-        end
+    
+    if rayResult then
+        hitPart = rayResult.Instance
+        impactPosition = rayResult.Position -- Nếu đụng tường, đạn dừng ngay tại mặt tường
     end
 
-    -- 4. Giả lập logic kiểm tra Hit/Damage gốc của game (v20, v21, v22)
-    local hitCharacter = ClientResources.getCharacterFromPart(hitPart) -- Thay v20
-    local characterCenter = hitCharacter and hitCharacter:FindFirstChild("CharacterCenter") -- Thay v21
+    -- 3. Logic check Hit/Damage gốc
+    local hitCharacter = CRS.getCharacterFromPart(hitPart)
+    local characterCenter = hitCharacter and hitCharacter:FindFirstChild("CharacterCenter")
     
-    local lineOfSightEstablished = false -- Thay v22
+    local lineOfSightEstablished = false
     if characterCenter then
-        lineOfSightEstablished = ClientResources.lineOfSightEstablished(impactPosition, characterCenter)
+        lineOfSightEstablished = CRS.lineOfSightEstablished(impactPosition, characterCenter)
     end
 
     local isValidHit = false
     if hitCharacter and characterCenter and lineOfSightEstablished then
-        -- Game check khoảng cách giữa vị trí va chạm đạn và Part bị bắn <= 4 studs
         if hitPart then
             isValidHit = (hitPart.Position - impactPosition).Magnitude <= 4
         end
     end
 
-    -- 5. Đóng gói dữ liệu đạn v23 gửi Replicate
+    -- 4. Đóng gói & Replicate
     local bulletData = {
         barrel.Position,
         impactPosition,
@@ -515,14 +513,13 @@ function MvSLibrary:FireGun(position: Vector3)
         gun
     }
 
-    -- 6. Tạo hiệu ứng Local Client & Gửi Replicate lên Server
-    ClientResources.createBullet(unpack(bulletData))
+    CRS.createBullet(unpack(bulletData))
 
-    local replicateBulletRemote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ReplicateBullet")
+    local replicateBulletRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ReplicateBullet")
     replicateBulletRemote:FireServer(bulletData)
 
     if isValidHit and hitPart then
-        damageRemote:FireServer(hitPart, impactPosition)
+        damageRemote:FireServer(hitPart, impactPosition, rootPosition)
     end
 end
 
@@ -596,14 +593,27 @@ function MvSLibrary:IsOriginInsideWall(originPos: Vector3): boolean
     local char = (self.lp :: Player).Character
     if not char then return true end
 
-    -- Bắn một tia ngắn từ Đầu (Head) ra Nòng súng (Barrel)
     local head = char:FindFirstChild("Head") :: BasePart?
     if not head then return false end
 
-    self.CachedRayParams.FilterDescendantsInstances = { char }
-    local wallCheck = Workspace:Raycast(head.Position, originPos - head.Position, self.CachedRayParams)
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterType = Enum.RaycastFilterType.Exclude
+    overlapParams.FilterDescendantsInstances = { char }
+    
+    local partsAtBarrel = Workspace:GetPartBoundsInRadius(originPos, 0.2, overlapParams)
+    for _, part in partsAtBarrel do
+        if part.CanCollide then
+            -- Barrel đang chui bên trong 1 Part vật lý của Map -> CHẶN NGAY!
+            return true
+        end
+    end
 
-    -- Nếu từ Đầu ra Nòng súng mà đã đụng tường -> Nòng súng đang kẹt trong tường -> Không cho bắn!
+    -- 2. BẮT TRƯỜNG HỢP BARREL THÒ SANG BÊN KÌA TƯỜNG (Raycast từ Head -> Barrel)
+    self.CachedRayParams.FilterDescendantsInstances = { char }
+    local headPos = head.Position
+    local dir = originPos - headPos
+    
+    local wallCheck = Workspace:Raycast(headPos, dir, self.CachedRayParams)
     if wallCheck then
         return true
     end
