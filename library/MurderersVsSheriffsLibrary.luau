@@ -614,23 +614,23 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
 
         local safeOrigin: Vector3 = self:GetSafeOrigin(barrel) :: Vector3
         
-        -- 1. Kiểm tra chung: Nòng súng có đang bị kẹt vật lý trong tường không
+        -- 1. Kiểm tra kẹt nòng súng vật lý
         if self:IsOriginInsideWall(safeOrigin) then
             return
         end
 
         if self.Mode == "Legit" then
-            -- LEGIT: Lấy vị trí DỰ ĐOÁN ĐỘNG (Bù Lag)
+            -- LEGIT MODE: Dùng Spherecast (Radius 0.125 = Đường kính đạn 0.25 studs)
             local targetPos: Vector3 = self:GetPosition(tPart, false)
+            local direction: Vector3 = targetPos - safeOrigin
 
-            -- Raycast từ Nòng súng -> Vị trí động
             self.CachedRayParams.FilterDescendantsInstances = { char }
-            local rayToTarget = Workspace:Raycast(safeOrigin, targetPos - safeOrigin, self.CachedRayParams)
-            
-            if rayToTarget and CRS.isPartCollidable(rayToTarget.Instance, self.lp) then
-                local hitChar = CRS.getCharacterFromPart(rayToTarget.Instance)
-                -- Đâm trúng Tường Map -> RETURN!
-                if (hitChar == nil) then
+            local sphereResult = Workspace:Spherecast(safeOrigin, 0.125, direction, self.CachedRayParams)
+
+            if sphereResult and CRS.isPartCollidable(sphereResult.Instance, self.lp) then
+                local hitChar = CRS.getCharacterFromPart(sphereResult.Instance)
+                -- Đâm trúng Tường Map (hitChar == nil) -> RETURN NGAY!
+                if hitChar == nil then
                     return
                 end
             end
@@ -642,17 +642,15 @@ function MvSLibrary:Shoot(targetPlayer: Player, targetPart: BasePart)
             
             self:FireGun(targetPos)
         else
-            -- RAGE: Lấy vị trí TĨNH TRỰC TIẾP của Target
+            -- RAGE MODE: Giữ nguyên Raycast tĩnh
             local hitPos: Vector3 = tPart.Position :: Vector3
             
-            -- Raycast từ Nòng súng -> Vị trí tĩnh
             self.CachedRayParams.FilterDescendantsInstances = { char }
             local raycastResult: RaycastResult? = Workspace:Raycast(safeOrigin, hitPos - safeOrigin, self.CachedRayParams) :: RaycastResult?
             
             if raycastResult and CRS.isPartCollidable(raycastResult.Instance, self.lp) then
                 local hitChar = CRS.getCharacterFromPart(raycastResult.Instance)
-                -- Đâm trúng Tường Map -> RETURN!
-                if (hitChar == nil) then
+                if hitChar == nil then
                     return
                 end
             end
