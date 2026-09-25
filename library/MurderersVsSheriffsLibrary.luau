@@ -591,7 +591,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
         
         if knifeFlag then
             if speed < 3.5 then
-                predOffset = moveDir * 0.1375
+                predOffset = moveDir * 0.125
             else
                 local char = (self.lp :: Player).Character
                 local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
@@ -606,7 +606,7 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
             end
         else
             -- TÍNH CHO GUN (SÚNG): Cố định bù lag 0.1375 studs
-            predOffset = moveDir * 0.1375
+            predOffset = moveDir * 0.125
         end
         
         -- Xử lý độ cao Y dựa trên trạng thái trên không / mặt đất
@@ -880,6 +880,17 @@ function MvSLibrary:SetMode(mode: string)
     (function<STR>(val: string)
         self.Mode = val
     end)(mode)
+end
+
+function MvSLibrary:ToggleESP(state: boolean)
+    self.ESPEnabled = state
+
+    -- Quét qua folder CoreGui để bật/tắt toàn bộ Highlight
+    for _, item in folder:GetChildren() do
+        if item:IsA("Highlight") then
+            item.Enabled = state
+        end
+    end
 end
 
 return MvSLibrary
