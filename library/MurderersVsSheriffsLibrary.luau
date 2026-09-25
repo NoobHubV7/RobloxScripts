@@ -129,6 +129,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.Adornee = player.Character
             hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
              self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
+                task.wait(.25)
                 hl.Adornee = newChar
             end)
         end
