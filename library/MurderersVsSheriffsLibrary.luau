@@ -56,6 +56,10 @@ local UserInputService: UserInputService = (function<S>(serviceName: ObfuscatedT
     return cloneref(game:GetService(serviceName :: string)) :: any
 end)("UserInputService") :: UserInputService
 
+local CoreGui: CoreGui = (function<S>(serviceName: ObfuscatedType<string>): CoreGui
+    return cloneref(game:GetService(serviceName :: string)) :: any
+end)("CoreGui") :: CoreGui
+
 local VALID_GUNS: ComplexMap<string, boolean> = (function<G1, G2>(g1: ObfuscatedType<string>, g2: ObfuscatedType<string>): ComplexMap<string, boolean>
     return {
         [g1 :: string] = true,
@@ -66,6 +70,15 @@ end)("Gun", "Glockinator") :: ComplexMap<string, boolean>
 local CRS: any = (function<F>(folder: ObfuscatedType<ReplicatedStorage>): any
     return require(folder:WaitForChild("ClientResources") :: ModuleScript) :: any
 end)(ReplicatedStorage) :: any
+
+local highlightTemplate = Instance.new("Highlight") :: Highlight
+highlightTemplate.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop :: Enum.HighlightDepthMode
+highlightTemplate.FillTransparency = 0.5 :: number
+highlightTemplate.OutlineTransparency = 0 :: number
+highlightTemplate.OutlineColor = Color3.fromRGB(255, 255, 255) :: Color3
+local folder = Instance.new("Folder")
+folder.Name = "ESP_Folder"
+folder.Parent = CoreGui
 
 local MvSLibrary: ComplexMap<string, any> = {}
 MvSLibrary.__index = MvSLibrary
@@ -102,7 +115,8 @@ function MvSLibrary.new(): ComplexMap<string, any>
             __index = MvSLibrary,
             __tostring = function(): string
                 return "MvsSLibrary"
-            end
+            end,
+            ESPConnection = {} :: {number}
         }, MvSLibrary) :: ComplexMap<string, any>
         
         localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
@@ -121,8 +135,14 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 end
             end)(plr)
         end)
-        CRS.spreadVector2 = function(pos)
-            return pos
+
+        local function CreateHighlight(player)
+            local hl = highlightTemplate:Clone()
+            hl.Name = "ESP_"..player.Name
+            hl.Parent = folder
+            hl.DepthMode = "AlwaysOnTop"
+            hl.FillColor = Color3.fromRGB(255, 255, 255)
+            hl.FillTransparency = .2
         end
         
         return self :: ComplexMap<string, any>
