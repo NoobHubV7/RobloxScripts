@@ -143,6 +143,10 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.DepthMode = "AlwaysOnTop"
             hl.FillColor = Color3.fromRGB(255, 255, 255)
             hl.FillTransparency = .2
+            hl.Adornee = player.Character
+             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
+                hl.Adornee = newChar
+            end)
         end
         
         return self :: ComplexMap<string, any>
