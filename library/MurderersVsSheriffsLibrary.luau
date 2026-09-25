@@ -116,10 +116,33 @@ function MvSLibrary.new(): ComplexMap<string, any>
             __tostring = function(): string
                 return "MvsSLibrary"
             end,
-            ESPConnection = {} :: {number}
+            ESPConnection = {} :: {number},
+            ESPEnabled = false :: boolean
         }, MvSLibrary) :: ComplexMap<string, any>
-        
-        localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
+        self.CreateHighlight = function(player: Player, color: Color3)
+            local hl = highlightTemplate:Clone()
+            hl.Name = "ESP_"..player.Name
+            hl.Parent = folder
+            hl.DepthMode = "AlwaysOnTop"
+            hl.FillColor = color
+            hl.FillTransparency = .2
+            hl.Adornee = player.Character
+            hl.Enabled = self.ESPEnabled
+             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
+                hl.Adornee = newChar
+            end)
+        end
+        self.CheckTeamToColor = function(target: Player)
+            local teamName = target.Team.Name
+            if teamName == "Murderers" then
+                return Color3.fromRGB(255, 0, 0)
+            elseif teamName == "Sheriffs" then
+                return Color3.fromRGB(0, 0, 255)
+            else
+                return Color3.fromRGB(153, 153, 153)
+            end
+        end
+         localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
             self.RigType = (function<NH>(nc: Model): Enum.HumanoidRigType
                 local newHum: Humanoid = nc:WaitForChild("Humanoid") :: Humanoid
                 return newHum.RigType :: Enum.HumanoidRigType
@@ -134,21 +157,21 @@ function MvSLibrary.new(): ComplexMap<string, any>
                     table.remove(self.PlayersTable, played)
                 end
             end)(plr)
+            (function<PLR>(target: Player)
+                self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
+                CoreGui:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
+            end)(plr)
         end)
-
-        local function CreateHighlight(player)
-            local hl = highlightTemplate:Clone()
-            hl.Name = "ESP_"..player.Name
-            hl.Parent = folder
-            hl.DepthMode = "AlwaysOnTop"
-            hl.FillColor = Color3.fromRGB(255, 255, 255)
-            hl.FillTransparency = .2
-            hl.Adornee = player.Character
-             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
-                hl.Adornee = newChar
-            end)
+        plrs.PlayerAdded:Connect(function<TR>(tPlayer: Player)
+            (function<T>(obj: Player)
+                self.CreateHighlight(obj, self.CheckTeamToColor(obj))
+            end)(tPlayer)
+        end)
+        for i,v in plrs:GetPlayers() do
+            if not (v == self.lp) then
+                self.CreateHighlight(v, self.CheckTeamToColor(v))
+            end
         end
-        
         return self :: ComplexMap<string, any>
     end)(Players) :: ComplexMap<string, any>
 end
