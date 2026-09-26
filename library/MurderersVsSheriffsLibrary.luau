@@ -73,12 +73,15 @@ end)(ReplicatedStorage) :: any
 
 local highlightTemplate = Instance.new("Highlight") :: Highlight
 highlightTemplate.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop :: Enum.HighlightDepthMode
-highlightTemplate.FillTransparency = 0.5 :: number
+highlightTemplate.FillTransparency = 1 :: number
 highlightTemplate.OutlineTransparency = 0 :: number
 highlightTemplate.OutlineColor = Color3.fromRGB(255, 255, 255) :: Color3
 local folder = Instance.new("Folder")
-folder.Name = "ESP_Folder"
-folder.Parent = CoreGui
+folder.Name = "ESP_Murderers"
+folder.Parent = workspace
+folder.Archivable = true
+local folder2 = folder:Clone()
+folder2.Name = "ESP_Sheriffs"
 
 local MvSLibrary: ComplexMap<string, any> = {}
 MvSLibrary.__index = MvSLibrary
@@ -119,44 +122,36 @@ function MvSLibrary.new(): ComplexMap<string, any>
             ESPConnection = {} :: {number},
             ESPEnabled = false :: boolean
         }, MvSLibrary) :: ComplexMap<string, any>
-        self.CheckTeamToColor = function(target: Player)
-            local teamName = target.Team.Name
+        self.CheckTeam = function(char: Model)
+            local teamName = plrs:GetPlayerFromCharacter(char).Team.Name
             if teamName == "Murderers" then
-                return Color3.fromRGB(255, 0, 0)
+                return folder
             elseif teamName == "Sheriffs" then
-                return Color3.fromRGB(0, 0, 255)
+                return folder2
             else
-                return Color3.fromRGB(153, 153, 153)
+                return nil
             end
         end
-        self.CreateHighlight = function(player: Player, color: Color3)
+        self.CreateHighlight = function(color: Color3, parent: Instance)
             local hl = highlightTemplate:Clone()
-            hl.Name = "ESP_"..player.Name
-            hl.Parent = folder
-            hl.DepthMode = "AlwaysOnTop"
+            hl.Name = "ESP"
+            hl.Parent = parent
             hl.OutlineColor = color
-            hl.FillTransparency = 1
-            hl.Adornee = player.Character
-            hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
-            self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
-                hl.Enabled = false
-                local rootPart = newChar:WaitForChild("HumanoidRootPart",2.5)
-                if rootPart then
-                    task.defer(function()
-                        hl.Adornee = newChar
-                        hl.OutlineColor = self.CheckTeamToColor(player)
-                        hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
-                    end)
-                end
-            end)
+            hl.Adornee = parent
         end
-         localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
+        self.CreateHighlight(Color3.fromRGB(255, 0, 0), folder)
+        self.CreateHighlight(Color3.fromRGB(0, 0, 255), folder2)
+        localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
             self.RigType = (function<NH>(nc: Model): Enum.HumanoidRigType
                 local newHum: Humanoid = nc:WaitForChild("Humanoid") :: Humanoid
                 return newHum.RigType :: Enum.HumanoidRigType
             end)(newChar) :: Enum.HumanoidRigType
         end)
-        
+        self.setUp = function(pr)
+            self.ESPConnection[pr.UserId] = pr.CharacterAdded:Connect(function(newChar)
+                newChar.Parent = self.CheckTeam(newChar)
+            end)
+        end
         plrs.PlayerRemoving:Connect(function<PR>(plr: Player)
             (function<TP>(targetPlr: Player)
                 self.ValidPlayersMap[targetPlr] = nil
@@ -165,19 +160,15 @@ function MvSLibrary.new(): ComplexMap<string, any>
                     table.remove(self.PlayersTable, played)
                 end
             end)(plr);
-            (function<PLR>(target: Player)
-                self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
-                CoreGui:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
-            end)(plr)
         end)
         plrs.PlayerAdded:Connect(function<TR>(tPlayer: Player)
             (function<T>(obj: Player)
-                self.CreateHighlight(obj, self.CheckTeamToColor(obj))
+                self.setUp(obj)
             end)(tPlayer)
         end)
         for i,v in plrs:GetPlayers() do
             if not (v == self.lp) then
-                self.CreateHighlight(v, self.CheckTeamToColor(v))
+                v.Character.Parent = self.CheckTeam(v.Character)
             end
         end
         return self :: ComplexMap<string, any>
@@ -892,14 +883,8 @@ end
 
 function MvSLibrary:ToggleESP(state: boolean)
     self.ESPEnabled = state
-
-    -- Quét qua folder CoreGui để bật/tắt toàn bộ Highlight
-    for _, item in folder:GetChildren() do
-        if item:IsA("Highlight") then
-            local targetPlayer = Players:FindFirstChild(string.gsub(item.Name, "^ESP_", ""))
-            item.Enabled = state and (targetPlayer.Team ~= self.lp.Team)
-        end
-    end
+    workspace:FindFirstChild("ESP_Murderers")["ESP"].Enabled = self.ESPEnabled
+    workspace:FindFirstChild("ESP_Sheriffs")["ESP"].Enabled = self.ESPEnabled
 end
 
 return MvSLibrary
