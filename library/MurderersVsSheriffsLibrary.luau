@@ -140,13 +140,13 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
                 hl.Enabled = false
-                local rootPart = newChar:WaitForChild("HumanoidRootPart",2.5)
-                if rootPart then
-                    task.defer(function()
-                        hl.Adornee = newChar
-                        hl.FillColor = self.CheckTeamToColor(player)
-                        hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
-                    end)
+                local rootPart = newChar:WaitForChild("HumanoidRootPart",5)
+                local hum = newChar:WaitForChild("Humanoid",5)
+                if rootPart and hum then
+                    task.wait(.1)
+                    hl.FillColor = self.CheckTeamToColor(player)
+                    hl.Adornee = newChar
+                    hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
                 end
             end)
         end
