@@ -72,11 +72,9 @@ local CRS: any = (function<F>(folder: ObfuscatedType<ReplicatedStorage>): any
     return require(folder:WaitForChild("ClientResources") :: ModuleScript) :: any
 end)(ReplicatedStorage) :: any
 
-local highlightTemplate = Instance.new("Highlight") :: Highlight
-highlightTemplate.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop :: Enum.HighlightDepthMode
-highlightTemplate.FillTransparency = 0.5 :: number
-highlightTemplate.OutlineTransparency = 0 :: number
-highlightTemplate.OutlineColor = Color3.fromRGB(255, 255, 255) :: Color3
+local SelectionTemplate = Instance.new("SelectionBox") :: SelectionBox
+SelectionTemplate.Name = "ESP_SelectionBox"
+SelectionTemplate.AlwaysOnTop = true                  -- Nhìn xuyên tường
 local folder = Instance.new("Folder")
 folder.Name = "ESP_Folder"
 folder.Parent = CoreGui
@@ -131,23 +129,23 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end
         end
         self.CreateHighlight = function(player: Player, color: Color3)
-            local hl = highlightTemplate:Clone()
-            hl.Name = "ESP_"..player.Name
+            local hl = SelectionTemplate:Clone()
+            hl.Name = "ESP_" .. player.Name
             hl.Parent = folder
-            hl.DepthMode = "AlwaysOnTop"
-            hl.FillColor = color
-            hl.FillTransparency = .7
+            hl.AlwaysOnTop = true
+            hl.Color3 = color
+            hl.LineThickness = 0.08
             hl.Adornee = player.Character
-            hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+            hl.Visible = (self.lp.Team ~= player.Team) and self.ESPEnabled
+
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
-                hl.Enabled = false
                 local rootPart = newChar:WaitForChild("HumanoidRootPart",5)
                 local hum = newChar:WaitForChild("Humanoid",5)
                 if rootPart and hum then
                     task.wait(.1)
-                    hl.FillColor = self.CheckTeamToColor(player)
+                    hl.Color3 = self.CheckTeamToColor(player)
                     hl.Adornee = newChar
-                    hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+                    hl.Visible = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
                 end
             end)
         end
@@ -899,9 +897,9 @@ function MvSLibrary:ToggleESP(state: boolean)
 
     -- Quét qua folder CoreGui để bật/tắt toàn bộ Highlight
     for _, item in folder:GetChildren() do
-        if item:IsA("Highlight") then
+        if item:IsA("SelectionBox") then
             local targetPlayer = Players:FindFirstChild(string.gsub(item.Name, "^ESP_", ""))
-            item.Enabled = state and (targetPlayer.Team ~= self.lp.Team)
+            item.Visible = self.ESPEnabled and (targetPlayer.Team ~= self.lp.Team)
         end
     end
 end
