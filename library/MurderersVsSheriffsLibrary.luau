@@ -59,6 +59,7 @@ end)("UserInputService") :: UserInputService
 local CoreGui: CoreGui = (function<S>(serviceName: ObfuscatedType<string>): CoreGui
     return cloneref(game:GetService(serviceName :: string)) :: any
 end)("CoreGui") :: CoreGui
+local camera = workspace.CurrentCamera
 
 local VALID_GUNS: ComplexMap<string, boolean> = (function<G1, G2>(g1: ObfuscatedType<string>, g2: ObfuscatedType<string>): ComplexMap<string, boolean>
     return {
@@ -238,7 +239,8 @@ function MvSLibrary:CheckTeam(): string
                     local toolName: string = child.Name :: string
                     if VALID_GUNS[toolName] then
                         hasGun = true
-                    elseif toolName:find("Knife") or child:FindFirstChild("Damage") then
+                    end
+                    if toolName:find("Knife") or child:FindFirstChild("Damage") then
                         hasKnife = true
                     end
                 end
@@ -249,8 +251,10 @@ function MvSLibrary:CheckTeam(): string
             return "Sheriffs"
         elseif hasKnife then
             return "Murderers"
-        else
+        elseif not hasKnife and not hasGun then
             return "Joining"
+        elseif hasKnife and hasGun then
+            return "Players"
         end
     end)(self.lp :: Player) :: string
 end
@@ -421,11 +425,11 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance, isKnife: boolea
                 return true
             end
             local checkOffsets: {Vector3} = if isKnife then {
-                Vector3.new(0.7, 0, 0),
-                Vector3.new(-0.7, 0, 0)
+                Vector3.new(0.5, 0, 0),
+                Vector3.new(-0.5, 0, 0)
             } else {
-                Vector3.new(0.2, 0, 0),
-                Vector3.new(-0.2, 0, 0)
+                Vector3.new(0.125, 0, 0),
+                Vector3.new(-0.125, 0, 0)
             }
             for _, offset in checkOffsets do
                 local edgePos: Vector3 = (tp :: BasePart).Position + offset :: Vector3
@@ -900,6 +904,10 @@ function MvSLibrary:ToggleESP(state: boolean)
             item.Enabled = state and (targetPlayer.Team ~= self.lp.Team)
         end
     end
+end
+
+function MvSLibrary:CameraPos(pos: Vector3)
+    camera.CFrame = CFrame.lookAt(camera.CFrame.Position, pos)
 end
 
 return MvSLibrary
