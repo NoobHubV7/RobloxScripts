@@ -117,7 +117,8 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 return "MvsSLibrary"
             end,
             ESPConnection = {} :: {number},
-            ESPEnabled = false :: boolean
+            ESPEnabled = false :: boolean,
+            TeamConnection = {} :: {number}
         }, MvSLibrary) :: ComplexMap<string, any>
         self.CheckTeamToColor = function(target: Player)
             local teamName = target.Team.Name
@@ -138,25 +139,17 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.FillColor = color
             hl.Adornee = player.Character
             hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
-
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
-                hl.Enabled = false
                 local rootPart = newChar:WaitForChild("HumanoidRootPart", 2.5)
                 if rootPart then
                     task.defer(function()
-                        print(string.format("[ESP DEBUG] %s Respawn -> Player.Team: %s", player.Name, tostring(player.Team)))
-                        local newColor = self.CheckTeamToColor(player)
-                        print(string.format("[ESP DEBUG] %s Respawn -> Calculated Color: %s", player.Name, tostring(newColor)))
-
                         hl.Adornee = newChar
-                        hl.OutlineColor = newColor
-                        hl.FillColor = newColor
                         hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
-
-                        -- 3. In ra màu thực tế của Highlight sau khi gán
-                        print(string.format("[ESP DEBUG] %s Highlight OutlineColor sau khi gán: %s", player.Name, tostring(hl.OutlineColor)))
                     end)
                 end
+            end)
+            self.TeamConnection[player.UserId] = player:GetPropertyChangedSignal("Team"):Connect(function()
+                hl.OutlineColor = self.CheckTeamToColor(player)
             end)
         end
          localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
@@ -176,11 +169,13 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end)(plr);
             (function<PLR>(target: Player)
                 self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
+                self.TeamConnection[player.UserId]:Disconnect(); self.TeamConnection[player.UserId] = nil
                 Lighting:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
             end)(plr)
         end)
         plrs.PlayerAdded:Connect(function<TR>(tPlayer: Player)
             (function<T>(obj: Player)
+                task.wait(1)
                 self.CreateHighlight(obj, self.CheckTeamToColor(obj))
             end)(tPlayer)
         end)
