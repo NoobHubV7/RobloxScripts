@@ -56,9 +56,9 @@ local UserInputService: UserInputService = (function<S>(serviceName: ObfuscatedT
     return cloneref(game:GetService(serviceName :: string)) :: any
 end)("UserInputService") :: UserInputService
 
-local CoreGui: CoreGui = (function<S>(serviceName: ObfuscatedType<string>): CoreGui
+local Lighting: Lighting = (function<S>(serviceName: ObfuscatedType<string>): Lighting
     return cloneref(game:GetService(serviceName :: string)) :: any
-end)("CoreGui") :: CoreGui
+end)("Lighting") :: Lighting
 
 local VALID_GUNS: ComplexMap<string, boolean> = (function<G1, G2>(g1: ObfuscatedType<string>, g2: ObfuscatedType<string>): ComplexMap<string, boolean>
     return {
@@ -78,7 +78,7 @@ highlightTemplate.OutlineTransparency = 0 :: number
 highlightTemplate.OutlineColor = Color3.fromRGB(255, 255, 255) :: Color3
 local folder = Instance.new("Folder")
 folder.Name = "ESP_Folder"
-folder.Parent = CoreGui
+folder.Parent = Lighting
 
 local MvSLibrary: ComplexMap<string, any> = {}
 MvSLibrary.__index = MvSLibrary
