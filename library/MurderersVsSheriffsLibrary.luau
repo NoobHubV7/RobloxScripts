@@ -73,7 +73,7 @@ end)(ReplicatedStorage) :: any
 
 local highlightTemplate = Instance.new("Highlight") :: Highlight
 highlightTemplate.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop :: Enum.HighlightDepthMode
-highlightTemplate.FillTransparency = 0.5 :: number
+highlightTemplate.FillTransparency = 1 :: number
 highlightTemplate.OutlineTransparency = 0 :: number
 highlightTemplate.OutlineColor = Color3.fromRGB(255, 255, 255) :: Color3
 local folder = Instance.new("Folder")
@@ -134,8 +134,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
             hl.DepthMode = "AlwaysOnTop"
-            hl.FillColor = color
-            hl.FillTransparency = .7
+            hl.OutlineColor = color
             hl.Adornee = player.Character
             hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
