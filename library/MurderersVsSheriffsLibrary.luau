@@ -129,7 +129,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 return Color3.fromRGB(153, 153, 153)
             end
         end
-                self.CreateHighlight = function(player: Player, color: Color3)
+        self.CreateHighlight = function(player: Player, color: Color3)
             local hl = highlightTemplate:Clone()
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
@@ -176,7 +176,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end)(plr);
             (function<PLR>(target: Player)
                 self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
-                CoreGui:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
+                Lighting:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
             end)(plr)
         end)
         plrs.PlayerAdded:Connect(function<TR>(tPlayer: Player)
