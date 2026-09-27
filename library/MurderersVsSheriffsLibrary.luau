@@ -129,22 +129,32 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 return Color3.fromRGB(153, 153, 153)
             end
         end
-        self.CreateHighlight = function(player: Player, color: Color3)
+                self.CreateHighlight = function(player: Player, color: Color3)
             local hl = highlightTemplate:Clone()
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
-            hl.DepthMode = "AlwaysOnTop"
+            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             hl.OutlineColor = color
+            hl.FillColor = color
             hl.Adornee = player.Character
             hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
                 hl.Enabled = false
-                local rootPart = newChar:WaitForChild("HumanoidRootPart",2.5)
+                local rootPart = newChar:WaitForChild("HumanoidRootPart", 2.5)
                 if rootPart then
                     task.defer(function()
+                        print(string.format("[ESP DEBUG] %s Respawn -> Player.Team: %s", player.Name, tostring(player.Team)))
+                        local newColor = self.CheckTeamToColor(player)
+                        print(string.format("[ESP DEBUG] %s Respawn -> Calculated Color: %s", player.Name, tostring(newColor)))
+
                         hl.Adornee = newChar
-                        hl.FillColor = self.CheckTeamToColor(player)
+                        hl.OutlineColor = newColor
+                        hl.FillColor = newColor
                         hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+
+                        -- 3. In ra màu thực tế của Highlight sau khi gán
+                        print(string.format("[ESP DEBUG] %s Highlight OutlineColor sau khi gán: %s", player.Name, tostring(hl.OutlineColor)))
                     end)
                 end
             end)
