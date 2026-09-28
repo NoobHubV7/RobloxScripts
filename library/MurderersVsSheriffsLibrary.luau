@@ -121,7 +121,9 @@ function MvSLibrary.new(): ComplexMap<string, any>
             TeamConnection = {} :: {number}
         }, MvSLibrary) :: ComplexMap<string, any>
         self.CheckTeamToColor = function(target: Player)
-            local teamName = target.Team.Name
+            local team = target.Team
+            if not team then return end
+            local teamName = team.Name
             if teamName == "Murderers" then
                 return Color3.fromRGB(255, 0, 0)
             elseif teamName == "Sheriffs" then
