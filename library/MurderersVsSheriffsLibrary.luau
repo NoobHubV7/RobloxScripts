@@ -133,6 +133,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end
         end
         self.CreateHighlight = function(player: Player, color: Color3)
+            player.Character:WaitForChild("Highlight", 0.5):Destroy()
             local hl = highlightTemplate:Clone()
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
@@ -140,13 +141,15 @@ function MvSLibrary.new(): ComplexMap<string, any>
             hl.OutlineColor = color
             hl.FillTransparency = 1
             hl.Adornee = player.Character
-            hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+            hl.Enabled = self.ESPEnabled
             self.ESPConnection[player.UserId] = player.CharacterAdded:Connect(function(newChar)
                 local rootPart = newChar:WaitForChild("HumanoidRootPart", 2.5)
-                if rootPart then
+                local light = newChar:WaitForChild("Highlight", 2.5)
+                if rootPart and light then
+                    light:Destroy()
                     task.defer(function()
                         hl.Adornee = newChar
-                        hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
+                        hl.Enabled = self.ESPEnabled
                     end)
                 end
                 print("CharacterAdded success:", player.Name)
@@ -905,8 +908,7 @@ function MvSLibrary:ToggleESP(state: boolean)
     -- Quét qua folder CoreGui để bật/tắt toàn bộ Highlight
     for _, item in folder:GetChildren() do
         if item:IsA("Highlight") then
-            local targetPlayer = Players:FindFirstChild(string.gsub(item.Name, "^ESP_", ""))
-            item.Enabled = state and (targetPlayer.Team ~= self.lp.Team)
+            item.Enabled = self.ESPEnabled
         end
     end
 end
