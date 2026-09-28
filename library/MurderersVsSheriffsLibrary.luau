@@ -169,7 +169,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end)(plr);
             (function<PLR>(target: Player)
                 self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
-                self.TeamConnection[player.UserId]:Disconnect(); self.TeamConnection[player.UserId] = nil
+                self.TeamConnection[target.UserId]:Disconnect(); self.TeamConnection[target.UserId] = nil
                 Lighting:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
             end)(plr)
         end)
