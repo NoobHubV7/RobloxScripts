@@ -133,7 +133,9 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end
         end
         self.CreateHighlight = function(player: Player, color: Color3)
-            workspace:WaitForChild(player.Name)["Highlight"]:Destroy()
+            if self.CheckTeamToColor(target) ~= Color3.fromRGB(153, 153, 153) then
+                workspace:WaitForChild(player.Name):FindFirstChild("Highlight"):Destroy()
+            end
             local hl = highlightTemplate:Clone()
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
@@ -175,8 +177,12 @@ function MvSLibrary.new(): ComplexMap<string, any>
                 end
             end)(plr);
             (function<PLR>(target: Player)
-                self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
-                self.TeamConnection[target.UserId]:Disconnect(); self.TeamConnection[target.UserId] = nil
+                if self.ESPConnection[target.UserId] then
+                    self.ESPConnection[target.UserId]:Disconnect(); self.ESPConnection[target.UserId] = nil
+                end
+                if self.TeamConnection[target.UserId] then
+                    self.TeamConnection[target.UserId]:Disconnect(); self.TeamConnection[target.UserId] = nil
+                end
                 Lighting:FindFirstChild("ESP_Folder")["ESP_"..target.Name]:Destroy()
             end)(plr)
         end)
