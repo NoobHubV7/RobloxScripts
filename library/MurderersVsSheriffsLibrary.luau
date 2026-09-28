@@ -133,7 +133,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             end
         end
         self.CreateHighlight = function(player: Player, color: Color3)
-            player.Character:WaitForChild("Highlight", 0.5):Destroy()
+            workspace:WaitForChild(player.Name)["Highlight"]:Destroy()
             local hl = highlightTemplate:Clone()
             hl.Name = "ESP_"..player.Name
             hl.Parent = folder
