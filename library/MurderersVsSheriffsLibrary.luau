@@ -149,9 +149,11 @@ function MvSLibrary.new(): ComplexMap<string, any>
                         hl.Enabled = (self.lp.Team.Name ~= player.Team.Name) and self.ESPEnabled
                     end)
                 end
+                print("CharacterAdded success:", player.Name)
             end)
             self.TeamConnection[player.UserId] = player:GetPropertyChangedSignal("Team"):Connect(function()
                 hl.OutlineColor = self.CheckTeamToColor(player)
+                print("Changed Team success: "..player.Name.." and team: "..player.Team.Name)
             end)
         end
          localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
@@ -179,6 +181,7 @@ function MvSLibrary.new(): ComplexMap<string, any>
             (function<T>(obj: Player)
                 task.wait(1)
                 self.CreateHighlight(obj, self.CheckTeamToColor(obj))
+                print("Player:", obj.Name)
             end)(tPlayer)
         end)
         for i,v in plrs:GetPlayers() do
