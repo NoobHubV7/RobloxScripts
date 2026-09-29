@@ -154,11 +154,9 @@ function MvSLibrary.new(): ComplexMap<string, any>
                         hl.Enabled = self.ESPEnabled
                     end)
                 end
-                print("CharacterAdded success:", player.Name)
             end)
             self.TeamConnection[player.UserId] = player:GetPropertyChangedSignal("Team"):Connect(function()
                 hl.OutlineColor = self.CheckTeamToColor(player)
-                print("Changed Team success: "..player.Name.." and team: "..player.Team.Name)
             end)
         end
          localPlayer.CharacterAdded:Connect(function<NC>(newChar: Model)
@@ -442,11 +440,11 @@ function MvSLibrary:LineOfSightEstablished(targetPart: Instance, isKnife: boolea
                 return true
             end
             local checkOffsets: {Vector3} = if isKnife then {
-                Vector3.new(0.7, 0, 0),
-                Vector3.new(-0.7, 0, 0)
+                Vector3.new(0.5, 0, 0),
+                Vector3.new(-0.5, 0, 0)
             } else {
-                Vector3.new(0.2, 0, 0),
-                Vector3.new(-0.2, 0, 0)
+                Vector3.new(0.125, 0, 0),
+                Vector3.new(-0.125, 0, 0)
             }
             for _, offset in checkOffsets do
                 local edgePos: Vector3 = (tp :: BasePart).Position + offset :: Vector3
@@ -555,7 +553,6 @@ function MvSLibrary:FireGun(position: Vector3)
     local impactPosition = position
     local centerPosition = centerPart.Position
 
-    -- 2. Raycast chuẩn game gốc xuất phát từ CharacterCenter[span_2](start_span)[span_2](end_span)
     self.CachedRayParams.FilterDescendantsInstances = { character }
     local rayResult = Workspace:Raycast(centerPosition, (impactPosition - centerPosition).Unit * 300, self.CachedRayParams)
     local hitPart = nil
