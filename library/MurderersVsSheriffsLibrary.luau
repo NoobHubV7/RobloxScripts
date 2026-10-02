@@ -607,7 +607,6 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
         local flatVel = Vector3.new(velocity.X, 0, velocity.Z)
         local speed = flatVel.Magnitude
         
-        -- Nếu đứng yên, trả về vị trí gốc ngay
         if speed < 0.1 then
             return currentPos
         end
@@ -616,28 +615,22 @@ function MvSLibrary:GetPosition(targetPart: BasePart?, isKnife: boolean?): Vecto
         local predOffset: Vector3
         
         if knifeFlag then
-            local char = (self.lp :: Player).Character
-            local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
-                then (char:FindFirstChild("HumanoidRootPart") :: BasePart).Position 
-                else currentPos
-                
-            local distance = (currentPos - myPos).Magnitude
-            
-            -- SỬA LỖI Ở ĐÂY:
-            -- Nếu cự ly gần (< 12 studs), chỉ bù offset nhẹ 0.125 giống hệt Súng
-            if distance < 12 or speed < 3.5 then
+            if speed < 3.5 then
                 predOffset = moveDir * 0.125
             else
-                -- Khi ở xa: Chỉ tính thời gian bay thực tế (distance / 300), BỎ HẲN + (moveDir * 0.1375)
+                local char = (self.lp :: Player).Character
+                local myPos = if char and char:FindFirstChild("HumanoidRootPart") 
+                    then (char:FindFirstChild("HumanoidRootPart") :: BasePart).Position 
+                    else currentPos
+                    
+                local distance = (currentPos - myPos).Magnitude
                 local timeToReach = distance / 300
-                predOffset = flatVel * timeToReach
+                predOffset = (flatVel * timeToReach) + (moveDir * 0.1375)
             end
         else
-            -- SÚNG (GUN): Giữ nguyên offset nhẹ 0.125 studs
             predOffset = moveDir * 0.125
         end
         
-        -- Xử lý độ cao Y khi nhảy / đứng trên mặt đất
         local isAir = true
         local targetChar = (CRS.getCharacterFromPart(tp) or tp.Parent)
         if targetChar and targetChar:IsA("Model") then
