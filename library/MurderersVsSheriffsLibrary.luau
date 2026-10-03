@@ -559,7 +559,7 @@ function MvSLibrary:FireGun(position: Vector3)
     
     if rayResult then
         hitPart = rayResult.Instance
-        impactPosition = rayResult.Position -- Nếu đụng tường, đạn dừng tại mặt tường[span_3](start_span)[span_3](end_span)
+        impactPosition = rayResult.Position
     end
 
     -- 3. Logic check Hit/Damage chuẩn Client[span_4](start_span)[span_4](end_span)
@@ -786,10 +786,8 @@ function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
         if self.Mode == "Legit" then
             local startPos: Vector3 = handle.Position
             
-            -- Lấy vị trí dự đoán di chuyển (vẫn áp dụng prediction knife chuẩn)
             local targetPos: Vector3 = self:GetPosition(tPart, true) :: Vector3
             
-            -- Giả lập logic Raycast kiểm tra chướng ngại vật gốc của game (v40 -> v41)
             local collarAttachment = char:FindFirstChild("RightCollarAttachment", true) :: Attachment?
             local rayOrigin: Vector3 = if collarAttachment 
                 then (collarAttachment.WorldCFrame * CFrame.new(0.5, 0.5, 0.25)).Position 
@@ -800,7 +798,6 @@ function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
             
             local endPos: Vector3 = if rayHit then rayHit.Position else targetPos
             
-            -- Phát âm thanh & Replicate theo đúng v43
             CRS.playKnifeSounds(handle, appearanceInfo, "Throw")
             replicateKnife:FireServer({
                 Action = "PlayKnifeSound",
@@ -822,14 +819,13 @@ function MvSLibrary:Throw(targetPlayer: Player, targetPart: BasePart)
             task.spawn(function()
                 local hitPart = CRS.createKnife(payload.Handle, payload.AppearanceInfo, payload.StartPosition, payload.EndPosition, payload.Attacker)
                 if hitPart then
-                    -- v_u_37(v44, "Throw") gốc của game
                     damageRemote:FireServer(hitPart, "Throw")
                 end
             end)
         else
             -- RAGE MODE: Giữ nguyên logic ném thẳng siêu tốc bypass physics
             local startPos: Vector3 = self:GetSafeOrigin(handle) :: Vector3
-            local endPos: Vector3 = tPart.Position :: Vector3
+            local endPos: Vector3 = self:GetPosition(tPart, false) :: Vector3
             
             local rayParams: RaycastParams = RaycastParams.new()
             rayParams.FilterType = Enum.RaycastFilterType.Exclude
